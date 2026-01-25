@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, TextField, Button, Box, Alert, Grid, Card, CardContent, Paper, Chip, MenuItem, Stepper, Step, StepLabel, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress, Divider } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Typography, TextField, Button, Box, Alert, Grid, Card, CardContent, Paper, Chip, MenuItem, Stepper, Step, StepLabel, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress } from '@mui/material';
 import API from '../api/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SchoolIcon from '@mui/icons-material/School';
@@ -14,8 +13,6 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import SecurityIcon from '@mui/icons-material/Security';
 import { useAuth } from '../context/AuthContext';
 
 const Internships = () => {
@@ -43,7 +40,7 @@ const Internships = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const fetchMyApplications = async () => {
+  const fetchMyApplications = useCallback(async () => {
     if (!userInfo) return;
     setFetchingApps(true);
     try {
@@ -54,7 +51,7 @@ const Internships = () => {
     } finally {
       setFetchingApps(false);
     }
-  };
+  }, [userInfo]);
 
   useEffect(() => {
     if (userInfo) {
@@ -68,7 +65,7 @@ const Internships = () => {
       }));
       fetchMyApplications();
     }
-  }, [userInfo]);
+  }, [userInfo, fetchMyApplications]);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -112,7 +109,8 @@ const Internships = () => {
       // Create Order
       const { data: order } = await API.post('/internships/create-order', { 
         preferredDomain: formData.preferredDomain,
-        duration: formData.duration 
+        duration: formData.duration,
+        formData: { ...formData }
       });
 
       const options = {
@@ -373,7 +371,7 @@ const Internships = () => {
                   </Grid>
                 </Grid>
                 <Box sx={{ mt: 4, p: 2, bgcolor: 'action.hover', borderRadius: 2, display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                  <SecurityIcon color="primary" />
+                  <CheckCircleOutlineIcon color="primary" />
                   <Typography variant="body2" fontWeight={600}>Powered by Razorpay Secure Payments</Typography>
                 </Box>
               </Paper>
