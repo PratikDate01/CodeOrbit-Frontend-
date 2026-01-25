@@ -98,57 +98,25 @@ const Internships = () => {
     setMessage('');
     setError('');
 
-    const res = await loadRazorpayScript();
-    if (!res) {
-      setError('Razorpay SDK failed to load. Are you online?');
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Create Order
-      const { data: order } = await API.post('/internships/create-order', { 
+      // Submit Application directly
+      const { data } = await API.post('/internships/create-order', { 
         preferredDomain: formData.preferredDomain,
         duration: formData.duration,
         formData: { ...formData }
       });
 
-      const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'CodeOrbit Technologies',
-        description: `Internship - ${formData.preferredDomain} (${formData.duration} Months)`,
-        order_id: order.id,
-        handler: async (response) => {
-          try {
-            const verifyData = {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              formData: { ...formData }
-            };
-
-            await API.post('/internships/verify-payment', verifyData);
-            setMessage('Application and Payment Successful! Welcome to the program.');
-            fetchMyApplications();
-            setFormData(prev => ({ ...prev, course: '', year: '', skills: '', experience: '' }));
-          } catch (err) {
-            setError('Payment verification failed. Please contact support.');
-          }
-        },
-        prefill: {
-          name: formData.name,
-          email: formData.email,
-          contact: formData.phone
-        },
-        theme: {
-          color: '#3f51b5'
-        }
-      };
-
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
+      setMessage('Application Successful! Welcome to the program.');
+      fetchMyApplications();
+      setFormData(prev => ({ 
+        ...prev, 
+        course: '', 
+        year: '', 
+        skills: '', 
+        experience: '',
+        preferredDomain: '',
+        duration: 1
+      }));
     } catch (error) {
       setError(error.response?.data?.message || 'Error processing application.');
     } finally {
