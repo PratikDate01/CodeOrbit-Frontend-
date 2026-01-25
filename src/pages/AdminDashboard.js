@@ -45,7 +45,7 @@ const AdminDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { userInfo, logout } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -149,14 +149,14 @@ const AdminDashboard = () => {
                 fontWeight: 600
               }}
             >
-              {user?.name?.charAt(0) || 'A'}
+              {userInfo?.name?.charAt(0) || 'A'}
             </Avatar>
             <Box sx={{ overflow: 'hidden' }}>
               <Typography variant="subtitle2" fontWeight={700} noWrap>
-                {user?.name || 'Admin User'}
+                {userInfo?.name || 'Admin User'}
               </Typography>
               <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
-                {user?.email || 'admin@codeorbit.com'}
+                {userInfo?.email || ''}
               </Typography>
             </Box>
           </Box>
@@ -263,7 +263,7 @@ const AdminDashboard = () => {
               <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 1.5 }} />
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="body2" fontWeight={600} sx={{ display: { xs: 'none', md: 'block' } }}>
-                  {user?.name?.split(' ')[0] || 'Admin'}
+                  {userInfo?.name?.split(' ')[0] || 'Admin'}
                 </Typography>
                 <Avatar 
                   sx={{ 
@@ -274,7 +274,7 @@ const AdminDashboard = () => {
                     fontWeight: 700
                   }}
                 >
-                  {user?.name?.charAt(0) || 'A'}
+                  {userInfo?.name?.charAt(0) || 'A'}
                 </Avatar>
               </Box>
             </Box>

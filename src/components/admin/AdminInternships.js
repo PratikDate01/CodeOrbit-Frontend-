@@ -28,7 +28,7 @@ import {
   Divider
 } from '@mui/material';
 import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, CheckCircle, Award, ExternalLink, CreditCard } from 'lucide-react';
-import API from '../../api/api';
+import API, { baseURL } from '../../api/api';
 
 const AdminInternships = () => {
   const [applications, setApplications] = useState([]);
@@ -417,7 +417,7 @@ const AdminInternships = () => {
             <Divider />
             <MenuItem 
               component="a" 
-              href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${selectedApp.documents.offerLetterUrl}`}
+              href={`${baseURL}${selectedApp.documents.offerLetterUrl}`}
               target="_blank"
             >
               <ListItemIcon><FileText size={18} color="#3b82f6" /></ListItemIcon>
@@ -425,7 +425,7 @@ const AdminInternships = () => {
             </MenuItem>
             <MenuItem 
               component="a" 
-              href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${selectedApp.documents.certificateUrl}`}
+              href={`${baseURL}${selectedApp.documents.certificateUrl}`}
               target="_blank"
             >
               <ListItemIcon><CheckCircle size={18} color="#10b981" /></ListItemIcon>
@@ -433,7 +433,7 @@ const AdminInternships = () => {
             </MenuItem>
             <MenuItem 
               component="a" 
-              href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${selectedApp.documents.locUrl}`}
+              href={`${baseURL}${selectedApp.documents.locUrl}`}
               target="_blank"
             >
               <ListItemIcon><Award size={18} color="#8b5cf6" /></ListItemIcon>

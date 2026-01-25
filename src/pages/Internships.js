@@ -114,7 +114,7 @@ const Internships = () => {
       });
 
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_dummy_key',
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: 'CodeOrbit Technologies',

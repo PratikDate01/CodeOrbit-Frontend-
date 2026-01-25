@@ -30,7 +30,7 @@ import {
   Settings
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import API from '../api/api';
+import API, { baseURL } from '../api/api';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -185,7 +185,7 @@ const Dashboard = () => {
                                   <IconButton 
                                     size="small" 
                                     color="primary"
-                                    href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${app.documents.offerLetterUrl}`}
+                                    href={`${baseURL}${app.documents.offerLetterUrl}`}
                                     target="_blank"
                                   >
                                     <FileText size={18} />
@@ -197,7 +197,7 @@ const Dashboard = () => {
                                   <IconButton 
                                     size="small" 
                                     color="success"
-                                    href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${app.documents.certificateUrl}`}
+                                    href={`${baseURL}${app.documents.certificateUrl}`}
                                     target="_blank"
                                   >
                                     <CheckCircle size={18} />
@@ -209,7 +209,7 @@ const Dashboard = () => {
                                   <IconButton 
                                     size="small" 
                                     color="secondary"
-                                    href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${app.documents.locUrl}`}
+                                    href={`${baseURL}${app.documents.locUrl}`}
                                     target="_blank"
                                   >
                                     <Award size={18} />

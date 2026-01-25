@@ -21,7 +21,7 @@ import {
   ExternalLink,
   ChevronLeft
 } from 'lucide-react';
-import API from '../api/api';
+import API, { baseURL } from '../api/api';
 
 const VerifyDocument = () => {
   const { id } = useParams();
@@ -158,7 +158,7 @@ const VerifyDocument = () => {
                           fullWidth
                           variant="contained" 
                           startIcon={<FileDown size={18} />}
-                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${document.certificateUrl}`}
+                          href={`${baseURL}${document.certificateUrl}`}
                           target="_blank"
                           sx={{ py: 1.5 }}
                         >
@@ -170,7 +170,7 @@ const VerifyDocument = () => {
                           fullWidth
                           variant="outlined" 
                           startIcon={<ExternalLink size={18} />}
-                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${document.offerLetterUrl}`}
+                          href={`${baseURL}${document.offerLetterUrl}`}
                           target="_blank"
                         >
                           View Offer Letter
