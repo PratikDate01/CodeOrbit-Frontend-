@@ -67,28 +67,12 @@ const Internships = () => {
     }
   }, [userInfo, fetchMyApplications]);
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
   const programs = [
-    { title: 'Web Development', icon: <CodeIcon />, durationInfo: '8-12 Weeks', skills: ['React', 'Node.js', 'JS'], basePrice: 2000 },
-    { title: 'Data Science', icon: <DataObjectIcon />, durationInfo: '10-12 Weeks', skills: ['Python', 'ML', 'SQL'], basePrice: 2500 },
-    { title: 'Cloud Computing', icon: <CloudIcon />, durationInfo: '8-10 Weeks', skills: ['AWS', 'Docker', 'K8s'], basePrice: 2200 },
-    { title: 'UI/UX Design', icon: <DesignServicesIcon />, durationInfo: '6-8 Weeks', skills: ['Figma', 'UX Research'], basePrice: 1800 }
+    { title: 'Web Development', icon: <CodeIcon />, durationInfo: '8-12 Weeks', skills: ['React', 'Node.js', 'JS'] },
+    { title: 'Data Science', icon: <DataObjectIcon />, durationInfo: '10-12 Weeks', skills: ['Python', 'ML', 'SQL'] },
+    { title: 'Cloud Computing', icon: <CloudIcon />, durationInfo: '8-10 Weeks', skills: ['AWS', 'Docker', 'K8s'] },
+    { title: 'UI/UX Design', icon: <DesignServicesIcon />, durationInfo: '6-8 Weeks', skills: ['Figma', 'UX Research'] }
   ];
-
-  const calculateFee = () => {
-    const program = programs.find(p => p.title === formData.preferredDomain);
-    if (!program) return 0;
-    return program.basePrice * formData.duration;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,7 +84,7 @@ const Internships = () => {
 
     try {
       // Submit Application directly
-      const { data } = await API.post('/internships/create-order', { 
+      await API.post('/internships/apply', { 
         preferredDomain: formData.preferredDomain,
         duration: formData.duration,
         formData: { ...formData }
@@ -127,8 +111,7 @@ const Internships = () => {
   const selectionProcess = [
     { label: 'Register/Login', description: 'Mandatory to have an account to apply.' },
     { label: 'Application', description: 'Submit profile, domain, and duration.' },
-    { label: 'Instant Payment', description: 'Pay securely via Razorpay.' },
-    { label: 'Verification', description: 'Our team verifies credentials and payment.' },
+    { label: 'Verification', description: 'Our team verifies credentials and profile.' },
     { label: 'Onboarding', description: 'Welcome to the Orbit team!' }
   ];
 
@@ -140,10 +123,9 @@ const Internships = () => {
   ];
 
   const faqs = [
-    { q: 'Why is there a fee for the internship?', a: 'The fee covers professional mentorship, industry-grade tools, personalized training sessions, and administrative costs.' },
-    { q: 'How do I pay the fee?', a: 'We use Razorpay, which supports UPI, Net Banking, and Credit/Debit cards for instant and secure payments.' },
-    { q: 'Is the fee refundable?', a: 'The fee is non-refundable once the onboarding process begins. If payment is verified but application is rejected, a refund will be processed.' },
-    { q: 'Does the fee change with duration?', a: 'Yes, the fee is calculated as (Base Price * Number of Months). Longer durations provide more deep-dive project experience.' }
+    { q: 'Is there any fee for the internship?', a: 'Currently, our internship programs are application-based and focused on providing quality mentorship and real-world project experience.' },
+    { q: 'How long does the verification take?', a: 'Our team typically reviews applications within 3-5 business days.' },
+    { q: 'Can I apply for multiple domains?', a: 'We recommend focusing on one domain at a time to ensure the best learning experience.' }
   ];
 
   return (
@@ -187,7 +169,6 @@ const Internships = () => {
                       <TableCell sx={{ fontWeight: 600 }}>Duration</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Applied Date</TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>Application Status</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Payment</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -203,17 +184,6 @@ const Internships = () => {
                               app.status === 'Selected' ? 'success' : 
                               app.status === 'Rejected' ? 'error' : 
                               app.status === 'New' ? 'info' : 'warning'
-                            }
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip 
-                            label={app.paymentStatus} 
-                            variant="outlined"
-                            color={
-                              app.paymentStatus === 'Verified' ? 'success' : 
-                              app.paymentStatus === 'Failed' ? 'error' : 'warning'
                             }
                             size="small"
                           />
@@ -248,7 +218,6 @@ const Internships = () => {
                     {React.cloneElement(program.icon, { sx: { fontSize: 48 } })}
                   </Box>
                   <Typography variant="h6" gutterBottom fontWeight={700}>{program.title}</Typography>
-                  <Typography variant="h5" color="primary.main" fontWeight={700} sx={{ mb: 1 }}>₹{program.basePrice}/mo</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2, color: 'text.secondary' }}>
                     <AccessTimeIcon sx={{ fontSize: 16 }} />
                     <Typography variant="body2">{program.durationInfo}</Typography>
@@ -306,45 +275,6 @@ const Internships = () => {
               </Step>
             ))}
           </Stepper>
-        </Box>
-
-        {/* Fee Structure & Payment Section */}
-        <Box sx={{ mb: 12 }}>
-          <Typography variant="h2" sx={{ mb: 6, textAlign: 'center' }}>Secure & Transparent Payment</Typography>
-          <Grid container spacing={4} justifyContent="center">
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Paper sx={{ p: 4, borderRadius: 4, border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
-                <Typography variant="h5" gutterBottom fontWeight={700}>How it Works</Typography>
-                <Grid container spacing={3} sx={{ mt: 2 }}>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Box sx={{ mb: 2 }}>
-                      <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1 }}>1</Box>
-                      <Typography variant="subtitle1" fontWeight={600}>Select Program</Typography>
-                      <Typography variant="body2" color="text.secondary">Choose your domain and internship duration.</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Box sx={{ mb: 2 }}>
-                      <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1 }}>2</Box>
-                      <Typography variant="subtitle1" fontWeight={600}>Instant Checkout</Typography>
-                      <Typography variant="body2" color="text.secondary">Secure payment via Razorpay (UPI, Cards, Netbanking).</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Box sx={{ mb: 2 }}>
-                      <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1 }}>3</Box>
-                      <Typography variant="subtitle1" fontWeight={600}>Direct Access</Typography>
-                      <Typography variant="body2" color="text.secondary">Get instant confirmation and start your journey.</Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-                <Box sx={{ mt: 4, p: 2, bgcolor: 'action.hover', borderRadius: 2, display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                  <CheckCircleOutlineIcon color="primary" />
-                  <Typography variant="body2" fontWeight={600}>Powered by Razorpay Secure Payments</Typography>
-                </Box>
-              </Paper>
-            </Grid>
-          </Grid>
         </Box>
 
         {/* Application Form */}
@@ -414,19 +344,6 @@ const Internships = () => {
                   </Grid>
                 </Grid>
               </Grid>
-
-              {formData.preferredDomain && (
-                <Grid size={12}>
-                  <Paper sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2, border: '1px dashed', borderColor: 'primary.main', textAlign: 'center' }}>
-                    <Typography variant="h6" color="primary.main" fontWeight={700}>
-                      Total Program Fee: ₹{calculateFee()}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      (Includes mentorship, resources, and certification)
-                    </Typography>
-                  </Paper>
-                </Grid>
-              )}
 
               <Grid size={12} sx={{ textAlign: 'center', mt: 4 }}>
                 <Button 
