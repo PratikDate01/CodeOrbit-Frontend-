@@ -8,6 +8,9 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import MSMELogo from '../assets/logos/MSME LOGO.png';
+import AICTELogo from '../assets/logos/AICTE LOGO.png';
+import CompanyLogo from '../assets/logos/Company Logo.png';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -27,18 +30,24 @@ const Footer = () => {
         <Grid container spacing={5}>
           {/* Company Info */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Typography 
-              variant="h5" 
-              gutterBottom
-              sx={{
-                fontWeight: 800,
-                fontSize: '1.75rem',
-                color: '#ffffff',
-                mb: 2,
-              }}
-            >
-              CodeOrbit
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Box 
+                component="img" 
+                src={CompanyLogo} 
+                alt="CodeOrbit Logo" 
+                sx={{ height: 45, mr: 1.5, filter: 'brightness(0) invert(1)' }} 
+              />
+              <Typography 
+                variant="h5" 
+                sx={{
+                  fontWeight: 800,
+                  fontSize: '1.75rem',
+                  color: '#ffffff',
+                }}
+              >
+                CodeOrbit
+              </Typography>
+            </Box>
             <Typography 
               variant="body2" 
               sx={{
@@ -50,6 +59,25 @@ const Footer = () => {
             >
               Empowering businesses with innovative IT solutions and nurturing future tech talent through professional internship programs.
             </Typography>
+            
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700, display: 'block', mb: 2 }}>
+              Recognized By
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
+              <Box 
+                component="img" 
+                src={MSMELogo} 
+                alt="MSME Logo" 
+                sx={{ height: 40, bgcolor: 'white', p: 0.5, borderRadius: 1 }} 
+              />
+              <Box 
+                component="img" 
+                src={AICTELogo} 
+                alt="AICTE Logo" 
+                sx={{ height: 40, bgcolor: 'white', p: 0.5, borderRadius: 1 }} 
+              />
+            </Box>
+
             {/* Social Media */}
             <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
               {[

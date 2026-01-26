@@ -7,6 +7,8 @@ import CodeIcon from '@mui/icons-material/Code';
 import CloudIcon from '@mui/icons-material/Cloud';
 import SecurityIcon from '@mui/icons-material/Security';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import MSMELogo from '../assets/logos/MSME LOGO.png';
+import AICTELogo from '../assets/logos/AICTE LOGO.png';
 
 const Home = () => {
   return (
@@ -117,6 +119,36 @@ const Home = () => {
               </Button>
             </Stack>
           </Box>
+        </Container>
+      </Box>
+
+      {/* Trust Badges */}
+      <Box sx={{ py: 4, bgcolor: 'rgba(0,0,0,0.02)', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Container maxWidth="lg">
+          <Stack 
+            direction={{ xs: 'column', sm: 'row' }} 
+            spacing={{ xs: 3, md: 8 }} 
+            alignItems="center" 
+            justifyContent="center"
+          >
+            <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5 }}>
+              Trusted & Recognized By
+            </Typography>
+            <Box sx={{ display: 'flex', gap: { xs: 4, md: 8 }, alignItems: 'center' }}>
+              <Box 
+                component="img" 
+                src={MSMELogo} 
+                alt="MSME Recognized" 
+                sx={{ height: { xs: 40, md: 60 }, filter: 'grayscale(1)', transition: 'filter 0.3s', '&:hover': { filter: 'grayscale(0)' } }} 
+              />
+              <Box 
+                component="img" 
+                src={AICTELogo} 
+                alt="AICTE Recognized" 
+                sx={{ height: { xs: 40, md: 60 }, filter: 'grayscale(1)', transition: 'filter 0.3s', '&:hover': { filter: 'grayscale(0)' } }} 
+              />
+            </Box>
+          </Stack>
         </Container>
       </Box>
 

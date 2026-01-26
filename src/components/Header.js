@@ -10,6 +10,7 @@ import WorkIcon from '@mui/icons-material/Work';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, User, LogOut, Settings } from 'lucide-react';
+import CompanyLogo from '../assets/logos/Company Logo.png';
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -78,6 +79,12 @@ const Header = () => {
             },
           }}
         >
+          <Box 
+            component="img" 
+            src={CompanyLogo} 
+            alt="CodeOrbit Logo" 
+            sx={{ height: { xs: 32, md: 40 }, mr: 1.5 }} 
+          />
           CodeOrbit
         </Typography>
 
