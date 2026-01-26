@@ -27,7 +27,7 @@ import {
   Skeleton,
   Divider
 } from '@mui/material';
-import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, CheckCircle, Award, ExternalLink, CreditCard } from 'lucide-react';
+import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, CheckCircle, Award, ExternalLink, CreditCard, Receipt } from 'lucide-react';
 import API, { baseURL } from '../../api/api';
 
 const AdminInternships = () => {
@@ -455,6 +455,16 @@ const AdminInternships = () => {
               <ListItemIcon><FileText size={18} color="#3b82f6" /></ListItemIcon>
               <ListItemText>View Offer Letter</ListItemText>
             </MenuItem>
+            {selectedApp.documents.paymentSlipUrl && (
+              <MenuItem 
+                component="a" 
+                href={`${baseURL}${selectedApp.documents.paymentSlipUrl}`}
+                target="_blank"
+              >
+                <ListItemIcon><Receipt size={18} color="#06b6d4" /></ListItemIcon>
+                <ListItemText>View Payment Slip</ListItemText>
+              </MenuItem>
+            )}
             <MenuItem 
               component="a" 
               href={`${baseURL}${selectedApp.documents.certificateUrl}`}
