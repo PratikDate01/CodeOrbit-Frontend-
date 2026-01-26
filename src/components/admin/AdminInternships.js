@@ -65,7 +65,7 @@ const AdminInternships = () => {
 
   const handleUpdateStatus = async (status) => {
     try {
-      await API.put(`/internships/${selectedApp._id}/status`, { status });
+      await API.patch(`/internships/${selectedApp._id}/status`, { status });
       fetchApplications();
       setAnchorEl(null);
     } catch (error) {

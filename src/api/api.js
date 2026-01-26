@@ -3,7 +3,7 @@ import axios from "axios";
 const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const API = axios.create({ 
   baseURL: `${baseURL}/api`,
-  timeout: 15000, // 15 seconds timeout
+  timeout: 60000, // Increased to 60 seconds for document generation
 });
 
 // Basic Retry logic for network errors or 5xx
