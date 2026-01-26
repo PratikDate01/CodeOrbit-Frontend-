@@ -176,6 +176,18 @@ const VerifyDocument = () => {
                           View Offer Letter
                         </Button>
                       )}
+                      {document.paymentSlipUrl && (
+                        <Button 
+                          fullWidth
+                          variant="outlined" 
+                          color="info"
+                          startIcon={<FileDown size={18} />}
+                          href={`${baseURL}${document.paymentSlipUrl}`}
+                          target="_blank"
+                        >
+                          View Fee Receipt
+                        </Button>
+                      )}
                     </Box>
                   </Grid>
                 </Grid>
