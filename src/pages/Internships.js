@@ -31,6 +31,12 @@ const Internships = () => {
     amount: 399
   });
 
+  const [myApplications, setMyApplications] = useState([]);
+  const [fetchingApps, setFetchingApps] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
   const durationPlans = [
     { 
       months: 1, 
