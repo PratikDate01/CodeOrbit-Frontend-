@@ -203,6 +203,18 @@ const AdminInternships = () => {
     }
   };
 
+  const handleGeneratePaymentSlip = async () => {
+    try {
+      await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id });
+      alert('Payment slip generated successfully!');
+      fetchApplications();
+      setAnchorEl(null);
+    } catch (error) {
+      console.error('Error generating payment slip:', error);
+      alert('Failed to generate payment slip. Please check if payment is verified.');
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -326,14 +338,28 @@ const AdminInternships = () => {
                       <Typography variant="body2" fontWeight={700}>₹{app.amount}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={app.paymentStatus} 
-                        size="small" 
-                        variant="outlined"
-                        color={app.paymentStatus === 'Verified' ? 'success' : 'warning'}
-                        icon={<CreditCard size={14} />}
-                        sx={{ fontWeight: 600, fontSize: '0.7rem' }}
-                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip 
+                          label={app.paymentStatus} 
+                          size="small" 
+                          variant="outlined"
+                          color={app.paymentStatus === 'Verified' ? 'success' : 'warning'}
+                          icon={<CreditCard size={14} />}
+                          sx={{ fontWeight: 600, fontSize: '0.7rem' }}
+                        />
+                        {app.documents?.paymentSlipUrl && (
+                          <Tooltip title="View Receipt">
+                            <IconButton 
+                              size="small" 
+                              href={`${baseURL}${app.documents.paymentSlipUrl}`}
+                              target="_blank"
+                              sx={{ color: '#06b6d4', p: 0.5 }}
+                            >
+                              <Receipt size={16} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>{getStatusChip(app.status)}</TableCell>
                     <TableCell align="right">
@@ -440,6 +466,12 @@ const AdminInternships = () => {
           <ListItemText>Reject Application</ListItemText>
         </MenuItem>
         <Divider />
+        {selectedApp?.paymentStatus === 'Verified' && !selectedApp?.documents?.paymentSlipUrl && (
+          <MenuItem onClick={handleGeneratePaymentSlip}>
+            <ListItemIcon><Receipt size={18} color="#06b6d4" /></ListItemIcon>
+            <ListItemText>Generate Payment Slip</ListItemText>
+          </MenuItem>
+        )}
         <MenuItem onClick={() => { setAnchorEl(null); setOpenDocDialog(true); }}>
           <ListItemIcon><FileText size={18} /></ListItemIcon>
           <ListItemText>Generate Documents</ListItemText>

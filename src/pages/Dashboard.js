@@ -244,11 +244,34 @@ const Dashboard = () => {
                                   </IconButton>
                                 </Tooltip>
                               )}
-                              {app.paymentStatus === 'Processing' && (
-                                <Chip label="Payment Processing" size="small" variant="outlined" color="warning" />
-                              )}
                               {app.paymentStatus === 'Verified' && (
-                                <Chip label="Payment Verified" size="small" variant="outlined" color="success" />
+                                <Box sx={{ mt: 1 }}>
+                                  <Chip 
+                                    label="Payment Verified" 
+                                    size="small" 
+                                    color="success" 
+                                    variant="filled"
+                                    sx={{ fontWeight: 700 }}
+                                  />
+                                  {app.documents?.paymentSlipUrl ? (
+                                    <Button
+                                      size="small"
+                                      startIcon={<Receipt size={14} />}
+                                      href={`${baseURL}${app.documents.paymentSlipUrl}`}
+                                      target="_blank"
+                                      sx={{ ml: 1, textTransform: 'none', fontWeight: 600 }}
+                                    >
+                                      Download Receipt
+                                    </Button>
+                                  ) : (
+                                    <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary', fontStyle: 'italic' }}>
+                                      (Receipt generating...)
+                                    </Typography>
+                                  )}
+                                </Box>
+                              )}
+                              {app.paymentStatus === 'Processing' && (
+                                <Chip label="Payment Processing" size="small" variant="outlined" color="warning" sx={{ mt: 1 }} />
                               )}
                               {app.documents?.paymentSlipUrl && (
                                 <Tooltip title="Download Fee Receipt">
@@ -257,6 +280,7 @@ const Dashboard = () => {
                                     color="info"
                                     href={`${baseURL}${app.documents.paymentSlipUrl}`}
                                     target="_blank"
+                                    sx={{ bgcolor: 'info.light', '&:hover': { bgcolor: 'info.main', color: 'white' } }}
                                   >
                                     <Receipt size={18} />
                                   </IconButton>
