@@ -245,7 +245,7 @@ const Dashboard = () => {
                                 </Tooltip>
                               )}
                               {app.paymentStatus === 'Verified' && (
-                                <Box sx={{ mt: 1 }}>
+                                <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                                   <Chip 
                                     label="Payment Verified" 
                                     size="small" 
@@ -253,38 +253,28 @@ const Dashboard = () => {
                                     variant="filled"
                                     sx={{ fontWeight: 700 }}
                                   />
-                                  {app.documents?.paymentSlipUrl ? (
+                                  {app.documents?.paymentSlipUrl && (
                                     <Button
                                       size="small"
-                                      startIcon={<Receipt size={14} />}
+                                      variant="text"
+                                      color="info"
+                                      startIcon={<Receipt size={16} />}
                                       href={`${baseURL}${app.documents.paymentSlipUrl}`}
                                       target="_blank"
-                                      sx={{ ml: 1, textTransform: 'none', fontWeight: 600 }}
+                                      sx={{ 
+                                        textTransform: 'none', 
+                                        fontWeight: 700,
+                                        fontSize: '0.75rem',
+                                        '&:hover': { bgcolor: 'info.light' }
+                                      }}
                                     >
                                       Download Receipt
                                     </Button>
-                                  ) : (
-                                    <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary', fontStyle: 'italic' }}>
-                                      (Receipt generating...)
-                                    </Typography>
                                   )}
                                 </Box>
                               )}
                               {app.paymentStatus === 'Processing' && (
                                 <Chip label="Payment Processing" size="small" variant="outlined" color="warning" sx={{ mt: 1 }} />
-                              )}
-                              {app.documents?.paymentSlipUrl && (
-                                <Tooltip title="Download Fee Receipt">
-                                  <IconButton 
-                                    size="small" 
-                                    color="info"
-                                    href={`${baseURL}${app.documents.paymentSlipUrl}`}
-                                    target="_blank"
-                                    sx={{ bgcolor: 'info.light', '&:hover': { bgcolor: 'info.main', color: 'white' } }}
-                                  >
-                                    <Receipt size={18} />
-                                  </IconButton>
-                                </Tooltip>
                               )}
                               {app.documents?.offerLetterUrl && (
                                 <Tooltip title="Download Offer Letter">
