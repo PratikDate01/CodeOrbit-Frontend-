@@ -31,7 +31,8 @@ import {
   CreditCard,
   QrCode,
   Upload,
-  X
+  X,
+  Receipt
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API, { baseURL } from '../api/api';
@@ -249,6 +250,18 @@ const Dashboard = () => {
                               {app.paymentStatus === 'Verified' && (
                                 <Chip label="Payment Verified" size="small" variant="outlined" color="success" />
                               )}
+                              {app.documents?.paymentSlipUrl && (
+                                <Tooltip title="Download Fee Receipt">
+                                  <IconButton 
+                                    size="small" 
+                                    color="info"
+                                    href={`${baseURL}${app.documents.paymentSlipUrl}`}
+                                    target="_blank"
+                                  >
+                                    <Receipt size={18} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                               {app.documents?.offerLetterUrl && (
                                 <Tooltip title="Download Offer Letter">
                                   <IconButton 
@@ -365,6 +378,9 @@ const Dashboard = () => {
         </DialogTitle>
         <DialogContent dividers>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Typography variant="h6" fontWeight={700} color="primary.main" gutterBottom>
+              Amount to Pay: ₹{selectedApp?.amount || (selectedApp?.duration === 1 ? 399 : selectedApp?.duration === 3 ? 599 : 999)}
+            </Typography>
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Scan the QR code below to make the payment. After payment, enter the Transaction ID and upload the screenshot.
             </Typography>

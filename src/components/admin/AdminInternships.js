@@ -79,6 +79,16 @@ const AdminInternships = () => {
     setVerifying(true);
     try {
       await API.patch(`/internships/${selectedApp._id}/status`, { paymentStatus });
+      
+      if (paymentStatus === 'Verified') {
+        try {
+          await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id });
+        } catch (slipError) {
+          console.error('Error generating payment slip:', slipError);
+          alert('Payment verified but failed to generate slip. You can try again later.');
+        }
+      }
+      
       fetchApplications();
       setOpenPaymentDialog(false);
       setAnchorEl(null);
