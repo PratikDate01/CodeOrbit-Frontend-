@@ -27,17 +27,81 @@ const Internships = () => {
     skills: userInfo?.skills?.join(', ') || '',
     experience: '',
     preferredDomain: '',
-    duration: 1
+    duration: 1,
+    amount: 399
   });
 
-  const [myApplications, setMyApplications] = useState([]);
-  const [fetchingApps, setFetchingApps] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const durationPlans = [
+    { 
+      months: 1, 
+      price: 399, 
+      label: '1 Month Internship – Basic Skill Exposure',
+      ideal: 'Beginners, Students exploring a domain, First-time interns',
+      what: 'Learn core fundamentals of the selected domain, Study provided learning materials, Complete assigned tasks and exercises, Attempt knowledge assessment tests',
+      projectLevel: 'Mini project (basic implementation)',
+      outcome: 'Clear understanding of fundamentals, Practical exposure, Internship certification',
+      facilities: [
+        'Internship Offer Letter',
+        'Structured Learning Materials (PDFs / Docs / Resources)',
+        'Task Assignments',
+        'Online Tests & Evaluations',
+        'Mini Project',
+        'Internship Completion Certificate',
+        'Email / WhatsApp Support for queries'
+      ]
+    },
+    { 
+      months: 3, 
+      price: 599, 
+      label: '3 Month Internship – Practical Skill Building',
+      ideal: 'Intermediate learners, Students wanting hands-on experience, Portfolio building',
+      what: 'Study advanced concepts through provided materials, Work on structured tasks and case-based assignments, Complete regular evaluations and tests, Develop a real-world project',
+      projectLevel: 'Functional real-world project',
+      outcome: 'Strong practical skills, Industry-oriented project, Improved employability',
+      facilities: [
+        'Internship Offer Letter',
+        'Detailed Learning Resources',
+        'Task-based Learning Path',
+        'Regular Tests & Performance Evaluation',
+        'Major Project (Individual / Team)',
+        'Internship Completion Certificate',
+        'Letter of Recommendation (Performance-Based)',
+        'Resume Project Guidance'
+      ]
+    },
+    { 
+      months: 6, 
+      price: 999, 
+      label: '6 Month Internship – Industrial Experience Program',
+      ideal: 'Final-year students, Long-term industrial training seekers, Career-focused learners',
+      what: 'Follow a complete industry-level learning roadmap, Work on complex assignments & evaluations, Develop production-level project(s), Complete documentation & internship reports, Undergo final assessments',
+      projectLevel: 'Industry / production-level project',
+      outcome: 'Real industrial exposure, Job-ready skills, Strong resume & experience proof',
+      facilities: [
+        'Internship Offer Letter',
+        'Experience Certificate',
+        'Comprehensive Learning Material',
+        'Advanced Tasks & Assessments',
+        'Production-Level Project',
+        'Internship Report & Documentation Support',
+        'Letter of Recommendation (Performance-Based)',
+        'Placement Readiness Guidance'
+      ]
+    }
+  ];
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'duration') {
+      const plan = durationPlans.find(p => p.months === parseInt(value));
+      setFormData({ 
+        ...formData, 
+        duration: parseInt(value), 
+        amount: plan ? plan.price : 0 
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const fetchMyApplications = useCallback(async () => {
@@ -87,6 +151,7 @@ const Internships = () => {
       await API.post('/internships/apply', { 
         preferredDomain: formData.preferredDomain,
         duration: formData.duration,
+        amount: formData.amount,
         formData: { ...formData }
       });
 
@@ -99,7 +164,8 @@ const Internships = () => {
         skills: '', 
         experience: '',
         preferredDomain: '',
-        duration: 1
+        duration: 1,
+        amount: 399
       }));
     } catch (error) {
       setError(error.response?.data?.message || 'Error processing application.');
@@ -317,9 +383,69 @@ const Internships = () => {
                     </TextField>
                   </Grid>
                   <Grid size={{ xs: 12, md: 6 }}>
-                    <TextField fullWidth select label="Duration" name="duration" value={formData.duration} onChange={handleChange} required>
-                      {[1, 2, 3, 6].map((m) => <MenuItem key={m} value={m}>{m} Month{m > 1 ? 's' : ''}</MenuItem>)}
+                    <TextField 
+                      fullWidth 
+                      select 
+                      label="Duration & Pricing" 
+                      name="duration" 
+                      value={formData.duration} 
+                      onChange={handleChange} 
+                      required
+                      helperText="Select a plan to see its benefits"
+                    >
+                      {durationPlans.map((p) => (
+                        <MenuItem key={p.months} value={p.months}>
+                          {p.months} Month{p.months > 1 ? 's' : ''} - ₹{p.price}
+                        </MenuItem>
+                      ))}
                     </TextField>
+                  </Grid>
+
+                  {/* Plan Details Display */}
+                  <Grid size={12}>
+                    {formData.duration && (
+                      <Paper variant="outlined" sx={{ p: 3, borderRadius: 4, bgcolor: 'action.hover' }}>
+                        <Typography variant="h6" color="primary.main" gutterBottom sx={{ fontWeight: 700 }}>
+                          {durationPlans.find(p => p.months === formData.duration)?.label}
+                        </Typography>
+                        
+                        <Grid container spacing={3} sx={{ mt: 1 }}>
+                          <Grid item xs={12} md={6}>
+                            <Typography variant="subtitle2" fontWeight={700}>🎯 Ideal For:</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                              {durationPlans.find(p => p.months === formData.duration)?.ideal}
+                            </Typography>
+                            
+                            <Typography variant="subtitle2" fontWeight={700}>🧠 What You'll Do:</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                              {durationPlans.find(p => p.months === formData.duration)?.what}
+                            </Typography>
+
+                            <Typography variant="subtitle2" fontWeight={700}>📂 Project Level:</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                              {durationPlans.find(p => p.months === formData.duration)?.projectLevel}
+                            </Typography>
+
+                            <Typography variant="subtitle2" fontWeight={700}>🏁 Outcome:</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {durationPlans.find(p => p.months === formData.duration)?.outcome}
+                            </Typography>
+                          </Grid>
+                          
+                          <Grid item xs={12} md={6}>
+                            <Typography variant="subtitle2" fontWeight={700}>🛠️ Facilities Provided:</Typography>
+                            <Box sx={{ mt: 1 }}>
+                              {durationPlans.find(p => p.months === formData.duration)?.facilities.map((f, i) => (
+                                <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <CheckCircleOutlineIcon sx={{ fontSize: 16, color: 'success.main' }} />
+                                  <Typography variant="caption" color="text.secondary">{f}</Typography>
+                                </Box>
+                              ))}
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </Paper>
+                    )}
                   </Grid>
                   <Grid size={{ xs: 12, md: 6 }}>
                     <TextField fullWidth label="College/University Name" name="college" value={formData.college} onChange={handleChange} required />
