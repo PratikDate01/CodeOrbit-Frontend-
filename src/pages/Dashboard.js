@@ -27,35 +27,87 @@ import {
   Eye,
   FileText,
   Award,
-  Settings
+  Settings,
+  CreditCard,
+  QrCode,
+  Upload,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API, { baseURL } from '../api/api';
 import { Link } from 'react-router-dom';
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  TextField,
+  Snackbar,
+  Alert
+} from '@mui/material';
 
 const Dashboard = () => {
   const { userInfo } = useAuth();
   const [applications, setApplications] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [transactionId, setTransactionId] = useState('');
+  const [screenshot, setScreenshot] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const fetchData = async () => {
+    try {
+      const [appRes, notiRes] = await Promise.all([
+        API.get('/internships/my-applications'),
+        API.get('/notifications')
+      ]);
+      setApplications(appRes.data);
+      setNotifications(notiRes.data);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [appRes, notiRes] = await Promise.all([
-          API.get('/internships/my-applications'),
-          API.get('/notifications')
-        ]);
-        setApplications(appRes.data);
-        setNotifications(notiRes.data);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     if (userInfo) fetchData();
   }, [userInfo]);
+
+  const handlePaymentClick = (app) => {
+    setSelectedApp(app);
+    setPaymentModalOpen(true);
+  };
+
+  const handlePaymentSubmit = async () => {
+    if (!transactionId || !screenshot) {
+      setSnackbar({ open: true, message: 'Please provide both Transaction ID and Screenshot', severity: 'error' });
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('transactionId', transactionId);
+    formData.append('screenshot', screenshot);
+
+    try {
+      await API.post(`/internships/${selectedApp._id}/payment`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setSnackbar({ open: true, message: 'Payment details submitted successfully!', severity: 'success' });
+      setPaymentModalOpen(false);
+      setTransactionId('');
+      setScreenshot(null);
+      fetchData();
+    } catch (error) {
+      setSnackbar({ open: true, message: error.response?.data?.message || 'Failed to submit payment', severity: 'error' });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const getStatusChip = (status) => {
     const colors = {
@@ -180,6 +232,23 @@ const Dashboard = () => {
                           <TableCell>{getStatusChip(app.status)}</TableCell>
                           <TableCell align="right">
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                              {app.status === 'Selected' && app.paymentStatus === 'Pending' && (
+                                <Tooltip title="Pay Now">
+                                  <IconButton 
+                                    size="small" 
+                                    color="warning"
+                                    onClick={() => handlePaymentClick(app)}
+                                  >
+                                    <CreditCard size={18} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {app.paymentStatus === 'Processing' && (
+                                <Chip label="Payment Processing" size="small" variant="outlined" color="warning" />
+                              )}
+                              {app.paymentStatus === 'Verified' && (
+                                <Chip label="Payment Verified" size="small" variant="outlined" color="success" />
+                              )}
                               {app.documents?.offerLetterUrl && (
                                 <Tooltip title="Download Offer Letter">
                                   <IconButton 
@@ -277,6 +346,107 @@ const Dashboard = () => {
           </Grid>
         </Grid>
       </Container>
+
+      {/* Payment Modal */}
+      <Dialog 
+        open={paymentModalOpen} 
+        onClose={() => !uploading && setPaymentModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          Complete Payment
+          <IconButton onClick={() => setPaymentModalOpen(false)} disabled={uploading}>
+            <X size={20} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Scan the QR code below to make the payment. After payment, enter the Transaction ID and upload the screenshot.
+            </Typography>
+            <Box 
+              component="img"
+              src={`${baseURL}/assets/payments/QR.jpeg`}
+              alt="Payment QR Code"
+              sx={{ 
+                width: '100%', 
+                maxWidth: 250, 
+                height: 'auto', 
+                mx: 'auto', 
+                my: 2,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider'
+              }}
+            />
+          </Box>
+          
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Transaction ID"
+                variant="outlined"
+                value={transactionId}
+                onChange={(e) => setTransactionId(e.target.value)}
+                placeholder="Enter your UPI/Bank transaction ID"
+                disabled={uploading}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="outlined"
+                component="label"
+                fullWidth
+                startIcon={<Upload size={18} />}
+                sx={{ py: 1.5, borderRadius: 2 }}
+                disabled={uploading}
+              >
+                {screenshot ? screenshot.name : 'Upload Payment Screenshot'}
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={(e) => setScreenshot(e.target.files[0])}
+                />
+              </Button>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button 
+            onClick={() => setPaymentModalOpen(false)} 
+            color="inherit"
+            disabled={uploading}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handlePaymentSubmit} 
+            variant="contained" 
+            color="primary"
+            disabled={uploading || !transactionId || !screenshot}
+            startIcon={uploading ? <CircularProgress size={18} color="inherit" /> : <QrCode size={18} />}
+            sx={{ borderRadius: 2, px: 3 }}
+          >
+            {uploading ? 'Submitting...' : 'Submit Payment Details'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

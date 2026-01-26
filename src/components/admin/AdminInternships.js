@@ -40,9 +40,11 @@ const AdminInternships = () => {
   const [anchorElFilter, setAnchorElFilter] = useState(null);
   
   const [openDocDialog, setOpenDocDialog] = useState(false);
+  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -70,6 +72,20 @@ const AdminInternships = () => {
       setAnchorEl(null);
     } catch (error) {
       console.error('Error updating status:', error);
+    }
+  };
+
+  const handleVerifyPayment = async (paymentStatus) => {
+    setVerifying(true);
+    try {
+      await API.patch(`/internships/${selectedApp._id}/status`, { paymentStatus });
+      fetchApplications();
+      setOpenPaymentDialog(false);
+      setAnchorEl(null);
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -403,6 +419,12 @@ const AdminInternships = () => {
           <ListItemIcon><User size={18} /></ListItemIcon>
           <ListItemText>Mark as Selected</ListItemText>
         </MenuItem>
+        {selectedApp?.paymentStatus === 'Processing' && (
+          <MenuItem onClick={() => { setAnchorEl(null); setOpenPaymentDialog(true); }}>
+            <ListItemIcon><CreditCard size={18} color="#f59e0b" /></ListItemIcon>
+            <ListItemText>Review Payment</ListItemText>
+          </MenuItem>
+        )}
         <MenuItem onClick={() => handleUpdateStatus('Rejected')} sx={{ color: 'error.main' }}>
           <ListItemIcon><Trash2 size={18} color="currentColor" /></ListItemIcon>
           <ListItemText>Reject Application</ListItemText>
@@ -494,6 +516,66 @@ const AdminInternships = () => {
             sx={{ borderRadius: 2, px: 3 }}
           >
             {isGenerating ? 'Generating...' : 'Generate & Send'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Payment Verification Dialog */}
+      <Dialog 
+        open={openPaymentDialog} 
+        onClose={() => setOpenPaymentDialog(false)}
+        PaperProps={{ sx: { borderRadius: 3, width: '100%', maxWidth: 500 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Verify Payment</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" fontWeight={600}>TRANSACTION ID</Typography>
+              <Typography variant="body1" fontWeight={700} sx={{ mt: 0.5 }}>{selectedApp?.transactionId || 'N/A'}</Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1, display: 'block' }}>PAYMENT SCREENSHOT</Typography>
+              {selectedApp?.paymentScreenshot ? (
+                <Box 
+                  component="img"
+                  src={`${baseURL}${selectedApp.paymentScreenshot}`}
+                  alt="Payment Screenshot"
+                  sx={{ 
+                    width: '100%', 
+                    borderRadius: 2, 
+                    border: '1px solid', 
+                    borderColor: 'divider',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => window.open(`${baseURL}${selectedApp.paymentScreenshot}`, '_blank')}
+                />
+              ) : (
+                <Typography variant="body2" color="error">No screenshot uploaded</Typography>
+              )}
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button onClick={() => setOpenPaymentDialog(false)} color="inherit">Cancel</Button>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button 
+            onClick={() => handleVerifyPayment('Failed')} 
+            color="error"
+            variant="outlined"
+            disabled={verifying}
+            sx={{ borderRadius: 2 }}
+          >
+            Reject
+          </Button>
+          <Button 
+            onClick={() => handleVerifyPayment('Verified')} 
+            variant="contained" 
+            color="success"
+            disabled={verifying}
+            sx={{ borderRadius: 2, px: 3 }}
+          >
+            {verifying ? 'Verifying...' : 'Verify & Approve Payment'}
           </Button>
         </DialogActions>
       </Dialog>
