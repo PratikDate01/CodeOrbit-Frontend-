@@ -50,9 +50,9 @@ const Contact = () => {
   };
 
   const info = [
-    { icon: '📧', title: 'Email', detail: 'info@codeorbit.com' },
-    { icon: '📞', title: 'Phone', detail: '+1 (123) 456-7890' },
-    { icon: '📍', title: 'Address', detail: '123 Tech Street, IC 12345' },
+    { icon: '📧', title: 'Email', detail: 'codeorbit.internship@gmail.com' },
+    { icon: '📞', title: 'Phone', detail: '+91 7666394641' },
+    { icon: '📍', title: 'Address', detail: 'Whitehouse Vadgaon Bk Pune 41' },
     { icon: '🕒', title: 'Hours', detail: 'Mon - Fri: 9AM - 6PM' }
   ];
 

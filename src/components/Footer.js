@@ -211,7 +211,7 @@ const Footer = () => {
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                   <EmailIcon sx={{ fontSize: 20, color: 'rgba(255,255,255,0.6)', mt: 0.3 }} />
                   <Link
-                    href="mailto:info@codeorbit.com"
+                    href="mailto:codeorbit.internship@gmail.com"
                     sx={{
                       color: 'rgba(255,255,255,0.7)',
                       textDecoration: 'none',
@@ -220,7 +220,7 @@ const Footer = () => {
                       '&:hover': { color: '#ffffff' }
                     }}
                   >
-                    info@codeorbit.com
+                    codeorbit.internship@gmail.com
                   </Link>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
@@ -249,8 +249,7 @@ const Footer = () => {
                       textAlign: { xs: 'center', md: 'left' }
                     }}
                   >
-                    123 Tech Street,<br />
-                    Innovation City, IC 12345
+                    Whitehouse Vadgaon Bk Pune 41
                   </Typography>
                 </Box>
               </Box>
