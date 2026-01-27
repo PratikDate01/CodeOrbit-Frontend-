@@ -30,6 +30,11 @@ import {
 import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, CheckCircle, Award, ExternalLink, CreditCard, Receipt } from 'lucide-react';
 import API, { baseURL } from '../../api/api';
 
+const getDocumentUrl = (url) => {
+  if (!url) return '#';
+  return url.startsWith('http') ? url : `${baseURL}${url}`;
+};
+
 const AdminInternships = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -351,7 +356,7 @@ const AdminInternships = () => {
                           <Tooltip title="View Receipt">
                             <IconButton 
                               size="small" 
-                              href={`${baseURL}${app.documents.paymentSlipUrl}`}
+                              href={getDocumentUrl(app.documents.paymentSlipUrl)}
                               target="_blank"
                               sx={{ color: '#06b6d4', p: 0.5 }}
                             >
@@ -481,7 +486,7 @@ const AdminInternships = () => {
             <Divider />
             <MenuItem 
               component="a" 
-              href={`${baseURL}${selectedApp.documents.offerLetterUrl}`}
+              href={getDocumentUrl(selectedApp.documents.offerLetterUrl)}
               target="_blank"
             >
               <ListItemIcon><FileText size={18} color="#3b82f6" /></ListItemIcon>
@@ -490,7 +495,7 @@ const AdminInternships = () => {
             {selectedApp.documents.paymentSlipUrl && (
               <MenuItem 
                 component="a" 
-                href={`${baseURL}${selectedApp.documents.paymentSlipUrl}`}
+                href={getDocumentUrl(selectedApp.documents.paymentSlipUrl)}
                 target="_blank"
               >
                 <ListItemIcon><Receipt size={18} color="#06b6d4" /></ListItemIcon>
@@ -499,7 +504,7 @@ const AdminInternships = () => {
             )}
             <MenuItem 
               component="a" 
-              href={`${baseURL}${selectedApp.documents.certificateUrl}`}
+              href={getDocumentUrl(selectedApp.documents.certificateUrl)}
               target="_blank"
             >
               <ListItemIcon><CheckCircle size={18} color="#10b981" /></ListItemIcon>
@@ -507,7 +512,7 @@ const AdminInternships = () => {
             </MenuItem>
             <MenuItem 
               component="a" 
-              href={`${baseURL}${selectedApp.documents.locUrl}`}
+              href={getDocumentUrl(selectedApp.documents.locUrl)}
               target="_blank"
             >
               <ListItemIcon><Award size={18} color="#8b5cf6" /></ListItemIcon>
@@ -591,7 +596,7 @@ const AdminInternships = () => {
               {selectedApp?.paymentScreenshot ? (
                 <Box 
                   component="img"
-                  src={`${baseURL}${selectedApp.paymentScreenshot}`}
+                  src={getDocumentUrl(selectedApp.paymentScreenshot)}
                   alt="Payment Screenshot"
                   sx={{ 
                     width: '100%', 
@@ -600,7 +605,7 @@ const AdminInternships = () => {
                     borderColor: 'divider',
                     cursor: 'pointer'
                   }}
-                  onClick={() => window.open(`${baseURL}${selectedApp.paymentScreenshot}`, '_blank')}
+                  onClick={() => window.open(getDocumentUrl(selectedApp.paymentScreenshot), '_blank')}
                 />
               ) : (
                 <Typography variant="body2" color="error">No screenshot uploaded</Typography>

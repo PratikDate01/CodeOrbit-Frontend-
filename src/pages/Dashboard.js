@@ -47,6 +47,11 @@ import {
   Alert
 } from '@mui/material';
 
+const getDocumentUrl = (url) => {
+  if (!url) return '#';
+  return url.startsWith('http') ? url : `${baseURL}${url}`;
+};
+
 const Dashboard = () => {
   const { userInfo } = useAuth();
   const [applications, setApplications] = useState([]);
@@ -259,7 +264,7 @@ const Dashboard = () => {
                                       variant="text"
                                       color="info"
                                       startIcon={<Receipt size={16} />}
-                                      href={`${baseURL}${app.documents.paymentSlipUrl}`}
+                                      href={getDocumentUrl(app.documents.paymentSlipUrl)}
                                       target="_blank"
                                       sx={{ 
                                         textTransform: 'none', 
@@ -281,7 +286,7 @@ const Dashboard = () => {
                                   <IconButton 
                                     size="small" 
                                     color="primary"
-                                    href={`${baseURL}${app.documents.offerLetterUrl}`}
+                                    href={getDocumentUrl(app.documents.offerLetterUrl)}
                                     target="_blank"
                                   >
                                     <FileText size={18} />
@@ -293,7 +298,7 @@ const Dashboard = () => {
                                   <IconButton 
                                     size="small" 
                                     color="success"
-                                    href={`${baseURL}${app.documents.certificateUrl}`}
+                                    href={getDocumentUrl(app.documents.certificateUrl)}
                                     target="_blank"
                                   >
                                     <CheckCircle size={18} />
@@ -305,7 +310,7 @@ const Dashboard = () => {
                                   <IconButton 
                                     size="small" 
                                     color="secondary"
-                                    href={`${baseURL}${app.documents.locUrl}`}
+                                    href={getDocumentUrl(app.documents.locUrl)}
                                     target="_blank"
                                   >
                                     <Award size={18} />

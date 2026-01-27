@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Typography, TextField, Button, Box, Alert, Grid, Card, CardContent, Paper, Chip, MenuItem, Stepper, Step, StepLabel, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress } from '@mui/material';
+import { Container, Typography, TextField, Button, Box, Alert, Grid, Card, CardContent, Paper, Chip, MenuItem, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress } from '@mui/material';
 import API from '../api/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SchoolIcon from '@mui/icons-material/School';
@@ -335,19 +335,36 @@ const Internships = () => {
         </Box>
 
         {/* Selection Process Section */}
-        <Box sx={{ mb: 12, py: 8, px: 4, bgcolor: 'action.hover', borderRadius: 6 }}>
-          <Typography variant="h2" sx={{ mb: 8, textAlign: 'center' }}>Selection Process</Typography>
-          <Stepper alternativeLabel sx={{ mb: 4 }}>
-            {selectionProcess.map((step) => (
-              <Step key={step.label}>
-                <StepLabel>
-                  <Typography variant="subtitle1" fontWeight={600}>{step.label}</Typography>
-                  <Typography variant="caption" color="text.secondary">{step.description}</Typography>
-                </StepLabel>
-              </Step>
+        <div className="mb-12 py-10 px-6 bg-gray-50/50 rounded-[2.5rem] overflow-hidden border border-gray-100">
+          <h2 className="text-3xl sm:text-4xl font-extrabold mb-12 text-center text-gray-900">
+            Selection Process
+          </h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start relative w-full max-w-full">
+            {selectionProcess.map((step, index) => (
+              <div key={step.label} className="flex flex-col items-center text-center relative z-10 w-full sm:flex-1 mb-10 sm:mb-0">
+                {/* Horizontal Connector Line (Desktop Only) */}
+                {index < selectionProcess.length - 1 && (
+                  <div className="hidden sm:block absolute top-6 left-[50%] w-full h-0.5 bg-gray-200 -z-10"></div>
+                )}
+                
+                {/* Step Circle */}
+                <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold mb-5 shadow-lg shadow-blue-200 text-lg">
+                  {index + 1}
+                </div>
+                
+                {/* Step Content */}
+                <div className="px-4">
+                  <h3 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-2">
+                    {step.label}
+                  </h3>
+                  <p className="text-sm text-gray-600 max-w-[180px] mx-auto leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
             ))}
-          </Stepper>
-        </Box>
+          </div>
+        </div>
 
         {/* Application Form */}
         <Paper elevation={0} sx={{ p: { xs: 4, md: 8 }, borderRadius: 8, border: '1px solid', borderColor: 'divider', mb: 12 }}>

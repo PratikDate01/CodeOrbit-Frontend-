@@ -23,6 +23,11 @@ import {
 } from 'lucide-react';
 import API, { baseURL } from '../api/api';
 
+const getDocumentUrl = (url) => {
+  if (!url) return '#';
+  return url.startsWith('http') ? url : `${baseURL}${url}`;
+};
+
 const VerifyDocument = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
@@ -158,7 +163,7 @@ const VerifyDocument = () => {
                           fullWidth
                           variant="contained" 
                           startIcon={<FileDown size={18} />}
-                          href={`${baseURL}${document.certificateUrl}`}
+                          href={getDocumentUrl(document.certificateUrl)}
                           target="_blank"
                           sx={{ py: 1.5 }}
                         >
@@ -170,7 +175,7 @@ const VerifyDocument = () => {
                           fullWidth
                           variant="outlined" 
                           startIcon={<ExternalLink size={18} />}
-                          href={`${baseURL}${document.offerLetterUrl}`}
+                          href={getDocumentUrl(document.offerLetterUrl)}
                           target="_blank"
                         >
                           View Offer Letter
@@ -182,7 +187,7 @@ const VerifyDocument = () => {
                           variant="outlined" 
                           color="info"
                           startIcon={<FileDown size={18} />}
-                          href={`${baseURL}${document.paymentSlipUrl}`}
+                          href={getDocumentUrl(document.paymentSlipUrl)}
                           target="_blank"
                         >
                           View Fee Receipt
