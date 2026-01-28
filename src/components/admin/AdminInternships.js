@@ -195,7 +195,8 @@ const AdminInternships = () => {
       await API.post('/documents/generate-offer-letter', {
         applicationId: selectedApp._id,
         startDate,
-        endDate
+        endDate,
+        regenerate: true
       });
       showNotification('Documents (Offer Letter, Certificate, LOC) generated successfully!', 'success');
       setOpenDocDialog(false);
@@ -212,7 +213,10 @@ const AdminInternships = () => {
 
   const handleGeneratePaymentSlip = async () => {
     try {
-      await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id });
+      await API.post('/documents/generate-payment-slip', { 
+        applicationId: selectedApp._id,
+        regenerate: true
+      });
       showNotification('Payment slip generated successfully!', 'success');
       fetchApplications();
       setAnchorEl(null);
