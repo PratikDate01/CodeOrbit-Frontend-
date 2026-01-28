@@ -33,7 +33,8 @@ import { useNotification } from '../../context/NotificationContext';
 
 const getDocumentUrl = (url) => {
   if (!url) return '#';
-  return url.startsWith('http') ? url : `${baseURL}${url}`;
+  // Standardized: Always use the URL as provided by Cloudinary/Backend
+  return url;
 };
 
 const AdminInternships = () => {
