@@ -7,6 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
@@ -206,49 +207,51 @@ function App() {
   return (
     <GoogleOAuthProvider clientId="your-google-client-id.apps.googleusercontent.com">
       <ThemeProvider theme={theme}>
-        <AuthProvider>
-          <CssBaseline />
-          <Router>
-            <Header />
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/internships" element={<Internships />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/verify/:id" element={<VerifyDocument />} />
-                <Route 
-                  path="/dashboard" 
-                  element={
-                    <PrivateRoute>
-                      <Dashboard />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/profile" 
-                  element={
-                    <PrivateRoute>
-                      <Profile />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/*" 
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  } 
-                />
-              </Routes>
-            </Suspense>
-            <Footer />
-          </Router>
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <CssBaseline />
+            <Router>
+              <Header />
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/internships" element={<Internships />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/verify/:id" element={<VerifyDocument />} />
+                  <Route 
+                    path="/dashboard" 
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/profile" 
+                    element={
+                      <PrivateRoute>
+                        <Profile />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/*" 
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    } 
+                  />
+                </Routes>
+              </Suspense>
+              <Footer />
+            </Router>
+          </AuthProvider>
+        </NotificationProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
   );

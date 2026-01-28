@@ -14,9 +14,11 @@ import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 const Internships = () => {
   const { userInfo } = useAuth();
+  const { showNotification } = useNotification();
   const [formData, setFormData] = useState({
     name: userInfo?.name || '',
     email: userInfo?.email || '',
@@ -34,8 +36,6 @@ const Internships = () => {
   const [myApplications, setMyApplications] = useState([]);
   const [fetchingApps, setFetchingApps] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
 
   const durationPlans = [
     { 
@@ -149,8 +149,6 @@ const Internships = () => {
     if (!userInfo) return;
     
     setLoading(true);
-    setMessage('');
-    setError('');
 
     try {
       // Submit Application directly
@@ -161,7 +159,7 @@ const Internships = () => {
         formData: { ...formData }
       });
 
-      setMessage('Application Successful! Welcome to the program.');
+      showNotification('Application Successful! Welcome to the program.', 'success');
       fetchMyApplications();
       setFormData(prev => ({ 
         ...prev, 
@@ -174,7 +172,7 @@ const Internships = () => {
         amount: 399
       }));
     } catch (error) {
-      setError(error.response?.data?.message || 'Error processing application.');
+      showNotification(error.response?.data?.message || 'Error processing application.', 'error');
     } finally {
       setLoading(false);
     }
@@ -374,8 +372,7 @@ const Internships = () => {
           </Box>
 
 
-          {message && <Alert severity="success" sx={{ mb: 4, borderRadius: 2 }}>{message}</Alert>}
-          {error && <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }}>{error}</Alert>}
+
 
           <Box component="form" onSubmit={handleSubmit}>
             {loading && <LoadingSpinner />}

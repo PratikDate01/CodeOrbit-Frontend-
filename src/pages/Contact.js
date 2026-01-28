@@ -3,9 +3,11 @@ import { Container, Typography, Button, Grid, Box, Paper, TextField, Avatar } fr
 import API from '../api/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 const Contact = () => {
   const { userInfo } = useAuth();
+  const { showNotification } = useNotification();
   const [formData, setFormData] = useState({
     name: userInfo?.name || '', 
     email: userInfo?.email || '', 
@@ -25,8 +27,6 @@ const Contact = () => {
       }));
     }
   }, [userInfo]);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -36,14 +36,12 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
-    setError('');
     try {
       await API.post('/contact', formData);
-      setMessage('Thank you for reaching out! We will get back to you soon.');
-      setFormData({ name: '', email: '', phone: '', company: '', subject: '', message: '' });
+      showNotification('Thank you for reaching out! We will get back to you soon.', 'success');
+      setFormData({ name: userInfo?.name || '', email: userInfo?.email || '', phone: userInfo?.phone || '', company: '', subject: '', message: '' });
     } catch (error) {
-      setError(error.response?.data?.message || 'Error sending message.');
+      showNotification(error.response?.data?.message || 'Error sending message.', 'error');
     } finally {
       setLoading(false);
     }
@@ -176,18 +174,6 @@ const Contact = () => {
               <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, mb: 4 }}>
                 Send a Message
               </Typography>
-
-              {message && (
-                <Paper sx={{ p: 2, mb: 3, bgcolor: 'success.light', color: 'success.contrastText' }}>
-                  <Typography variant="body2">{message}</Typography>
-                </Paper>
-              )}
-
-              {error && (
-                <Paper sx={{ p: 2, mb: 3, bgcolor: 'error.light', color: 'error.contrastText' }}>
-                  <Typography variant="body2">{error}</Typography>
-                </Paper>
-              )}
 
               <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {loading && <LoadingSpinner />}

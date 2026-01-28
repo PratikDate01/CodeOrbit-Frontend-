@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import { 
   Box, 
   Button, 
@@ -8,13 +9,13 @@ import {
   Typography, 
   Container, 
   Paper, 
-  Alert,
   CircularProgress,
   Grid
 } from '@mui/material';
 import { UserPlus } from 'lucide-react';
 
 const Register = () => {
+  const { showNotification } = useNotification();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,7 +24,6 @@ const Register = () => {
     phone: '',
     education: '',
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -34,18 +34,18 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      return setError('Passwords do not match');
+      return showNotification('Passwords do not match', 'error');
     }
 
     setLoading(true);
     try {
       await register(formData.name, formData.email, formData.password, formData.phone, formData.education);
+      showNotification('Account created successfully! Welcome to CodeOrbit.', 'success');
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to register. Please try again.');
+      showNotification(err.response?.data?.message || 'Failed to register. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -83,8 +83,6 @@ const Register = () => {
               Join CodeOrbit and start your career journey
             </Typography>
           </Box>
-
-          {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>

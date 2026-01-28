@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import { useGoogleLogin } from '@react-oauth/google';
 import { 
   Box, 
@@ -17,21 +18,21 @@ import { LogIn } from 'lucide-react';
 import GoogleIcon from '@mui/icons-material/Google';
 
 const Login = () => {
+  const { showNotification } = useNotification();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleGoogleLoginSuccess = async (tokenResponse) => {
     setLoading(true);
-    setError('');
     try {
       await googleLogin(tokenResponse.access_token);
+      showNotification('Successfully logged in with Google!', 'success');
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Google login failed. Please try again.');
+      showNotification(err.response?.data?.message || 'Google login failed. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -39,18 +40,18 @@ const Login = () => {
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: handleGoogleLoginSuccess,
-    onError: () => setError('Google login failed. Please try again.'),
+    onError: () => showNotification('Google login failed. Please try again.', 'error'),
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await login(email, password);
+      showNotification('Successfully logged in!', 'success');
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
+      showNotification(err.response?.data?.message || 'Failed to login. Please check your credentials.', 'error');
     } finally {
       setLoading(false);
     }
@@ -88,8 +89,6 @@ const Login = () => {
               Login to access your dashboard and internships
             </Typography>
           </Box>
-
-          {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
           <form onSubmit={handleSubmit}>
             <TextField

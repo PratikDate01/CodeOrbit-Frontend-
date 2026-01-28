@@ -29,6 +29,7 @@ import {
 } from '@mui/material';
 import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, CheckCircle, Award, ExternalLink, CreditCard, Receipt } from 'lucide-react';
 import API, { baseURL } from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const getDocumentUrl = (url) => {
   if (!url) return '#';
@@ -36,6 +37,7 @@ const getDocumentUrl = (url) => {
 };
 
 const AdminInternships = () => {
+  const { showNotification } = useNotification();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,7 +92,7 @@ const AdminInternships = () => {
           await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id });
         } catch (slipError) {
           console.error('Error generating payment slip:', slipError);
-          alert('Payment verified but failed to generate slip. You can try again later.');
+          showNotification('Payment verified but failed to generate slip. You can try again later.', 'warning');
         }
       }
       
@@ -195,14 +197,14 @@ const AdminInternships = () => {
         startDate,
         endDate
       });
-      alert('Documents (Offer Letter, Certificate, LOC) generated successfully!');
+      showNotification('Documents (Offer Letter, Certificate, LOC) generated successfully!', 'success');
       setOpenDocDialog(false);
       setStartDate('');
       setEndDate('');
       fetchApplications();
     } catch (error) {
       console.error('Error generating documents:', error);
-      alert('Failed to generate documents. Please try again.');
+      showNotification('Failed to generate documents. Please try again.', 'error');
     } finally {
       setIsGenerating(false);
     }
@@ -211,12 +213,12 @@ const AdminInternships = () => {
   const handleGeneratePaymentSlip = async () => {
     try {
       await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id });
-      alert('Payment slip generated successfully!');
+      showNotification('Payment slip generated successfully!', 'success');
       fetchApplications();
       setAnchorEl(null);
     } catch (error) {
       console.error('Error generating payment slip:', error);
-      alert('Failed to generate payment slip. Please check if payment is verified.');
+      showNotification('Failed to generate payment slip. Please check if payment is verified.', 'error');
     }
   };
 
