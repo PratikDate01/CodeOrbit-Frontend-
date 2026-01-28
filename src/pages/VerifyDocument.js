@@ -165,6 +165,7 @@ const VerifyDocument = () => {
                           startIcon={<FileDown size={18} />}
                           href={getDocumentUrl(document.certificateUrl)}
                           target="_blank"
+                          rel="noopener noreferrer"
                           sx={{ py: 1.5 }}
                         >
                           View Certificate
@@ -177,6 +178,7 @@ const VerifyDocument = () => {
                           startIcon={<ExternalLink size={18} />}
                           href={getDocumentUrl(document.offerLetterUrl)}
                           target="_blank"
+                          rel="noopener noreferrer"
                         >
                           View Offer Letter
                         </Button>
@@ -189,6 +191,7 @@ const VerifyDocument = () => {
                           startIcon={<FileDown size={18} />}
                           href={getDocumentUrl(document.paymentSlipUrl)}
                           target="_blank"
+                          rel="noopener noreferrer"
                         >
                           View Fee Receipt
                         </Button>

@@ -360,6 +360,7 @@ const AdminInternships = () => {
                               size="small" 
                               href={getDocumentUrl(app.documents.paymentSlipUrl)}
                               target="_blank"
+                              rel="noopener noreferrer"
                               sx={{ color: '#06b6d4', p: 0.5 }}
                             >
                               <Receipt size={16} />

@@ -266,6 +266,7 @@ const Dashboard = () => {
                                       startIcon={<Receipt size={16} />}
                                       href={getDocumentUrl(app.documents.paymentSlipUrl)}
                                       target="_blank"
+                                      rel="noopener noreferrer"
                                       sx={{ 
                                         textTransform: 'none', 
                                         fontWeight: 700,
@@ -288,6 +289,7 @@ const Dashboard = () => {
                                     color="primary"
                                     href={getDocumentUrl(app.documents.offerLetterUrl)}
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                   >
                                     <FileText size={18} />
                                   </IconButton>
@@ -300,6 +302,7 @@ const Dashboard = () => {
                                     color="success"
                                     href={getDocumentUrl(app.documents.certificateUrl)}
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                   >
                                     <CheckCircle size={18} />
                                   </IconButton>
@@ -312,6 +315,7 @@ const Dashboard = () => {
                                     color="secondary"
                                     href={getDocumentUrl(app.documents.locUrl)}
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                   >
                                     <Award size={18} />
                                   </IconButton>
