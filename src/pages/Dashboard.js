@@ -35,7 +35,7 @@ import {
   Receipt
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import API, { baseURL } from '../api/api';
+import API from '../api/api';
 import { Link } from 'react-router-dom';
 import { 
   Dialog, 

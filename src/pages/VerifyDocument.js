@@ -21,7 +21,7 @@ import {
   ExternalLink,
   ChevronLeft
 } from 'lucide-react';
-import API, { baseURL } from '../api/api';
+import API from '../api/api';
 
 const getDocumentUrl = (url) => {
   if (!url) return '#';
