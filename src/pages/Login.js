@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
@@ -28,16 +28,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const token = params.get('token');
-
-    if (token) {
-      handleTokenLogin(token);
-    }
-  }, [location]);
-
-  const handleTokenLogin = async (token) => {
+  const handleTokenLogin = useCallback(async (token) => {
     setLoading(true);
     try {
       // Temporarily set token in localStorage so API interceptor can use it
@@ -58,7 +49,16 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate, setUserInfo, showNotification]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+
+    if (token) {
+      handleTokenLogin(token);
+    }
+  }, [location, handleTokenLogin]);
 
   const handleGoogleLogin = () => {
     window.location.href = `${baseURL}/auth/google`;
