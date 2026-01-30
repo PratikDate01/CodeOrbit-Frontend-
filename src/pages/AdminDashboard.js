@@ -31,13 +31,15 @@ import {
   Menu,
   ChevronRight,
   LogOut,
-  Search
+  Search,
+  TicketPercent
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AdminOverview from '../components/admin/AdminOverview';
 import AdminInternships from '../components/admin/AdminInternships';
 import AdminMessages from '../components/admin/AdminMessages';
 import AdminUsers from '../components/admin/AdminUsers';
+import AdminCoupons from '../components/admin/AdminCoupons';
 
 const drawerWidth = 280;
 
@@ -61,6 +63,7 @@ const AdminDashboard = () => {
     { text: 'Applications', icon: <Briefcase size={20} />, path: '/admin/applications' },
     { text: 'Messages', icon: <Mail size={20} />, path: '/admin/messages' },
     { text: 'Users', icon: <Users size={20} />, path: '/admin/users' },
+    { text: 'Coupons', icon: <TicketPercent size={20} />, path: '/admin/coupons' },
   ];
 
   const drawer = (
@@ -287,6 +290,7 @@ const AdminDashboard = () => {
             <Route path="applications" element={<AdminInternships />} />
             <Route path="messages" element={<AdminMessages />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="coupons" element={<AdminCoupons />} />
           </Routes>
         </Container>
       </Box>

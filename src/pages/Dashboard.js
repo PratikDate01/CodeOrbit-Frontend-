@@ -42,7 +42,10 @@ import {
   DialogContent, 
   DialogActions, 
   Snackbar, 
-  Alert
+  Alert,
+  TextField,
+  InputAdornment,
+  Divider
 } from '@mui/material';
 
 const getDocumentUrl = (url) => {
@@ -60,6 +63,9 @@ const Dashboard = () => {
   const [selectedApp, setSelectedApp] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDetails, setCouponDetails] = useState(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -92,7 +98,33 @@ const Dashboard = () => {
 
   const handlePaymentClick = (app) => {
     setSelectedApp(app);
+    setCouponCode('');
+    setCouponDetails(null);
     setPaymentModalOpen(true);
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setValidatingCoupon(true);
+    try {
+      const { data } = await API.post('/payments/validate-coupon', {
+        code: couponCode,
+        applicationId: selectedApp._id
+      });
+      if (data.success) {
+        setCouponDetails(data);
+        setSnackbar({ open: true, message: 'Coupon applied successfully!', severity: 'success' });
+      }
+    } catch (error) {
+      setSnackbar({ 
+        open: true, 
+        message: error.response?.data?.message || 'Invalid coupon code', 
+        severity: 'error' 
+      });
+      setCouponDetails(null);
+    } finally {
+      setValidatingCoupon(false);
+    }
   };
 
   const initiateRazorpayPayment = async () => {
@@ -105,7 +137,10 @@ const Dashboard = () => {
       }
 
       // 1. Create Order
-      const { data: orderData } = await API.post('payments/create-order', { applicationId: selectedApp._id });
+      const { data: orderData } = await API.post('payments/create-order', { 
+        applicationId: selectedApp._id,
+        couponCode: couponDetails?.code
+      });
       const { order } = orderData;
 
       const options = {
@@ -441,26 +476,82 @@ const Dashboard = () => {
         </DialogTitle>
         <DialogContent dividers>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Typography variant="h6" fontWeight={700} color="primary.main" gutterBottom>
-              Amount to Pay: ₹{selectedApp?.amount || (selectedApp?.duration === 1 ? 399 : selectedApp?.duration === 3 ? 599 : 999)}
-            </Typography>
-            <Typography variant="body1" sx={{ mt: 2 }}>
+            <Typography variant="body1" sx={{ mt: 1 }}>
               Secure payment for <strong>{selectedApp?.preferredDomain}</strong> Internship.
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              You will be redirected to Razorpay secure checkout.
-            </Typography>
             
-            <Box sx={{ my: 4, display: 'flex', justifyContent: 'center' }}>
-              <CreditCard size={64} strokeWidth={1} color="#2563eb" />
+            <Box sx={{ my: 3, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+              <Grid container spacing={1}>
+                <Grid item xs={8}>
+                  <Typography variant="body2" color="text.secondary" align="left">Original Price:</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body2" fontWeight={600} align="right">₹{selectedApp?.amount}</Typography>
+                </Grid>
+                
+                {couponDetails && (
+                  <>
+                    <Grid item xs={8}>
+                      <Typography variant="body2" color="success.main" align="left">Discount ({couponDetails.code}):</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography variant="body2" color="success.main" fontWeight={600} align="right">- ₹{couponDetails.discountAmount}</Typography>
+                    </Grid>
+                  </>
+                )}
+                
+                <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
+                
+                <Grid item xs={8}>
+                  <Typography variant="h6" fontWeight={700} align="left">Total Amount:</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="h6" fontWeight={700} color="primary.main" align="right">
+                    ₹{couponDetails ? couponDetails.finalAmount : selectedApp?.amount}
+                  </Typography>
+                </Grid>
+              </Grid>
             </Box>
 
-            <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px dashed #e2e8f0' }}>
-              <Typography variant="caption" display="block" color="text.secondary" gutterBottom>
-                ACCEPTED PAYMENT METHODS
+            <Box sx={{ mb: 3, textAlign: 'left' }}>
+              <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+                Apply Coupon (Optional)
               </Typography>
-              <Typography variant="body2" fontWeight={600}>
-                UPI, Credit/Debit Cards, Net Banking, Wallets
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Enter coupon code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  disabled={validatingCoupon || !!couponDetails}
+                  sx={{ 
+                    '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                    bgcolor: 'white'
+                  }}
+                />
+                <Button 
+                  variant="outlined" 
+                  onClick={couponDetails ? () => { setCouponDetails(null); setCouponCode(''); } : handleApplyCoupon}
+                  disabled={validatingCoupon || (!couponCode && !couponDetails)}
+                  sx={{ borderRadius: 2, whiteSpace: 'nowrap' }}
+                >
+                  {validatingCoupon ? <CircularProgress size={20} /> : couponDetails ? 'Remove' : 'Apply'}
+                </Button>
+              </Box>
+              {couponDetails && (
+                <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block', fontWeight: 600 }}>
+                  ✓ Coupon "{couponDetails.code}" applied! You saved ₹{couponDetails.discountAmount}
+                </Typography>
+              )}
+            </Box>
+
+            <Box sx={{ p: 2, bgcolor: '#eff6ff', borderRadius: 2, border: '1px dashed #bfdbfe' }}>
+              <Typography variant="caption" display="block" color="primary.main" sx={{ fontWeight: 700, mb: 0.5 }}>
+                SECURE CHECKOUT
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                UPI, Cards, Net Banking, Wallets
               </Typography>
             </Box>
           </Box>
@@ -481,7 +572,7 @@ const Dashboard = () => {
             startIcon={processingPayment ? <CircularProgress size={18} color="inherit" /> : <ShieldCheck size={18} />}
             sx={{ borderRadius: 2, px: 4, py: 1 }}
           >
-            {processingPayment ? 'Processing...' : 'Pay with Razorpay'}
+            {processingPayment ? 'Processing...' : `Pay ₹${couponDetails ? couponDetails.finalAmount : selectedApp?.amount}`}
           </Button>
         </DialogActions>
       </Dialog>
