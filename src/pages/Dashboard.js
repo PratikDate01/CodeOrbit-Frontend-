@@ -66,6 +66,18 @@ const Dashboard = () => {
   const [couponCode, setCouponCode] = useState('');
   const [couponDetails, setCouponDetails] = useState(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuApp, setMenuApp] = useState(null);
+
+  const handleMenuOpen = (event, app) => {
+    setAnchorEl(event.currentTarget);
+    setMenuApp(app);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMenuApp(null);
+  };
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -101,6 +113,7 @@ const Dashboard = () => {
     setCouponCode('');
     setCouponDetails(null);
     setPaymentModalOpen(true);
+    handleMenuClose();
   };
 
   const handleApplyCoupon = async () => {
