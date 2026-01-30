@@ -39,7 +39,8 @@ import {
   CreditCard,
   X,
   Receipt,
-  ShieldCheck
+  ShieldCheck,
+  Trash2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API, { baseURL } from '../api/api';
@@ -86,6 +87,18 @@ const Dashboard = () => {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearNotifications = async () => {
+    if (window.confirm('Are you sure you want to clear all notifications?')) {
+      try {
+        await API.delete('/notifications');
+        setNotifications([]);
+        setSnackbar({ open: true, message: 'Notifications cleared successfully', severity: 'success' });
+      } catch (error) {
+        setSnackbar({ open: true, message: 'Failed to clear notifications', severity: 'error' });
+      }
     }
   };
 
@@ -421,7 +434,16 @@ const Dashboard = () => {
           {/* Notifications Section */}
           <Grid size={{ xs: 12, lg: 4 }}>
             <Paper sx={{ p: 3, borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-              <Typography variant="h6" fontWeight={800} sx={{ mb: 3 }}>Recent Notifications</Typography>
+              <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography variant="h6" fontWeight={800}>Recent Notifications</Typography>
+                {notifications.length > 0 && (
+                  <Tooltip title="Clear All">
+                    <IconButton size="small" color="error" onClick={handleClearNotifications}>
+                      <Trash2 size={18} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
               {notifications.length > 0 ? (
                 <Box>
                   {notifications.slice(0, 5).map((noti) => (
