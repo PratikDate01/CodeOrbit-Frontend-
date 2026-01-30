@@ -18,7 +18,11 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
-  Button
+  Button,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material';
 import { 
   Briefcase, 
@@ -36,17 +40,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import API, { baseURL } from '../api/api';
 import { Link } from 'react-router-dom';
-import { 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  Snackbar, 
-  Alert,
-  TextField,
-  InputAdornment,
-  Divider
-} from '@mui/material';
 
 const getDocumentUrl = (url) => {
   if (!url) return '#';

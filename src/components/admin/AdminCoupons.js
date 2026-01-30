@@ -29,7 +29,7 @@ import {
   Checkbox,
   ListItemText
 } from '@mui/material';
-import { Plus, Edit2, Trash2, History, X, Check, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, History } from 'lucide-react';
 import API from '../../api/api';
 
 const PLANS = [399, 599, 999];
