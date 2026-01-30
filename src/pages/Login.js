@@ -13,13 +13,16 @@ import {
   CircularProgress,
   Divider
 } from '@mui/material';
-import { LogIn } from 'lucide-react';
+import { LogIn, Eye, EyeOff } from 'lucide-react';
 import GoogleIcon from '@mui/icons-material/Google';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 
 const Login = () => {
   const { showNotification } = useNotification();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
@@ -100,27 +103,69 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
+              InputProps={{
+                sx: { borderRadius: 2 }
+              }}
             />
             <TextField
               fullWidth
               label="Password"
               variant="outlined"
               margin="normal"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
+              InputProps={{
+                sx: { borderRadius: 2 },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      disabled={loading}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
+            
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+              <Link 
+                to="/forgot-password" 
+                style={{ 
+                  color: '#2563eb', 
+                  textDecoration: 'none', 
+                  fontSize: '0.875rem',
+                  fontWeight: 500 
+                }}
+              >
+                Forgot password?
+              </Link>
+            </Box>
+
             <Button
               fullWidth
               variant="contained"
               size="large"
               type="submit"
               disabled={loading}
-              sx={{ mt: 3, mb: 2, py: 1.5 }}
+              sx={{ 
+                mt: 3, 
+                mb: 2, 
+                py: 1.5, 
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                boxShadow: 'none',
+                '&:hover': { boxShadow: 'none' }
+              }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
             </Button>
           </form>
 
@@ -152,11 +197,11 @@ const Login = () => {
             Continue with Google
           </Button>
 
-          <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
-              Don't have an account?{' '}
-              <Link to="/register" style={{ color: '#0f0f0f', textDecoration: 'none', fontWeight: 600 }}>
-                Register Now
+              New to CodeOrbit?{' '}
+              <Link to="/register" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}>
+                Create an account
               </Link>
             </Typography>
           </Box>

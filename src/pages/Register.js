@@ -12,7 +12,9 @@ import {
   CircularProgress,
   Grid
 } from '@mui/material';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Eye, EyeOff } from 'lucide-react';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 
 const Register = () => {
   const { showNotification } = useNotification();
@@ -24,6 +26,8 @@ const Register = () => {
     phone: '',
     education: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -85,7 +89,7 @@ const Register = () => {
           </Box>
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
+            <Grid container spacing={2.5}>
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
@@ -96,6 +100,7 @@ const Register = () => {
                   value={formData.name}
                   onChange={handleChange}
                   disabled={loading}
+                  InputProps={{ sx: { borderRadius: 2 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>
@@ -109,6 +114,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   disabled={loading}
+                  InputProps={{ sx: { borderRadius: 2 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -120,6 +126,7 @@ const Register = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   disabled={loading}
+                  InputProps={{ sx: { borderRadius: 2 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -131,6 +138,7 @@ const Register = () => {
                   value={formData.education}
                   onChange={handleChange}
                   disabled={loading}
+                  InputProps={{ sx: { borderRadius: 2 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -139,11 +147,25 @@ const Register = () => {
                   label="Password"
                   name="password"
                   variant="outlined"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={formData.password}
                   onChange={handleChange}
                   disabled={loading}
+                  InputProps={{ 
+                    sx: { borderRadius: 2 },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          disabled={loading}
+                        >
+                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -152,11 +174,25 @@ const Register = () => {
                   label="Confirm Password"
                   name="confirmPassword"
                   variant="outlined"
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   disabled={loading}
+                  InputProps={{ 
+                    sx: { borderRadius: 2 },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          edge="end"
+                          disabled={loading}
+                        >
+                          {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
             </Grid>
@@ -166,17 +202,27 @@ const Register = () => {
               size="large"
               type="submit"
               disabled={loading}
-              sx={{ mt: 4, mb: 2, py: 1.5 }}
+              sx={{ 
+                mt: 4, 
+                mb: 2, 
+                py: 1.5, 
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                boxShadow: 'none',
+                '&:hover': { boxShadow: 'none' }
+              }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Register'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Account'}
             </Button>
           </form>
 
-          <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
               Already have an account?{' '}
-              <Link to="/login" style={{ color: '#0f0f0f', textDecoration: 'none', fontWeight: 600 }}>
-                Login Here
+              <Link to="/login" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}>
+                Log in here
               </Link>
             </Typography>
           </Box>
