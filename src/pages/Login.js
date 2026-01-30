@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { useGoogleLogin } from '@react-oauth/google';
+import API, { baseURL } from '../api/api';
 import { 
   Box, 
   Button, 
@@ -24,26 +24,45 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login, googleLogin } = useAuth();
+  const { login, setUserInfo } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleGoogleLoginSuccess = async (tokenResponse) => {
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+
+    if (token) {
+      handleTokenLogin(token);
+    }
+  }, [location]);
+
+  const handleTokenLogin = async (token) => {
     setLoading(true);
     try {
-      await googleLogin(tokenResponse.access_token);
+      // Temporarily set token in localStorage so API interceptor can use it
+      localStorage.setItem('userInfo', JSON.stringify({ token }));
+      
+      // Fetch user profile
+      const { data } = await API.get('/auth/profile');
+      
+      const userInfo = { ...data, token };
+      setUserInfo(userInfo);
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      
       showNotification('Successfully logged in with Google!', 'success');
       navigate('/');
     } catch (err) {
-      showNotification(err.response?.data?.message || 'Google login failed. Please try again.', 'error');
+      localStorage.removeItem('userInfo');
+      showNotification('Google authentication failed. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: handleGoogleLoginSuccess,
-    onError: () => showNotification('Google login failed. Please try again.', 'error'),
-  });
+  const handleGoogleLogin = () => {
+    window.location.href = `${baseURL}/auth/google`;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
