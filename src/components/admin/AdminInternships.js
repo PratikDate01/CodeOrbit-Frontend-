@@ -359,6 +359,14 @@ const AdminInternships = () => {
                           icon={<CreditCard size={14} />}
                           sx={{ fontWeight: 600, fontSize: '0.7rem' }}
                         />
+                        {app.razorpayPaymentId && (
+                          <Chip 
+                            label="Razorpay" 
+                            size="small" 
+                            color="info"
+                            sx={{ fontWeight: 700, fontSize: '0.6rem', height: 20 }}
+                          />
+                        )}
                         {app.documents?.paymentSlipUrl && (
                           <Tooltip title="View Receipt">
                             <IconButton 
@@ -595,13 +603,24 @@ const AdminInternships = () => {
         <DialogContent>
           <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box>
-              <Typography variant="caption" color="text.secondary" fontWeight={600}>TRANSACTION ID</Typography>
-              <Typography variant="body1" fontWeight={700} sx={{ mt: 0.5 }}>{selectedApp?.transactionId || 'N/A'}</Typography>
+              <Typography variant="caption" color="text.secondary" fontWeight={600}>TRANSACTION / PAYMENT ID</Typography>
+              <Typography variant="body1" fontWeight={700} sx={{ mt: 0.5 }}>{selectedApp?.razorpayPaymentId || selectedApp?.transactionId || 'N/A'}</Typography>
             </Box>
+            {selectedApp?.razorpayOrderId && (
+              <Box>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>RAZORPAY ORDER ID</Typography>
+                <Typography variant="body1" fontWeight={700} sx={{ mt: 0.5 }}>{selectedApp.razorpayOrderId}</Typography>
+              </Box>
+            )}
             <Divider />
             <Box>
-              <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1, display: 'block' }}>PAYMENT SCREENSHOT</Typography>
-              {selectedApp?.paymentScreenshot ? (
+              <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1, display: 'block' }}>PAYMENT DETAILS</Typography>
+              {selectedApp?.razorpayPaymentId ? (
+                <Box sx={{ p: 2, bgcolor: 'success.light', borderRadius: 2, color: 'success.contrastText' }}>
+                  <Typography variant="body2" fontWeight={600}>Verified via Razorpay</Typography>
+                  <Typography variant="caption">Automatic verification successful</Typography>
+                </Box>
+              ) : selectedApp?.paymentScreenshot ? (
                 <Box 
                   component="img"
                   src={getDocumentUrl(selectedApp.paymentScreenshot)}
@@ -616,7 +635,7 @@ const AdminInternships = () => {
                   onClick={() => window.open(getDocumentUrl(selectedApp.paymentScreenshot), '_blank')}
                 />
               ) : (
-                <Typography variant="body2" color="error">No screenshot uploaded</Typography>
+                <Typography variant="body2" color="error">No screenshot or Razorpay data available</Typography>
               )}
             </Box>
           </Box>

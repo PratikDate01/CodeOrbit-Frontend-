@@ -29,10 +29,9 @@ import {
   Award,
   Settings,
   CreditCard,
-  QrCode,
-  Upload,
   X,
-  Receipt
+  Receipt,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API, { baseURL } from '../api/api';
@@ -42,8 +41,7 @@ import {
   DialogTitle, 
   DialogContent, 
   DialogActions, 
-  TextField,
-  Snackbar,
+  Snackbar, 
   Alert
 } from '@mui/material';
 
@@ -60,10 +58,18 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [screenshot, setScreenshot] = useState(null);
-  const [uploading, setUploading] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
   const fetchData = async () => {
     try {
@@ -89,30 +95,63 @@ const Dashboard = () => {
     setPaymentModalOpen(true);
   };
 
-  const handlePaymentSubmit = async () => {
-    if (!transactionId || !screenshot) {
-      setSnackbar({ open: true, message: 'Please provide both Transaction ID and Screenshot', severity: 'error' });
-      return;
-    }
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('transactionId', transactionId);
-    formData.append('screenshot', screenshot);
-
+  const initiateRazorpayPayment = async () => {
+    setProcessingPayment(true);
     try {
-      await API.post(`/internships/${selectedApp._id}/payment`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      setSnackbar({ open: true, message: 'Payment details submitted successfully!', severity: 'success' });
-      setPaymentModalOpen(false);
-      setTransactionId('');
-      setScreenshot(null);
-      fetchData();
+      const res = await loadRazorpayScript();
+      if (!res) {
+        setSnackbar({ open: true, message: 'Razorpay SDK failed to load. Are you online?', severity: 'error' });
+        return;
+      }
+
+      // 1. Create Order
+      const { data: orderData } = await API.post('payments/create-order', { applicationId: selectedApp._id });
+      const { order } = orderData;
+
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'CodeOrbit Solutions',
+        description: `Payment for ${selectedApp.preferredDomain} Internship`,
+        image: `${baseURL}/assets/logos/Company Logo.png`,
+        order_id: order.id,
+        handler: async (response) => {
+          try {
+            const verifyRes = await API.post('payments/verify', {
+              ...response,
+              applicationId: selectedApp._id
+            });
+            if (verifyRes.data.success) {
+              setSnackbar({ open: true, message: 'Payment successful and verified!', severity: 'success' });
+              setPaymentModalOpen(false);
+              fetchData();
+            }
+          } catch (error) {
+            setSnackbar({ open: true, message: 'Payment verification failed. Please contact support.', severity: 'error' });
+          }
+        },
+        prefill: {
+          name: userInfo.name,
+          email: userInfo.email,
+          contact: userInfo.phone
+        },
+        notes: {
+          application_id: selectedApp._id,
+          domain: selectedApp.preferredDomain
+        },
+        theme: {
+          color: '#2563eb'
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
     } catch (error) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Failed to submit payment', severity: 'error' });
+      console.error('Payment Initialization Error:', error);
+      setSnackbar({ open: true, message: 'Failed to initiate payment. Please try again.', severity: 'error' });
     } finally {
-      setUploading(false);
+      setProcessingPayment(false);
     }
   };
 
@@ -387,7 +426,7 @@ const Dashboard = () => {
       {/* Payment Modal */}
       <Dialog 
         open={paymentModalOpen} 
-        onClose={() => !uploading && setPaymentModalOpen(false)}
+        onClose={() => !processingPayment && setPaymentModalOpen(false)}
         maxWidth="sm"
         fullWidth
         PaperProps={{
@@ -396,7 +435,7 @@ const Dashboard = () => {
       >
         <DialogTitle sx={{ fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           Complete Payment
-          <IconButton onClick={() => setPaymentModalOpen(false)} disabled={uploading}>
+          <IconButton onClick={() => setPaymentModalOpen(false)} disabled={processingPayment}>
             <X size={20} />
           </IconButton>
         </DialogTitle>
@@ -405,75 +444,44 @@ const Dashboard = () => {
             <Typography variant="h6" fontWeight={700} color="primary.main" gutterBottom>
               Amount to Pay: ₹{selectedApp?.amount || (selectedApp?.duration === 1 ? 399 : selectedApp?.duration === 3 ? 599 : 999)}
             </Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              Scan the QR code below to make the payment. After payment, enter the Transaction ID and upload the screenshot.
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              Secure payment for <strong>{selectedApp?.preferredDomain}</strong> Internship.
             </Typography>
-            <Box 
-              component="img"
-              src={`${baseURL}/assets/payments/QR.jpeg`}
-              alt="Payment QR Code"
-              sx={{ 
-                width: '100%', 
-                maxWidth: 250, 
-                height: 'auto', 
-                mx: 'auto', 
-                my: 2,
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: 'divider'
-              }}
-            />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              You will be redirected to Razorpay secure checkout.
+            </Typography>
+            
+            <Box sx={{ my: 4, display: 'flex', justifyContent: 'center' }}>
+              <CreditCard size={64} strokeWidth={1} color="#2563eb" />
+            </Box>
+
+            <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px dashed #e2e8f0' }}>
+              <Typography variant="caption" display="block" color="text.secondary" gutterBottom>
+                ACCEPTED PAYMENT METHODS
+              </Typography>
+              <Typography variant="body2" fontWeight={600}>
+                UPI, Credit/Debit Cards, Net Banking, Wallets
+              </Typography>
+            </Box>
           </Box>
-          
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Transaction ID"
-                variant="outlined"
-                value={transactionId}
-                onChange={(e) => setTransactionId(e.target.value)}
-                placeholder="Enter your UPI/Bank transaction ID"
-                disabled={uploading}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="outlined"
-                component="label"
-                fullWidth
-                startIcon={<Upload size={18} />}
-                sx={{ py: 1.5, borderRadius: 2 }}
-                disabled={uploading}
-              >
-                {screenshot ? screenshot.name : 'Upload Payment Screenshot'}
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={(e) => setScreenshot(e.target.files[0])}
-                />
-              </Button>
-            </Grid>
-          </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
           <Button 
             onClick={() => setPaymentModalOpen(false)} 
             color="inherit"
-            disabled={uploading}
+            disabled={processingPayment}
           >
             Cancel
           </Button>
           <Button 
-            onClick={handlePaymentSubmit} 
+            onClick={initiateRazorpayPayment} 
             variant="contained" 
             color="primary"
-            disabled={uploading || !transactionId || !screenshot}
-            startIcon={uploading ? <CircularProgress size={18} color="inherit" /> : <QrCode size={18} />}
-            sx={{ borderRadius: 2, px: 3 }}
+            disabled={processingPayment}
+            startIcon={processingPayment ? <CircularProgress size={18} color="inherit" /> : <ShieldCheck size={18} />}
+            sx={{ borderRadius: 2, px: 4, py: 1 }}
           >
-            {uploading ? 'Submitting...' : 'Submit Payment Details'}
+            {processingPayment ? 'Processing...' : 'Pay with Razorpay'}
           </Button>
         </DialogActions>
       </Dialog>
