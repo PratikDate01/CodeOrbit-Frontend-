@@ -65,11 +65,36 @@ const AdminInternships = () => {
     setLoading(true);
     try {
       const { data } = await API.get('/internships');
-      setApplications(data);
+      
+      // Fetch progress for each application to show eligibility
+      const appsWithProgress = await Promise.all(data.map(async (app) => {
+        try {
+          const progressRes = await API.get(`/activity/progress/${app._id}`);
+          return { ...app, progress: progressRes.data };
+        } catch (e) {
+          return { ...app, progress: { isEligibleForCertificate: false, progressPercentage: 0 } };
+        }
+      }));
+
+      setApplications(appsWithProgress);
     } catch (error) {
       console.error('Error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleEligibility = async (app) => {
+    try {
+      const currentEligible = app.progress?.isEligibleForCertificate || false;
+      await API.put(`/activity/progress/${app._id}/eligibility`, {
+        isEligibleForCertificate: !currentEligible,
+        adminManuallyCompleted: !currentEligible
+      });
+      showNotification(`Eligibility ${!currentEligible ? 'granted' : 'revoked'} successfully`, 'success');
+      fetchApplications();
+    } catch (error) {
+      showNotification('Failed to update eligibility', 'error');
     }
   };
 
@@ -335,7 +360,14 @@ const AdminInternships = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <User size={20} color="#64748b" />
                         <Box>
-                          <Typography variant="body2" fontWeight={700}>{app.name}</Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body2" fontWeight={700}>{app.name}</Typography>
+                            {app.progress?.isEligibleForCertificate && (
+                              <Tooltip title="Eligible for Certificate">
+                                <Award size={14} color="#8b5cf6" />
+                              </Tooltip>
+                            )}
+                          </Box>
                           <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{app.email}</Typography>
                           <Typography variant="caption" color="primary.main" sx={{ fontWeight: 600 }}>{app.college}</Typography>
                           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>Applied: {new Date(app.createdAt).toLocaleDateString()}</Typography>
@@ -476,6 +508,12 @@ const AdminInternships = () => {
           <ListItemIcon><User size={18} /></ListItemIcon>
           <ListItemText>Mark as Selected</ListItemText>
         </MenuItem>
+        {selectedApp?.paymentStatus === 'Verified' && (
+          <MenuItem onClick={() => { handleToggleEligibility(selectedApp); setAnchorEl(null); }}>
+            <ListItemIcon><Award size={18} color={selectedApp.progress?.isEligibleForCertificate ? "#64748b" : "#8b5cf6"} /></ListItemIcon>
+            <ListItemText>{selectedApp.progress?.isEligibleForCertificate ? "Revoke Eligibility" : "Grant Certificate Eligibility"}</ListItemText>
+          </MenuItem>
+        )}
         {selectedApp?.paymentStatus === 'Processing' && (
           <MenuItem onClick={() => { setAnchorEl(null); setOpenPaymentDialog(true); }}>
             <ListItemIcon><CreditCard size={18} color="#f59e0b" /></ListItemIcon>

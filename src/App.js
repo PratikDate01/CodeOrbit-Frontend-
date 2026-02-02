@@ -20,8 +20,15 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Profile = lazy(() => import('./pages/Profile'));
+const VerifySearch = lazy(() => import('./pages/VerifySearch'));
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
+const FeeExplanation = lazy(() => import('./pages/FeeExplanation'));
+const Colleges = lazy(() => import('./pages/Colleges'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const InternshipActivity = lazy(() => import('./pages/InternshipActivity'));
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -219,12 +226,26 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/verify" element={<VerifySearch />} />
                 <Route path="/verify/:id" element={<VerifyDocument />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/refund" element={<RefundPolicy />} />
+                <Route path="/fee-structure" element={<FeeExplanation />} />
+                <Route path="/colleges" element={<Colleges />} />
                 <Route 
                   path="/dashboard" 
                   element={
                     <PrivateRoute>
                       <Dashboard />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route 
+                  path="/internship-activity/:internshipId" 
+                  element={
+                    <PrivateRoute>
+                      <InternshipActivity />
                     </PrivateRoute>
                   } 
                 />

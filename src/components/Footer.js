@@ -124,6 +124,8 @@ const Footer = () => {
                   { text: 'About Us', path: '/about' },
                   { text: 'Services', path: '/services' },
                   { text: 'Internships', path: '/internships' },
+                  { text: 'For Colleges', path: '/colleges' },
+                  { text: 'Verify Document', path: '/verify' },
                   { text: 'Contact', path: '/contact' }
                 ].map((link) => (
                   <Link
@@ -278,9 +280,10 @@ const Footer = () => {
           >
             © {currentYear} CodeOrbit. All rights reserved.
           </Typography>
-          <Box sx={{ display: 'flex', gap: 3 }}>
+          <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link
-              href="/privacy"
+              component={RouterLink}
+              to="/privacy"
               sx={{
                 color: 'rgba(255,255,255,0.5)',
                 textDecoration: 'none',
@@ -292,7 +295,8 @@ const Footer = () => {
               Privacy Policy
             </Link>
             <Link
-              href="/terms"
+              component={RouterLink}
+              to="/terms"
               sx={{
                 color: 'rgba(255,255,255,0.5)',
                 textDecoration: 'none',
@@ -302,6 +306,32 @@ const Footer = () => {
               }}
             >
               Terms of Service
+            </Link>
+            <Link
+              component={RouterLink}
+              to="/refund"
+              sx={{
+                color: 'rgba(255,255,255,0.5)',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                transition: 'color 0.2s ease',
+                '&:hover': { color: '#ffffff' }
+              }}
+            >
+              Refund Policy
+            </Link>
+            <Link
+              component={RouterLink}
+              to="/fee-structure"
+              sx={{
+                color: 'rgba(255,255,255,0.5)',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                transition: 'color 0.2s ease',
+                '&:hover': { color: '#ffffff' }
+              }}
+            >
+              Fee Structure
             </Link>
           </Box>
         </Box>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { Container, Typography, TextField, Button, Box, Alert, Grid, Card, CardContent, Paper, Chip, MenuItem, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress } from '@mui/material';
 import API from '../api/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -41,7 +42,7 @@ const Internships = () => {
     { 
       months: 1, 
       price: 399, 
-      label: '1 Month Internship – Basic Skill Exposure',
+      label: 'Internship Only',
       ideal: 'Beginners, Students exploring a domain, First-time interns',
       what: 'Learn core fundamentals of the selected domain, Study provided learning materials, Complete assigned tasks and exercises, Attempt knowledge assessment tests',
       projectLevel: 'Mini project (basic implementation)',
@@ -59,7 +60,7 @@ const Internships = () => {
     { 
       months: 3, 
       price: 599, 
-      label: '3 Month Internship – Practical Skill Building',
+      label: 'Internship + Training',
       ideal: 'Intermediate learners, Students wanting hands-on experience, Portfolio building',
       what: 'Study advanced concepts through provided materials, Work on structured tasks and case-based assignments, Complete regular evaluations and tests, Develop a real-world project',
       projectLevel: 'Functional real-world project',
@@ -78,7 +79,7 @@ const Internships = () => {
     { 
       months: 6, 
       price: 999, 
-      label: '6 Month Internship – Industrial Experience Program',
+      label: 'Internship + Training + Placement Prep',
       ideal: 'Final-year students, Long-term industrial training seekers, Career-focused learners',
       what: 'Follow a complete industry-level learning roadmap, Work on complex assignments & evaluations, Develop production-level project(s), Complete documentation & internship reports, Undergo final assessments',
       projectLevel: 'Industry / production-level project',
@@ -193,8 +194,9 @@ const Internships = () => {
   ];
 
   const faqs = [
-    { q: 'Is there any fee for the internship?', a: 'Currently, our internship programs are application-based and focused on providing quality mentorship and real-world project experience.' },
+    { q: 'Is there any fee for the internship?', a: 'Selection for our programs is free. A nominal Program Contribution Fee is charged for some tracks to cover training resources, certification infrastructure, and administrative costs. See our Fee Transparency section for details.' },
     { q: 'How long does the verification take?', a: 'Our team typically reviews applications within 3-5 business days.' },
+    { q: 'Are the certificates verifiable?', a: 'Yes, every certificate comes with a unique Verification ID and QR code that can be verified on our public portal.' },
     { q: 'Can I apply for multiple domains?', a: 'We recommend focusing on one domain at a time to ensure the best learning experience.' }
   ];
 
@@ -513,6 +515,35 @@ const Internships = () => {
             </Grid>
           </Box>
         </Paper>
+
+        {/* Fee Transparency Section */}
+        <Box sx={{ mb: 12, p: { xs: 4, md: 6 }, bgcolor: 'background.alt', borderRadius: 8, border: '1px solid', borderColor: 'divider' }}>
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={8}>
+              <Typography variant="h4" fontWeight={800} gutterBottom>Fee Transparency</Typography>
+              <Typography variant="body1" sx={{ mb: 2, fontSize: '1.1rem', color: 'text.primary' }}>
+                We believe in complete honesty. Selection for all CodeOrbit internships is <strong>100% Free</strong>.
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                The Program Contribution Fee (starting at ₹399) is only charged after selection to cover the costs of training resources, cloud infrastructure, verifiable certification, and lifetime credential maintenance.
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Button 
+                variant="contained" 
+                size="large" 
+                component={Link} 
+                to="/fee-structure"
+                sx={{ 
+                  px: 4,
+                  borderRadius: 3
+                }}
+              >
+                Learn More
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
 
         {/* FAQ Section */}
         <Box sx={{ mb: 10 }}>

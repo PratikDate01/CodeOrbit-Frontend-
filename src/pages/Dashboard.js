@@ -367,6 +367,18 @@ const Dashboard = () => {
                               {app.paymentStatus === 'Processing' && (
                                 <Chip label="Payment Processing" size="small" variant="outlined" color="warning" sx={{ mt: 1 }} />
                               )}
+                              {['Approved', 'Completed'].includes(app.status) && (
+                                <Tooltip title="Internship Activity / Tasks">
+                                  <IconButton 
+                                    size="small" 
+                                    color="info"
+                                    component={Link}
+                                    to={`/internship-activity/${app._id}`}
+                                  >
+                                    <Briefcase size={18} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                               {app.documents?.offerLetterUrl && (
                                 <Tooltip title="Download Offer Letter">
                                   <IconButton 
