@@ -18,7 +18,6 @@ import {
   Target, 
   Zap, 
   GraduationCap, 
-  Award,
   CircleHelp
 } from 'lucide-react';
 import { Link } from 'react-router-dom';

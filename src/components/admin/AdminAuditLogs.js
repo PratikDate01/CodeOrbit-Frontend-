@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -15,12 +15,11 @@ import {
   TextField,
   InputAdornment,
   Chip,
-  Tooltip,
   Accordion,
   AccordionSummary,
   AccordionDetails
 } from '@mui/material';
-import { Search, Shield, ChevronDown, Clock, Activity, Target } from 'lucide-react';
+import { Search, Shield, ChevronDown, Clock } from 'lucide-react';
 import API from '../../api/api';
 
 const AdminAuditLogs = () => {
@@ -31,11 +30,7 @@ const AdminAuditLogs = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    fetchLogs();
-  }, [page, rowsPerPage]);
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await API.get(`/admin/audit-logs?page=${page + 1}&limit=${rowsPerPage}`);
@@ -46,7 +41,11 @@ const AdminAuditLogs = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, rowsPerPage]);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

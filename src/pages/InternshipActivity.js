@@ -10,7 +10,6 @@ import {
   Button,
   Chip,
   LinearProgress,
-  Divider,
   TextField,
   Dialog,
   DialogTitle,
@@ -30,7 +29,7 @@ import {
   Send as SendIcon,
   Info as InfoIcon
 } from '@mui/icons-material';
-import axios from 'axios';
+import API from '../api/api';
 import { useNotification } from '../context/NotificationContext';
 
 const InternshipActivity = () => {
@@ -53,7 +52,7 @@ const InternshipActivity = () => {
     try {
       setLoading(true);
       // Fetch my applications to find this specific internship details
-      const appRes = await axios.get('/api/internships/my-applications');
+      const appRes = await API.get('/internships/my-applications');
       const currentApp = appRes.data.find(app => app._id === internshipId);
       
       if (!currentApp) {
@@ -64,15 +63,15 @@ const InternshipActivity = () => {
       setInternship(currentApp);
 
       // Fetch tasks for this domain
-      const tasksRes = await axios.get(`/api/activity/tasks?domain=${currentApp.preferredDomain}`);
+      const tasksRes = await API.get(`/activity/tasks?domain=${currentApp.preferredDomain}`);
       setTasks(tasksRes.data);
 
       // Fetch submissions for this internship
-      const submissionsRes = await axios.get(`/api/activity/submissions?internshipId=${internshipId}`);
+      const submissionsRes = await API.get(`/activity/submissions?internshipId=${internshipId}`);
       setSubmissions(submissionsRes.data);
 
       // Fetch progress
-      const progressRes = await axios.get(`/api/activity/progress/${internshipId}`);
+      const progressRes = await API.get(`/activity/progress/${internshipId}`);
       setProgress(progressRes.data);
 
     } catch (error) {
@@ -102,7 +101,7 @@ const InternshipActivity = () => {
 
     try {
       setSubmitting(true);
-      await axios.post('/api/activity/submissions', {
+      await API.post('/activity/submissions', {
         taskId: selectedTask._id,
         internshipId,
         content: submissionContent

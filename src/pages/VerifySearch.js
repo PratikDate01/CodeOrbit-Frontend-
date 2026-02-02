@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -8,7 +8,6 @@ import {
   TextField, 
   Button, 
   Grid,
-  Divider,
   Alert
 } from '@mui/material';
 import { 
@@ -24,6 +23,20 @@ const VerifySearch = () => {
   const [error, setError] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const navigate = useNavigate();
+
+  const onScanSuccess = useCallback((decodedText, decodedResult) => {
+    // Expected format: verificationId or a full URL containing the ID
+    let id = decodedText;
+    if (decodedText.includes('/verify/')) {
+      id = decodedText.split('/verify/')[1].split('?')[0];
+    }
+    
+    navigate(`/verify/${id}`);
+  }, [navigate]);
+
+  const onScanFailure = (error) => {
+    // console.warn(`Code scan error = ${error}`);
+  };
 
   useEffect(() => {
     let scanner = null;
@@ -44,21 +57,7 @@ const VerifySearch = () => {
         });
       }
     };
-  }, [showScanner]);
-
-  function onScanSuccess(decodedText, decodedResult) {
-    // Expected format: verificationId or a full URL containing the ID
-    let id = decodedText;
-    if (decodedText.includes('/verify/')) {
-      id = decodedText.split('/verify/')[1].split('?')[0];
-    }
-    
-    navigate(`/verify/${id}`);
-  }
-
-  function onScanFailure(error) {
-    // console.warn(`Code scan error = ${error}`);
-  }
+  }, [showScanner, onScanSuccess]);
 
   const handleSearch = (e) => {
     e.preventDefault();
