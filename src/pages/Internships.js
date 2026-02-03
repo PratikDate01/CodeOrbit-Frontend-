@@ -149,65 +149,6 @@ const Internships = () => {
     }
   }, [userInfo, fetchMyApplications]);
 
-        {/* Programs Grid */}
-        <Typography variant="h2" sx={{ mb: 6, textAlign: 'center' }}>Featured Programs</Typography>
-        
-        {fetchingPrograms ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 10 }}>
-            <LoadingSpinner />
-          </Box>
-        ) : programs.length > 0 ? (
-          <Grid container spacing={4} sx={{ mb: 12 }}>
-            {programs.map((program, index) => (
-              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index} sx={{ display: 'flex' }}>
-                <Card sx={{ 
-                  height: '100%', 
-                  width: '100%',
-                  transition: 'transform 0.3s ease',
-                  '&:hover': { transform: 'translateY(-8px)' },
-                  borderRadius: 4,
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
-                  {program.thumbnail && (
-                    <Box 
-                      component="img"
-                      src={program.thumbnail}
-                      alt={program.title}
-                      sx={{ width: '100%', height: 160, objectFit: 'cover' }}
-                    />
-                  )}
-                  <CardContent sx={{ p: 3, textAlign: 'center', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="h6" gutterBottom fontWeight={700}>{program.title}</Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, flexGrow: 1 }}>
-                      {program.description?.substring(0, 100)}...
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2, color: 'text.secondary' }}>
-                      <AccessTimeIcon sx={{ fontSize: 16 }} />
-                      <Typography variant="body2">{program.duration || program.durationInfo || '8 Weeks'}</Typography>
-                    </Box>
-                    <Button 
-                      variant="contained" 
-                      fullWidth 
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, preferredDomain: program.title }));
-                        document.getElementById('application-form').scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      sx={{ borderRadius: 2, mt: 'auto' }}
-                    >
-                      Apply Now
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <Alert severity="info" sx={{ mb: 12, borderRadius: 2 }}>
-            New programs are launching soon. Stay tuned!
-          </Alert>
-        )}
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userInfo) return;
@@ -364,6 +305,65 @@ const Internships = () => {
             ))}
           </Grid>
         </Box>
+
+        {/* Programs Grid */}
+        <Typography variant="h2" sx={{ mb: 6, textAlign: 'center' }}>Featured Programs</Typography>
+        
+        {fetchingPrograms ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 10 }}>
+            <LoadingSpinner />
+          </Box>
+        ) : programs.length > 0 ? (
+          <Grid container spacing={4} sx={{ mb: 12 }}>
+            {programs.map((program, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index} sx={{ display: 'flex' }}>
+                <Card sx={{ 
+                  height: '100%', 
+                  width: '100%',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': { transform: 'translateY(-8px)' },
+                  borderRadius: 4,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  {program.thumbnail && (
+                    <Box 
+                      component="img"
+                      src={program.thumbnail}
+                      alt={program.title}
+                      sx={{ width: '100%', height: 160, objectFit: 'cover' }}
+                    />
+                  )}
+                  <CardContent sx={{ p: 3, textAlign: 'center', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="h6" gutterBottom fontWeight={700}>{program.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, flexGrow: 1 }}>
+                      {program.description?.substring(0, 100)}...
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2, color: 'text.secondary' }}>
+                      <AccessTimeIcon sx={{ fontSize: 16 }} />
+                      <Typography variant="body2">{program.duration || program.durationInfo || '8 Weeks'}</Typography>
+                    </Box>
+                    <Button 
+                      variant="contained" 
+                      fullWidth 
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, preferredDomain: program.title }));
+                        document.getElementById('application-form').scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      sx={{ borderRadius: 2, mt: 'auto' }}
+                    >
+                      Apply Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Alert severity="info" sx={{ mb: 12, borderRadius: 2 }}>
+            New programs are launching soon. Stay tuned!
+          </Alert>
+        )}
 
         {/* Selection Process Section */}
         <div className="mb-12 py-10 px-6 bg-gray-50/50 rounded-[2.5rem] overflow-hidden border border-gray-100">
