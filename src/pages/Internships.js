@@ -5,10 +5,6 @@ import API from '../api/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SchoolIcon from '@mui/icons-material/School';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CodeIcon from '@mui/icons-material/Code';
-import CloudIcon from '@mui/icons-material/Cloud';
-import DesignServicesIcon from '@mui/icons-material/DesignServices';
-import DataObjectIcon from '@mui/icons-material/DataObject';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
@@ -339,38 +335,6 @@ const Internships = () => {
             )}
           </Box>
         )}
-
-        {/* Programs Grid */}
-        <Typography variant="h2" sx={{ mb: 6, textAlign: 'center' }}>Featured Programs</Typography>
-        <Grid container spacing={4} sx={{ mb: 12 }}>
-          {programs.map((program, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index} sx={{ display: 'flex' }}>
-              <Card sx={{ 
-                height: '100%', 
-                width: '100%',
-                transition: 'transform 0.3s ease',
-                '&:hover': { transform: 'translateY(-8px)' },
-                borderRadius: 4
-              }}>
-                <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                  <Box sx={{ color: 'secondary.main', mb: 2 }}>
-                    {React.cloneElement(program.icon, { sx: { fontSize: 48 } })}
-                  </Box>
-                  <Typography variant="h6" gutterBottom fontWeight={700}>{program.title}</Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2, color: 'text.secondary' }}>
-                    <AccessTimeIcon sx={{ fontSize: 16 }} />
-                    <Typography variant="body2">{program.durationInfo}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center' }}>
-                    {program.skills.map((skill, idx) => (
-                      <Chip key={idx} label={skill} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
-                    ))}
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
 
         {/* Benefits Section */}
         <Box sx={{ mb: 12 }}>

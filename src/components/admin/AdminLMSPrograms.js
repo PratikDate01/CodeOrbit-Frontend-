@@ -17,17 +17,16 @@ import {
   CircularProgress,
   Switch,
   FormControlLabel,
-  Tooltip
+  Tooltip,
+  Divider
 } from '@mui/material';
 import { 
   Plus, 
   Edit, 
   BookOpen, 
   Trash2, 
-  ExternalLink,
   CheckCircle2,
-  XCircle,
-  Globe
+  XCircle
 } from 'lucide-react';
 import API from '../../api/api';
 

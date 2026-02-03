@@ -34,8 +34,7 @@ import {
   LogOut,
   Menu,
   ChevronRight,
-  CreditCard,
-  User
+  CreditCard
 } from 'lucide-react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -391,7 +390,7 @@ const Dashboard = () => {
         fullWidth
         PaperProps={{ sx: { borderRadius: 4 } }}
       >
-        <DialogTitle sx={{ fontWeight: 800, textAlign: 'center', pt: 4 }}>Complete Enrollment</Typography>
+        <DialogTitle sx={{ fontWeight: 800, textAlign: 'center', pt: 4 }}>Complete Enrollment</DialogTitle>
         <DialogContent>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Typography variant="body2" color="text.secondary">Domain</Typography>

@@ -17,7 +17,6 @@ import {
 import { 
   Briefcase, 
   CreditCard, 
-  Receipt, 
   FileText,
   Search
 } from 'lucide-react';

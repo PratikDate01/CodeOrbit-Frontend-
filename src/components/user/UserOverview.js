@@ -14,7 +14,6 @@ import {
   TableRow, 
   Button, 
   IconButton, 
-  Tooltip, 
   Chip,
   List,
   ListItem,
@@ -25,11 +24,7 @@ import {
   Briefcase, 
   CheckCircle, 
   Bell, 
-  CreditCard, 
-  Receipt, 
-  FileText,
-  ChevronRight,
-  Clock
+  ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
