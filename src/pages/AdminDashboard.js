@@ -33,7 +33,8 @@ import {
   LogOut,
   Search,
   TicketPercent,
-  ShieldAlert
+  ShieldAlert,
+  GraduationCap
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AdminOverview from '../components/admin/AdminOverview';
@@ -43,6 +44,7 @@ import AdminUsers from '../components/admin/AdminUsers';
 import AdminCoupons from '../components/admin/AdminCoupons';
 import AdminActivity from '../components/admin/AdminActivity';
 import AdminAuditLogs from '../components/admin/AdminAuditLogs';
+import AdminLMS from '../components/admin/AdminLMS';
 
 const drawerWidth = 280;
 
@@ -63,6 +65,7 @@ const AdminDashboard = () => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin' },
+    { text: 'LMS Management', icon: <GraduationCap size={20} />, path: '/admin/lms' },
     { text: 'Applications', icon: <Briefcase size={20} />, path: '/admin/applications' },
     { text: 'Messages', icon: <Mail size={20} />, path: '/admin/messages' },
     { text: 'Users', icon: <Users size={20} />, path: '/admin/users' },
@@ -292,6 +295,7 @@ const AdminDashboard = () => {
         <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
           <Routes>
             <Route index element={<AdminOverview />} />
+            <Route path="lms/*" element={<AdminLMS />} />
             <Route path="applications" element={<AdminInternships />} />
             <Route path="messages" element={<AdminMessages />} />
             <Route path="users" element={<AdminUsers />} />

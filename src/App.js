@@ -29,6 +29,8 @@ const FeeExplanation = lazy(() => import('./pages/FeeExplanation'));
 const Colleges = lazy(() => import('./pages/Colleges'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const InternshipActivity = lazy(() => import('./pages/InternshipActivity'));
+const MyLearning = lazy(() => import('./pages/lms/MyLearning'));
+const CoursePlayer = lazy(() => import('./pages/lms/CoursePlayer'));
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -246,6 +248,22 @@ function App() {
                   element={
                     <PrivateRoute>
                       <InternshipActivity />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route 
+                  path="/my-learning" 
+                  element={
+                    <PrivateRoute>
+                      <MyLearning />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route 
+                  path="/learning/:programId" 
+                  element={
+                    <PrivateRoute>
+                      <CoursePlayer />
                     </PrivateRoute>
                   } 
                 />
