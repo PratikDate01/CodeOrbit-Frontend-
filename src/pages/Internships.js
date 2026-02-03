@@ -35,7 +35,9 @@ const Internships = () => {
   });
 
   const [myApplications, setMyApplications] = useState([]);
+  const [programs, setPrograms] = useState([]);
   const [fetchingApps, setFetchingApps] = useState(false);
+  const [fetchingPrograms, setFetchingPrograms] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const durationPlans = [
@@ -124,7 +126,20 @@ const Internships = () => {
     }
   }, [userInfo]);
 
+  const fetchPrograms = async () => {
+    setFetchingPrograms(true);
+    try {
+      const { data } = await API.get('/internships/programs');
+      setPrograms(data);
+    } catch (err) {
+      console.error('Error fetching programs:', err);
+    } finally {
+      setFetchingPrograms(false);
+    }
+  };
+
   useEffect(() => {
+    fetchPrograms();
     if (userInfo) {
       setFormData(prev => ({
         ...prev,
@@ -138,12 +153,64 @@ const Internships = () => {
     }
   }, [userInfo, fetchMyApplications]);
 
-  const programs = [
-    { title: 'Web Development', icon: <CodeIcon />, durationInfo: '8-12 Weeks', skills: ['React', 'Node.js', 'JS'] },
-    { title: 'Data Science', icon: <DataObjectIcon />, durationInfo: '10-12 Weeks', skills: ['Python', 'ML', 'SQL'] },
-    { title: 'Cloud Computing', icon: <CloudIcon />, durationInfo: '8-10 Weeks', skills: ['AWS', 'Docker', 'K8s'] },
-    { title: 'UI/UX Design', icon: <DesignServicesIcon />, durationInfo: '6-8 Weeks', skills: ['Figma', 'UX Research'] }
-  ];
+        {/* Programs Grid */}
+        <Typography variant="h2" sx={{ mb: 6, textAlign: 'center' }}>Featured Programs</Typography>
+        
+        {fetchingPrograms ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 10 }}>
+            <LoadingSpinner />
+          </Box>
+        ) : programs.length > 0 ? (
+          <Grid container spacing={4} sx={{ mb: 12 }}>
+            {programs.map((program, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index} sx={{ display: 'flex' }}>
+                <Card sx={{ 
+                  height: '100%', 
+                  width: '100%',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': { transform: 'translateY(-8px)' },
+                  borderRadius: 4,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  {program.thumbnail && (
+                    <Box 
+                      component="img"
+                      src={program.thumbnail}
+                      alt={program.title}
+                      sx={{ width: '100%', height: 160, objectFit: 'cover' }}
+                    />
+                  )}
+                  <CardContent sx={{ p: 3, textAlign: 'center', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="h6" gutterBottom fontWeight={700}>{program.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, flexGrow: 1 }}>
+                      {program.description?.substring(0, 100)}...
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2, color: 'text.secondary' }}>
+                      <AccessTimeIcon sx={{ fontSize: 16 }} />
+                      <Typography variant="body2">{program.duration || program.durationInfo || '8 Weeks'}</Typography>
+                    </Box>
+                    <Button 
+                      variant="contained" 
+                      fullWidth 
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, preferredDomain: program.title }));
+                        document.getElementById('application-form').scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      sx={{ borderRadius: 2, mt: 'auto' }}
+                    >
+                      Apply Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Alert severity="info" sx={{ mb: 12, borderRadius: 2 }}>
+            New programs are launching soon. Stay tuned!
+          </Alert>
+        )}
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -367,7 +434,7 @@ const Internships = () => {
         </div>
 
         {/* Application Form */}
-        <Paper elevation={0} sx={{ p: { xs: 4, md: 8 }, borderRadius: 8, border: '1px solid', borderColor: 'divider', mb: 12 }}>
+        <Paper id="application-form" elevation={0} sx={{ p: { xs: 4, md: 8 }, borderRadius: 8, border: '1px solid', borderColor: 'divider', mb: 12 }}>
           <Box sx={{ textAlign: 'center', mb: 6 }}>
             <Typography variant="h2" gutterBottom>Apply Now</Typography>
             <Typography variant="body1" color="text.secondary">Ready to start? Fill out the application below.</Typography>

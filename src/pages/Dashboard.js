@@ -3,77 +3,70 @@ import {
   Box, 
   Container, 
   Typography, 
-  Grid, 
-  Paper, 
-  Card, 
-  CardContent, 
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Avatar,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  AppBar,
+  Toolbar,
   IconButton,
-  Tooltip,
-  CircularProgress,
-  Button,
+  Avatar,
+  Divider,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
+  Button,
+  CircularProgress,
   Snackbar,
   Alert,
-  TextField,
-  Divider
+  Tooltip,
+  Paper
 } from '@mui/material';
 import { 
+  LayoutDashboard, 
   Briefcase, 
   Bell, 
-  CheckCircle,
-  Eye,
-  FileText,
-  Award,
-  Settings,
+  Settings, 
+  LogOut,
+  Menu,
+  ChevronRight,
   CreditCard,
-  X,
-  Receipt,
-  ShieldCheck,
-  Trash2
+  User
 } from 'lucide-react';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API, { baseURL } from '../api/api';
-import { Link } from 'react-router-dom';
 
-const getDocumentUrl = (url) => {
-  if (!url) return '#';
-  // Standardized: Always use the URL as provided by Cloudinary/Backend
-  return url;
-};
+import UserOverview from '../components/user/UserOverview';
+import UserApplications from '../components/user/UserApplications';
+import UserNotifications from '../components/user/UserNotifications';
+
+const drawerWidth = 280;
 
 const Dashboard = () => {
-  const { userInfo } = useAuth();
+  const { userInfo, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [applications, setApplications] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Payment State
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [couponCode, setCouponCode] = useState('');
   const [couponDetails, setCouponDetails] = useState(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
   const fetchData = async () => {
     try {
@@ -90,21 +83,39 @@ const Dashboard = () => {
     }
   };
 
+  useEffect(() => {
+    if (userInfo) fetchData();
+  }, [userInfo]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const handleClearNotifications = async () => {
-    if (window.confirm('Are you sure you want to clear all notifications?')) {
+    if (window.confirm('Clear all notifications?')) {
       try {
         await API.delete('/notifications');
         setNotifications([]);
-        setSnackbar({ open: true, message: 'Notifications cleared successfully', severity: 'success' });
+        setSnackbar({ open: true, message: 'Notifications cleared', severity: 'success' });
       } catch (error) {
-        setSnackbar({ open: true, message: 'Failed to clear notifications', severity: 'error' });
+        setSnackbar({ open: true, message: 'Failed to clear', severity: 'error' });
       }
     }
   };
 
-  useEffect(() => {
-    if (userInfo) fetchData();
-  }, [userInfo]);
+  const getDocumentUrl = (url) => url || '#';
+
+  // --- Payment Logic ---
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
   const handlePaymentClick = (app) => {
     setSelectedApp(app);
@@ -123,14 +134,10 @@ const Dashboard = () => {
       });
       if (data.success) {
         setCouponDetails(data);
-        setSnackbar({ open: true, message: 'Coupon applied successfully!', severity: 'success' });
+        setSnackbar({ open: true, message: 'Coupon applied!', severity: 'success' });
       }
     } catch (error) {
-      setSnackbar({ 
-        open: true, 
-        message: error.response?.data?.message || 'Invalid coupon code', 
-        severity: 'error' 
-      });
+      setSnackbar({ open: true, message: error.response?.data?.message || 'Invalid coupon', severity: 'error' });
       setCouponDetails(null);
     } finally {
       setValidatingCoupon(false);
@@ -142,11 +149,10 @@ const Dashboard = () => {
     try {
       const res = await loadRazorpayScript();
       if (!res) {
-        setSnackbar({ open: true, message: 'Razorpay SDK failed to load. Are you online?', severity: 'error' });
+        setSnackbar({ open: true, message: 'Razorpay SDK failed to load', severity: 'error' });
         return;
       }
 
-      // 1. Create Order
       const { data: orderData } = await API.post('payments/create-order', { 
         applicationId: selectedApp._id,
         couponCode: couponDetails?.code
@@ -158,7 +164,7 @@ const Dashboard = () => {
         amount: order.amount,
         currency: order.currency,
         name: 'CodeOrbit Solutions',
-        description: `Payment for ${selectedApp.preferredDomain} Internship`,
+        description: `Payment for ${selectedApp.preferredDomain}`,
         image: `${baseURL}/assets/logos/Company Logo.png`,
         order_id: order.id,
         handler: async (response) => {
@@ -168,12 +174,12 @@ const Dashboard = () => {
               applicationId: selectedApp._id
             });
             if (verifyRes.data.success) {
-              setSnackbar({ open: true, message: 'Payment successful and verified!', severity: 'success' });
+              setSnackbar({ open: true, message: 'Payment verified!', severity: 'success' });
               setPaymentModalOpen(false);
               fetchData();
             }
           } catch (error) {
-            setSnackbar({ open: true, message: 'Payment verification failed. Please contact support.', severity: 'error' });
+            setSnackbar({ open: true, message: 'Verification failed', severity: 'error' });
           }
         },
         prefill: {
@@ -181,429 +187,256 @@ const Dashboard = () => {
           email: userInfo.email,
           contact: userInfo.phone
         },
-        notes: {
-          application_id: selectedApp._id,
-          domain: selectedApp.preferredDomain
-        },
-        theme: {
-          color: '#2563eb'
-        }
+        theme: { color: '#2563eb' }
       };
 
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
     } catch (error) {
-      console.error('Payment Initialization Error:', error);
-      setSnackbar({ open: true, message: 'Failed to initiate payment. Please try again.', severity: 'error' });
+      setSnackbar({ open: true, message: 'Failed to initiate payment', severity: 'error' });
     } finally {
       setProcessingPayment(false);
     }
   };
 
-  const getStatusChip = (status) => {
-    const colors = {
-      New: 'info',
-      Reviewed: 'warning',
-      Contacted: 'primary',
-      Selected: 'success',
-      Approved: 'success',
-      Completed: 'secondary',
-      Rejected: 'error'
-    };
-    return <Chip label={status} size="small" color={colors[status] || 'default'} />;
-  };
+  const menuItems = [
+    { text: 'Overview', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+    { text: 'Applications', icon: <Briefcase size={20} />, path: '/dashboard/applications' },
+    { text: 'Notifications', icon: <Bell size={20} />, path: '/dashboard/notifications' },
+    { text: 'Profile Settings', icon: <Settings size={20} />, path: '/profile' },
+  ];
+
+  const drawer = (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'white' }}>
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ 
+          width: 40, 
+          height: 40, 
+          bgcolor: 'primary.main', 
+          borderRadius: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '1.2rem'
+        }}>
+          C
+        </Box>
+        <Typography variant="h6" fontWeight={800} sx={{ color: 'text.primary', letterSpacing: '-0.5px' }}>
+          CodeOrbit
+        </Typography>
+      </Box>
+
+      <Divider sx={{ mx: 2, opacity: 0.5 }} />
+
+      <List sx={{ px: 2, mt: 2, flexGrow: 1 }}>
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                selected={isActive}
+                sx={{
+                  borderRadius: 2,
+                  py: 1.5,
+                  '&.Mui-selected': {
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    '&:hover': { bgcolor: 'primary.dark' },
+                    '& .MuiListItemIcon-root': { color: 'white' }
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 40, color: isActive ? 'white' : 'text.secondary' }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.text} 
+                  primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: '0.925rem' }} 
+                />
+                {isActive && <ChevronRight size={16} />}
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+
+      <Box sx={{ p: 2, mt: 'auto' }}>
+        <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.alt', borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+            <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.light', fontSize: '1rem', fontWeight: 600 }}>
+              {userInfo?.name?.charAt(0)}
+            </Avatar>
+            <Box sx={{ overflow: 'hidden' }}>
+              <Typography variant="subtitle2" fontWeight={700} noWrap>{userInfo?.name}</Typography>
+              <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>Student Account</Typography>
+            </Box>
+          </Box>
+          <Button 
+            fullWidth 
+            variant="outlined" 
+            color="inherit"
+            startIcon={<LogOut size={16} />}
+            onClick={handleLogout}
+            sx={{ borderRadius: 2, py: 1, fontSize: '0.8rem', borderColor: 'divider' }}
+          >
+            Sign Out
+          </Button>
+        </Paper>
+      </Box>
+    </Box>
+  );
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '90vh', py: 6 }}>
-      <Container maxWidth="lg">
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box>
-            <Typography variant="h4" fontWeight={700}>
-              Welcome, {userInfo?.name}
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Box component="nav" sx={{ width: { lg: drawerWidth }, flexShrink: { lg: 0 } }}>
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', lg: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: '1px solid #e2e8f0' },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', lg: 'block' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: '1px solid #e2e8f0', bgcolor: 'white' },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+
+      <Box component="main" sx={{ flexGrow: 1, width: { lg: `calc(100% - ${drawerWidth}px)` } }}>
+        <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 4 } }}>
+            <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { lg: 'none' } }}>
+              <Menu size={20} />
+            </IconButton>
+
+            <Typography variant="h6" fontWeight={700} sx={{ color: 'text.primary', display: { xs: 'none', sm: 'block' } }}>
+              Student Dashboard
             </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Track your internship applications and updates
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button 
-              component={Link} 
-              to="/profile" 
-              variant="outlined" 
-              startIcon={<Settings size={18} />}
-              sx={{ borderRadius: 2 }}
-            >
-              Settings
-            </Button>
-            <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main', fontWeight: 700 }}>
-              {userInfo?.name?.charAt(0)}
-            </Avatar>
-          </Box>
-        </Box>
 
-        <Grid container spacing={3}>
-          {/* Stats Section */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-              <CardContent sx={{ display: 'flex', alignItems: 'center', p: 3 }}>
-                <Box sx={{ p: 2, borderRadius: 3, bgcolor: 'primary.light', color: 'primary.main', mr: 2.5, display: 'flex' }}>
-                  <Briefcase size={28} />
-                </Box>
-                <Box>
-                  <Typography variant="h4" fontWeight={800}>{applications.length}</Typography>
-                  <Typography variant="body2" color="text.secondary" fontWeight={600}>Total Applications</Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-              <CardContent sx={{ display: 'flex', alignItems: 'center', p: 3 }}>
-                <Box sx={{ p: 2, borderRadius: 3, bgcolor: 'success.light', color: 'success.main', mr: 2.5, display: 'flex', opacity: 0.9 }}>
-                  <CheckCircle size={28} />
-                </Box>
-                <Box>
-                  <Typography variant="h4" fontWeight={800}>
-                    {applications.filter(a => ['Selected', 'Approved', 'Completed'].includes(a.status)).length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" fontWeight={600}>Shortlisted / Selected</Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-              <CardContent sx={{ display: 'flex', alignItems: 'center', p: 3 }}>
-                <Box sx={{ p: 2, borderRadius: 3, bgcolor: 'warning.light', color: 'warning.main', mr: 2.5, display: 'flex', opacity: 0.9 }}>
-                  <Bell size={28} />
-                </Box>
-                <Box>
-                  <Typography variant="h4" fontWeight={800}>
-                    {notifications.filter(n => !n.isRead).length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" fontWeight={600}>Unread Notifications</Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Applications Table */}
-          <Grid size={{ xs: 12, lg: 8 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-              <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography variant="h6" fontWeight={800}>My Applications</Typography>
-                <Button component={Link} to="/internships" variant="text" size="small" sx={{ fontWeight: 700 }}>
-                  Explore More
-                </Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Tooltip title="Notifications">
+                <IconButton size="small" component={Link} to="/dashboard/notifications">
+                  <Bell size={20} />
+                </IconButton>
+              </Tooltip>
+              <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 1.5 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.8rem', fontWeight: 700 }}>
+                  {userInfo?.name?.charAt(0)}
+                </Avatar>
+                <Typography variant="body2" fontWeight={600} sx={{ display: { xs: 'none', md: 'block' } }}>
+                  {userInfo?.name?.split(' ')[0]}
+                </Typography>
               </Box>
-              {applications.length > 0 ? (
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: 600 }}>Domain</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {applications.map((app) => (
-                        <TableRow key={app._id} hover>
-                          <TableCell fontWeight={500}>{app.preferredDomain}</TableCell>
-                          <TableCell>{new Date(app.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell>{getStatusChip(app.status)}</TableCell>
-                          <TableCell align="right">
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                              {app.status === 'Selected' && app.paymentStatus === 'Pending' && (
-                                <Tooltip title="Pay Now">
-                                  <IconButton 
-                                    size="small" 
-                                    color="warning"
-                                    onClick={() => handlePaymentClick(app)}
-                                  >
-                                    <CreditCard size={18} />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                              {app.paymentStatus === 'Verified' && (
-                                <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <Chip 
-                                    label="Payment Verified" 
-                                    size="small" 
-                                    color="success" 
-                                    variant="filled"
-                                    sx={{ fontWeight: 700 }}
-                                  />
-                                  {app.documents?.paymentSlipUrl && (
-                                    <Button
-                                      size="small"
-                                      variant="text"
-                                      color="info"
-                                      startIcon={<Receipt size={16} />}
-                                      href={getDocumentUrl(app.documents.paymentSlipUrl)}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      sx={{ 
-                                        textTransform: 'none', 
-                                        fontWeight: 700,
-                                        fontSize: '0.75rem',
-                                        '&:hover': { bgcolor: 'info.light' }
-                                      }}
-                                    >
-                                      Download Receipt
-                                    </Button>
-                                  )}
-                                </Box>
-                              )}
-                              {app.paymentStatus === 'Processing' && (
-                                <Chip label="Payment Processing" size="small" variant="outlined" color="warning" sx={{ mt: 1 }} />
-                              )}
-                              {['Approved', 'Completed'].includes(app.status) && (
-                                <Tooltip title="Internship Activity / Tasks">
-                                  <IconButton 
-                                    size="small" 
-                                    color="info"
-                                    component={Link}
-                                    to={`/internship-activity/${app._id}`}
-                                  >
-                                    <Briefcase size={18} />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                              {app.documents?.offerLetterUrl && (
-                                <Tooltip title="Download Offer Letter">
-                                  <IconButton 
-                                    size="small" 
-                                    color="primary"
-                                    href={getDocumentUrl(app.documents.offerLetterUrl)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    <FileText size={18} />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                              {app.documents?.certificateUrl && (
-                                <Tooltip title="Download Certificate">
-                                  <IconButton 
-                                    size="small" 
-                                    color="success"
-                                    href={getDocumentUrl(app.documents.certificateUrl)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    <CheckCircle size={18} />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                              {app.documents?.locUrl && (
-                                <Tooltip title="Download Completion Letter">
-                                  <IconButton 
-                                    size="small" 
-                                    color="secondary"
-                                    href={getDocumentUrl(app.documents.locUrl)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    <Award size={18} />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                              <Tooltip title="View Verification Page">
-                                <IconButton 
-                                  size="small"
-                                  component={Link}
-                                  to={app.documents ? `/verify/${app.documents.verificationId}` : '#'}
-                                  disabled={!app.documents}
-                                >
-                                  <Eye size={18} />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Box sx={{ py: 4, textAlign: 'center' }}>
-                  <Typography color="text.secondary">No applications yet.</Typography>
-                </Box>
-              )}
-            </Paper>
-          </Grid>
+            </Box>
+          </Toolbar>
+        </AppBar>
 
-          {/* Notifications Section */}
-          <Grid size={{ xs: 12, lg: 4 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-              <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography variant="h6" fontWeight={800}>Recent Notifications</Typography>
-                {notifications.length > 0 && (
-                  <Tooltip title="Clear All">
-                    <IconButton size="small" color="error" onClick={handleClearNotifications}>
-                      <Trash2 size={18} />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
-              {notifications.length > 0 ? (
-                <Box>
-                  {notifications.slice(0, 5).map((noti) => (
-                    <Box 
-                      key={noti._id} 
-                      sx={{ 
-                        pb: 2, 
-                        mb: 2, 
-                        borderBottom: '1px solid', 
-                        borderColor: 'divider',
-                        '&:last-child': { border: 0, mb: 0 }
-                      }}
-                    >
-                      <Typography variant="subtitle2" fontWeight={600} color={noti.isRead ? 'text.secondary' : 'text.primary'}>
-                        {noti.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {noti.message}
-                      </Typography>
-                      <Typography variant="caption" color="text.muted">
-                        {new Date(noti.createdAt).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              ) : (
-                <Typography color="text.secondary">No notifications.</Typography>
-              )}
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
+        <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
+          <Routes>
+            <Route index element={
+              <UserOverview 
+                applications={applications} 
+                notifications={notifications} 
+                userInfo={userInfo}
+                onPaymentClick={handlePaymentClick}
+                getDocumentUrl={getDocumentUrl}
+              />
+            } />
+            <Route path="applications" element={
+              <UserApplications 
+                applications={applications} 
+                onPaymentClick={handlePaymentClick}
+                getDocumentUrl={getDocumentUrl}
+              />
+            } />
+            <Route path="notifications" element={
+              <UserNotifications 
+                notifications={notifications} 
+                onClearAll={handleClearNotifications}
+              />
+            } />
+          </Routes>
+        </Container>
+      </Box>
 
-      {/* Payment Modal */}
+      {/* Payment Dialog */}
       <Dialog 
         open={paymentModalOpen} 
         onClose={() => !processingPayment && setPaymentModalOpen(false)}
-        maxWidth="sm"
+        maxWidth="xs"
         fullWidth
-        PaperProps={{
-          sx: { borderRadius: 3 }
-        }}
+        PaperProps={{ sx: { borderRadius: 4 } }}
       >
-        <DialogTitle sx={{ fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          Complete Payment
-          <IconButton onClick={() => setPaymentModalOpen(false)} disabled={processingPayment}>
-            <X size={20} />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
+        <DialogTitle sx={{ fontWeight: 800, textAlign: 'center', pt: 4 }}>Complete Enrollment</Typography>
+        <DialogContent>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Typography variant="body1" sx={{ mt: 1 }}>
-              Secure payment for <strong>{selectedApp?.preferredDomain}</strong> Internship.
+            <Typography variant="body2" color="text.secondary">Domain</Typography>
+            <Typography variant="h6" fontWeight={700}>{selectedApp?.preferredDomain}</Typography>
+            <Typography variant="h4" fontWeight={800} sx={{ mt: 2, color: 'primary.main' }}>
+              ₹{couponDetails ? couponDetails.discountedAmount : selectedApp?.amount}
             </Typography>
-            
-            <Box sx={{ my: 3, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
-              <Grid container spacing={1}>
-                <Grid item xs={8}>
-                  <Typography variant="body2" color="text.secondary" align="left">Original Price:</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2" fontWeight={600} align="right">₹{selectedApp?.amount}</Typography>
-                </Grid>
-                
-                {couponDetails && (
-                  <>
-                    <Grid item xs={8}>
-                      <Typography variant="body2" color="success.main" align="left">Discount ({couponDetails.code}):</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="success.main" fontWeight={600} align="right">- ₹{couponDetails.discountAmount}</Typography>
-                    </Grid>
-                  </>
-                )}
-                
-                <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
-                
-                <Grid item xs={8}>
-                  <Typography variant="h6" fontWeight={700} align="left">Total Amount:</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="h6" fontWeight={700} color="primary.main" align="right">
-                    ₹{couponDetails ? couponDetails.finalAmount : selectedApp?.amount}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Box>
-
-            <Box sx={{ mb: 3, textAlign: 'left' }}>
-              <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-                Apply Coupon (Optional)
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Enter coupon code"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  disabled={validatingCoupon || !!couponDetails}
-                  sx={{ 
-                    '& .MuiOutlinedInput-root': { borderRadius: 2 },
-                    bgcolor: 'white'
-                  }}
-                />
-                <Button 
-                  variant="outlined" 
-                  onClick={couponDetails ? () => { setCouponDetails(null); setCouponCode(''); } : handleApplyCoupon}
-                  disabled={validatingCoupon || (!couponCode && !couponDetails)}
-                  sx={{ borderRadius: 2, whiteSpace: 'nowrap' }}
-                >
-                  {validatingCoupon ? <CircularProgress size={20} /> : couponDetails ? 'Remove' : 'Apply'}
-                </Button>
-              </Box>
-              {couponDetails && (
-                <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block', fontWeight: 600 }}>
-                  ✓ Coupon "{couponDetails.code}" applied! You saved ₹{couponDetails.discountAmount}
-                </Typography>
-              )}
-            </Box>
-
-            <Box sx={{ p: 2, bgcolor: '#eff6ff', borderRadius: 2, border: '1px dashed #bfdbfe' }}>
-              <Typography variant="caption" display="block" color="primary.main" sx={{ fontWeight: 700, mb: 0.5 }}>
-                SECURE CHECKOUT
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                UPI, Cards, Net Banking, Wallets
-              </Typography>
-            </Box>
           </Box>
+          
+          <Divider sx={{ my: 2 }} />
+          
+          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Coupon Code"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              disabled={validatingCoupon || couponDetails}
+            />
+            <Button 
+              variant="outlined" 
+              onClick={handleApplyCoupon}
+              disabled={!couponCode || validatingCoupon || couponDetails}
+            >
+              {validatingCoupon ? <CircularProgress size={20} /> : 'Apply'}
+            </Button>
+          </Box>
+          {couponDetails && (
+            <Typography variant="caption" color="success.main" fontWeight={600}>
+              Code Applied! You saved ₹{selectedApp.amount - couponDetails.discountedAmount}
+            </Typography>
+          )}
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
+        <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button 
-            onClick={() => setPaymentModalOpen(false)} 
-            color="inherit"
-            disabled={processingPayment}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={initiateRazorpayPayment} 
+            fullWidth 
             variant="contained" 
-            color="primary"
+            size="large"
+            onClick={initiateRazorpayPayment}
             disabled={processingPayment}
-            startIcon={processingPayment ? <CircularProgress size={18} color="inherit" /> : <ShieldCheck size={18} />}
-            sx={{ borderRadius: 2, px: 4, py: 1 }}
+            startIcon={processingPayment ? <CircularProgress size={20} color="inherit" /> : <CreditCard size={20} />}
+            sx={{ borderRadius: 3, py: 1.5, fontWeight: 700 }}
           >
-            {processingPayment ? 'Processing...' : `Pay ₹${couponDetails ? couponDetails.finalAmount : selectedApp?.amount}`}
+            {processingPayment ? 'Processing...' : 'Pay Securely'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -613,9 +446,7 @@ const Dashboard = () => {
         autoHideDuration={6000} 
         onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
+        <Alert severity={snackbar.severity} sx={{ borderRadius: 2 }}>{snackbar.message}</Alert>
       </Snackbar>
     </Box>
   );
