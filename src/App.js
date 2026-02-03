@@ -236,7 +236,7 @@ function App() {
                 <Route path="/fee-structure" element={<FeeExplanation />} />
                 <Route path="/colleges" element={<Colleges />} />
                 <Route 
-                  path="/dashboard" 
+                  path="/dashboard/*" 
                   element={
                     <PrivateRoute>
                       <Dashboard />

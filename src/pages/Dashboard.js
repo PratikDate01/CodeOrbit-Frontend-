@@ -24,7 +24,9 @@ import {
   Snackbar,
   Alert,
   Tooltip,
-  Paper
+  Paper,
+  Badge,
+  InputBase
 } from '@mui/material';
 import { 
   LayoutDashboard, 
@@ -34,7 +36,10 @@ import {
   LogOut,
   Menu,
   ChevronRight,
-  CreditCard
+  CreditCard,
+  Search,
+  HelpCircle,
+  GraduationCap
 } from 'lucide-react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -77,6 +82,7 @@ const Dashboard = () => {
       setNotifications(notiRes.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      setSnackbar({ open: true, message: 'Failed to load dashboard data. Please try again.', severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -202,6 +208,7 @@ const Dashboard = () => {
     { text: 'Overview', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
     { text: 'Applications', icon: <Briefcase size={20} />, path: '/dashboard/applications' },
     { text: 'Notifications', icon: <Bell size={20} />, path: '/dashboard/notifications' },
+    { text: 'My Learning', icon: <GraduationCap size={20} />, path: '/my-learning' },
     { text: 'Profile Settings', icon: <Settings size={20} />, path: '/profile' },
   ];
 
@@ -239,14 +246,20 @@ const Dashboard = () => {
                 to={item.path}
                 selected={isActive}
                 sx={{
-                  borderRadius: 2,
+                  borderRadius: 2.5,
                   py: 1.5,
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&.Mui-selected': {
                     bgcolor: 'primary.main',
                     color: 'white',
+                    boxShadow: '0 4px 12px rgba(15, 15, 15, 0.15)',
                     '&:hover': { bgcolor: 'primary.dark' },
                     '& .MuiListItemIcon-root': { color: 'white' }
                   },
+                  '&:hover': {
+                    bgcolor: isActive ? 'primary.dark' : 'rgba(15, 15, 15, 0.04)',
+                    transform: 'translateX(4px)'
+                  }
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 40, color: isActive ? 'white' : 'text.secondary' }}>
@@ -327,28 +340,60 @@ const Dashboard = () => {
       <Box component="main" sx={{ flexGrow: 1, width: { lg: `calc(100% - ${drawerWidth}px)` } }}>
         <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid', borderColor: 'divider' }}>
           <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 4 } }}>
-            <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { lg: 'none' } }}>
-              <Menu size={20} />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { lg: 'none' } }}>
+                <Menu size={20} />
+              </IconButton>
 
-            <Typography variant="h6" fontWeight={700} sx={{ color: 'text.primary', display: { xs: 'none', sm: 'block' } }}>
-              Student Dashboard
-            </Typography>
+              <Box sx={{ 
+                display: { xs: 'none', md: 'flex' }, 
+                alignItems: 'center', 
+                bgcolor: 'background.alt', 
+                px: 2, 
+                py: 0.75, 
+                borderRadius: 2,
+                width: { md: 300, lg: 400 },
+                border: '1px solid',
+                borderColor: 'transparent',
+                transition: 'all 0.2s',
+                '&:focus-within': { borderColor: 'primary.main', bgcolor: 'white', boxShadow: '0 0 0 4px rgba(15, 15, 15, 0.05)' }
+              }}>
+                <Search size={18} color="#64748b" />
+                <InputBase
+                  placeholder="Search applications, tasks..."
+                  sx={{ ml: 1.5, flex: 1, fontSize: '0.9rem' }}
+                />
+              </Box>
+            </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Tooltip title="Notifications">
-                <IconButton size="small" component={Link} to="/dashboard/notifications">
-                  <Bell size={20} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+              <Tooltip title="Help & Support">
+                <IconButton size="small" sx={{ bgcolor: 'background.alt', display: { xs: 'none', sm: 'flex' } }}>
+                  <HelpCircle size={20} />
                 </IconButton>
               </Tooltip>
+              <Tooltip title="Notifications">
+                <IconButton size="small" component={Link} to="/dashboard/notifications" sx={{ bgcolor: 'background.alt' }}>
+                  <Badge badgeContent={notifications.filter(n => !n.isRead).length} color="error">
+                    <Bell size={20} />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+              
               <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 1.5 }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.8rem', fontWeight: 700 }}>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }} onClick={() => navigate('/profile')}>
+                <Box sx={{ textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
+                  <Typography variant="body2" fontWeight={700} sx={{ lineHeight: 1.2 }}>
+                    {userInfo?.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Student
+                  </Typography>
+                </Box>
+                <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main', fontSize: '0.9rem', fontWeight: 700, border: '2px solid white', boxShadow: '0 0 0 1px #e2e8f0' }}>
                   {userInfo?.name?.charAt(0)}
                 </Avatar>
-                <Typography variant="body2" fontWeight={600} sx={{ display: { xs: 'none', md: 'block' } }}>
-                  {userInfo?.name?.split(' ')[0]}
-                </Typography>
               </Box>
             </Box>
           </Toolbar>
