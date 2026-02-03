@@ -69,32 +69,66 @@ const VerifySearch = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: '#f8fafc', minHeight: '80vh', py: { xs: 6, md: 10 } }}>
-      <Container maxWidth="md">
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography variant="h3" fontWeight={800} gutterBottom>
-            Verify Credentials
+    <Box sx={{ bgcolor: 'background.default', minHeight: '80vh', py: { xs: 8, md: 12 } }}>
+      <Container maxWidth="lg">
+        <Box sx={{ textAlign: 'center', mb: 10 }}>
+          <Typography 
+            variant="h2" 
+            fontWeight={800} 
+            gutterBottom 
+            sx={{ 
+              fontSize: { xs: '2.5rem', md: '3.5rem' },
+              letterSpacing: '-0.04em'
+            }}
+          >
+            Credential Verification
           </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
-            Verify the authenticity of internship certificates and offer letters issued by CodeOrbit.
+          <Typography 
+            variant="h5" 
+            color="text.secondary" 
+            sx={{ 
+              maxWidth: 700, 
+              mx: 'auto', 
+              fontWeight: 400,
+              lineHeight: 1.6
+            }}
+          >
+            Verify the authenticity of internship certificates, offer letters, and achievement awards issued by CodeOrbit.
           </Typography>
         </Box>
 
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2 }}>
-                <Box sx={{ p: 1, bgcolor: 'primary.light', color: 'primary.main', borderRadius: 2 }}>
-                  <Search size={24} />
+        <Grid container spacing={4} justifyContent="center">
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper 
+              sx={{ 
+                p: { xs: 4, md: 6 }, 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                borderRadius: 6,
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2.5 }}>
+                <Box sx={{ 
+                  p: 1.5, 
+                  bgcolor: 'rgba(15, 15, 15, 0.05)', 
+                  color: 'primary.main', 
+                  borderRadius: 3,
+                  display: 'flex'
+                }}>
+                  <Search size={28} />
                 </Box>
-                <Typography variant="h5" fontWeight={700}>Search by ID</Typography>
+                <Typography variant="h4" fontWeight={700}>Search by ID</Typography>
               </Box>
               
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-                Enter the unique verification ID found at the bottom of the document.
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 6, fontSize: '1.1rem' }}>
+                Enter the unique verification ID found at the bottom of your CodeOrbit document.
               </Typography>
 
-              <form onSubmit={handleSearch}>
+              <form onSubmit={handleSearch} style={{ marginTop: 'auto' }}>
                 <TextField
                   fullWidth
                   label="Verification ID"
@@ -106,7 +140,7 @@ const VerifySearch = () => {
                   }}
                   error={!!error}
                   helperText={error}
-                  sx={{ mb: 3 }}
+                  sx={{ mb: 4 }}
                 />
                 <Button 
                   fullWidth 
@@ -114,6 +148,7 @@ const VerifySearch = () => {
                   size="large" 
                   type="submit"
                   startIcon={<ShieldCheck size={20} />}
+                  sx={{ py: 2, fontSize: '1.1rem' }}
                 >
                   Verify Now
                 </Button>
@@ -121,51 +156,96 @@ const VerifySearch = () => {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2 }}>
-                <Box sx={{ p: 1, bgcolor: 'accent.light', color: 'accent.main', borderRadius: 2 }}>
-                  <QrCode size={24} />
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper 
+              sx={{ 
+                p: { xs: 4, md: 6 }, 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                borderRadius: 6,
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2.5 }}>
+                <Box sx={{ 
+                  p: 1.5, 
+                  bgcolor: 'rgba(217, 119, 6, 0.05)', 
+                  color: 'accent.main', 
+                  borderRadius: 3,
+                  display: 'flex'
+                }}>
+                  <QrCode size={28} />
                 </Box>
-                <Typography variant="h5" fontWeight={700}>Scan QR Code</Typography>
+                <Typography variant="h4" fontWeight={700}>Scan QR Code</Typography>
               </Box>
 
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-                Use your camera to scan the QR code printed on the certificate for instant verification.
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 6, fontSize: '1.1rem' }}>
+                Use your device camera to scan the QR code printed on the document for instant validation.
               </Typography>
 
-              {!showScanner ? (
-                <Button 
-                  fullWidth 
-                  variant="outlined" 
-                  size="large" 
-                  onClick={() => setShowScanner(true)}
-                  startIcon={<QrCode size={20} />}
-                  sx={{ mt: 'auto' }}
-                >
-                  Open Scanner
-                </Button>
-              ) : (
-                <Box>
-                  <Box id="reader" sx={{ width: '100%', mb: 2 }}></Box>
+              <Box sx={{ mt: 'auto' }}>
+                {!showScanner ? (
                   <Button 
                     fullWidth 
-                    variant="text" 
-                    color="error"
-                    onClick={() => setShowScanner(false)}
+                    variant="outlined" 
+                    size="large" 
+                    onClick={() => setShowScanner(true)}
+                    startIcon={<QrCode size={20} />}
+                    sx={{ py: 2, fontSize: '1.1rem' }}
                   >
-                    Close Scanner
+                    Open Scanner
                   </Button>
-                </Box>
-              )}
+                ) : (
+                  <Box>
+                    <Paper 
+                      variant="outlined" 
+                      sx={{ 
+                        overflow: 'hidden', 
+                        mb: 3, 
+                        borderStyle: 'dashed',
+                        borderColor: 'primary.main',
+                        bgcolor: 'background.alt'
+                      }}
+                    >
+                      <Box id="reader" sx={{ width: '100%' }}></Box>
+                    </Paper>
+                    <Button 
+                      fullWidth 
+                      variant="text" 
+                      color="error"
+                      onClick={() => setShowScanner(false)}
+                      sx={{ fontWeight: 700 }}
+                    >
+                      Cancel Scanning
+                    </Button>
+                  </Box>
+                )}
+              </Box>
             </Paper>
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 8 }}>
-          <Alert icon={<AlertCircle size={20} />} severity="info" sx={{ borderRadius: 3 }}>
-            <Typography variant="body2">
-              <strong>Need help?</strong> If you're unable to verify a document, please contact our verification team at <strong>verification@codeorbit.ai</strong> with a clear photo of the document.
+        <Box sx={{ mt: 10, maxWidth: 900, mx: 'auto' }}>
+          <Alert 
+            icon={<AlertCircle size={24} />} 
+            severity="info" 
+            sx={{ 
+              borderRadius: 4, 
+              p: 3,
+              bgcolor: 'background.alt',
+              border: '1px solid',
+              borderColor: 'divider',
+              '& .MuiAlert-message': { width: '100%' }
+            }}
+          >
+            <Typography variant="body1" fontWeight={500} sx={{ mb: 1 }}>
+              Need Assistance?
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.95rem' }}>
+              If you're unable to verify a document or suspect a fraudulent credential, please contact our verification team at <strong>verification@codeorbit.ai</strong> with a clear photo or copy of the document.
             </Typography>
           </Alert>
         </Box>

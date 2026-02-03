@@ -9,7 +9,8 @@ import {
   Button,
   Grid,
   Chip,
-  Avatar
+  Avatar,
+  Stack
 } from '@mui/material';
 import { 
   ShieldCheck, 
@@ -25,9 +26,30 @@ import API from '../api/api';
 
 const getDocumentUrl = (url) => {
   if (!url) return '#';
-  // Standardized: Always use the URL as provided by Cloudinary/Backend
   return url;
 };
+
+const DetailRow = ({ icon, label, value }) => (
+  <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+    <Box sx={{ 
+      p: 1.5, 
+      bgcolor: 'rgba(15, 15, 15, 0.05)', 
+      color: 'primary.main', 
+      borderRadius: 2,
+      display: 'flex'
+    }}>
+      {icon}
+    </Box>
+    <Box>
+      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 700, letterSpacing: 1 }}>
+        {label}
+      </Typography>
+      <Typography variant="h6" fontWeight={600} sx={{ mt: 0.5 }}>
+        {value || 'N/A'}
+      </Typography>
+    </Box>
+  </Box>
+);
 
 const VerifyDocument = () => {
   const { id } = useParams();
@@ -58,153 +80,178 @@ const VerifyDocument = () => {
   }
 
   return (
-    <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', py: { xs: 4, md: 8 } }}>
-      <Container maxWidth="md">
-        <Button 
-          component={Link} 
-          to="/" 
-          startIcon={<ChevronLeft size={18} />}
-          sx={{ mb: 4, color: 'text.secondary' }}
-        >
-          Back to Home
-        </Button>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: { xs: 6, md: 10 } }}>
+      <Container maxWidth="lg">
+        <Box sx={{ mb: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Button 
+            component={Link} 
+            to="/verify" 
+            startIcon={<ChevronLeft size={18} />}
+            sx={{ 
+              color: 'text.secondary',
+              '&:hover': { bgcolor: 'background.paper' }
+            }}
+          >
+            Back to Verification
+          </Button>
+        </Box>
 
-        <Paper sx={{ 
-          borderRadius: 4, 
-          overflow: 'hidden', 
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'
-        }}>
+        <Paper 
+          elevation={0}
+          sx={{ 
+            borderRadius: 6, 
+            overflow: 'hidden', 
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.08)'
+          }}
+        >
           {error ? (
-            <Box sx={{ p: 8, textAlign: 'center' }}>
-              <Avatar sx={{ width: 80, height: 80, bgcolor: 'error.light', color: 'error.main', mx: 'auto', mb: 3 }}>
-                <ShieldAlert size={40} />
+            <Box sx={{ p: { xs: 6, md: 12 }, textAlign: 'center' }}>
+              <Avatar sx={{ width: 96, height: 96, bgcolor: 'error.light', color: 'error.main', mx: 'auto', mb: 4 }}>
+                <ShieldAlert size={48} />
               </Avatar>
-              <Typography variant="h4" fontWeight={800} gutterBottom>Verification Failed</Typography>
-              <Typography color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
-                We couldn't find any record matching this verification ID. Please check the ID or contact support.
+              <Typography variant="h3" fontWeight={800} gutterBottom sx={{ letterSpacing: '-0.02em' }}>Verification Failed</Typography>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 6, maxWidth: 500, mx: 'auto', fontWeight: 400 }}>
+                We couldn't locate any record matching this verification ID. This could be due to an incorrect ID or the document might not be authentic.
               </Typography>
-              <Button variant="contained" component={Link} to="/">Return Home</Button>
+              <Stack direction="row" spacing={2} justifyContent="center">
+                <Button variant="contained" component={Link} to="/verify" sx={{ px: 4 }}>Try Another ID</Button>
+                <Button variant="outlined" component={Link} to="/contact" sx={{ px: 4 }}>Contact Support</Button>
+              </Stack>
             </Box>
           ) : (
             <>
-              {/* Header Status */}
+              {/* Status Header */}
               <Box sx={{ 
-                p: 4, 
+                p: { xs: 4, md: 6 }, 
                 bgcolor: 'success.main', 
                 color: 'white', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                flexDirection: 'column',
-                gap: 1
+                textAlign: 'center',
+                position: 'relative',
+                overflow: 'hidden'
               }}>
-                <ShieldCheck size={48} />
-                <Typography variant="h5" fontWeight={700}>Authenticity Verified</Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  This document is officially issued and recognized by CodeOrbit Solutions
-                </Typography>
+                <Box sx={{ position: 'relative', zIndex: 1 }}>
+                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 80, height: 80, mx: 'auto', mb: 2 }}>
+                    <ShieldCheck size={48} />
+                  </Avatar>
+                  <Typography variant="h3" fontWeight={800} sx={{ mb: 1, letterSpacing: '-0.02em' }}>
+                    Authenticity Verified
+                  </Typography>
+                  <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
+                    This document is officially issued and recognized by CodeOrbit Solutions
+                  </Typography>
+                </Box>
               </Box>
 
-              <Box sx={{ p: { xs: 3, md: 6 } }}>
-                <Grid container spacing={4}>
+              <Box sx={{ p: { xs: 4, md: 8 } }}>
+                <Grid container spacing={6}>
                   <Grid size={{ xs: 12, md: 7 }}>
-                    <Typography variant="overline" color="text.secondary" fontWeight={700} letterSpacing={1}>
-                      Internship Details
-                    </Typography>
-                    <Typography variant="h4" fontWeight={800} sx={{ mt: 1, mb: 4 }}>
-                      {document.applicationId?.name}
-                    </Typography>
+                    <Box sx={{ mb: 6 }}>
+                      <Typography variant="overline" color="accent.main" fontWeight={800} letterSpacing={2}>
+                        Official Record
+                      </Typography>
+                      <Typography variant="h2" fontWeight={800} sx={{ mt: 1, mb: 4, letterSpacing: '-0.02em' }}>
+                        {document.applicationId?.name}
+                      </Typography>
+                    </Box>
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                       <DetailRow 
-                        icon={<Award size={20} />} 
-                        label="Role / Domain" 
+                        icon={<Award size={24} />} 
+                        label="Program / Domain" 
                         value={document.applicationId?.preferredDomain} 
                       />
                       <DetailRow 
-                        icon={<Calendar size={20} />} 
-                        label="Internship Period" 
-                        value={`${new Date(document.applicationId?.startDate).toLocaleDateString()} - ${new Date(document.applicationId?.endDate).toLocaleDateString()}`} 
+                        icon={<Calendar size={24} />} 
+                        label="Tenure Period" 
+                        value={`${new Date(document.applicationId?.startDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} - ${new Date(document.applicationId?.endDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`} 
                       />
                       <DetailRow 
-                        icon={<User size={20} />} 
-                        label="Issued To" 
+                        icon={<User size={24} />} 
+                        label="Registered Email" 
                         value={document.applicationId?.email} 
                       />
                     </Box>
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 5 }}>
-                    <Paper variant="outlined" sx={{ p: 3, bgcolor: '#f8fafc', borderStyle: 'dashed', borderRadius: 3 }}>
-                      <Typography variant="overline" color="text.secondary" fontWeight={700}>
-                        Document Metadata
+                    <Paper 
+                      variant="outlined" 
+                      sx={{ 
+                        p: 4, 
+                        bgcolor: 'background.alt', 
+                        borderStyle: 'dashed', 
+                        borderRadius: 4,
+                        mb: 4
+                      }}
+                    >
+                      <Typography variant="overline" color="text.secondary" fontWeight={800} letterSpacing={1}>
+                        Security Metadata
                       </Typography>
-                      <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
                         <Box>
-                          <Typography variant="caption" color="text.secondary">Verification ID</Typography>
-                          <Typography variant="body2" fontWeight={700}>{document.verificationId}</Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 700 }}>Verification ID</Typography>
+                          <Typography variant="body1" fontWeight={700} sx={{ fontFamily: 'monospace', fontSize: '1.1rem', color: 'primary.main' }}>
+                            {document.verificationId}
+                          </Typography>
                         </Box>
                         <Box>
-                          <Typography variant="caption" color="text.secondary">Issue Date</Typography>
-                          <Typography variant="body2" fontWeight={700}>{new Date(document.issuedOn).toLocaleDateString()}</Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 700 }}>Issue Date</Typography>
+                          <Typography variant="body1" fontWeight={700}>
+                            {new Date(document.issuedOn).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                          </Typography>
                         </Box>
                         <Box>
-                          <Typography variant="caption" color="text.secondary">Status</Typography>
-                          <Box sx={{ mt: 0.5 }}>
-                            <Chip label="Active & Valid" size="small" color="success" sx={{ fontWeight: 600 }} />
+                          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 700 }}>Record Status</Typography>
+                          <Box sx={{ mt: 1 }}>
+                            <Chip 
+                              label="Valid & Active" 
+                              size="medium" 
+                              color="success" 
+                              sx={{ fontWeight: 700, px: 1 }} 
+                            />
                           </Box>
                         </Box>
                       </Box>
                     </Paper>
 
-                    <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {document.certificateUrl && (
                         <Button 
                           fullWidth
                           variant="contained" 
-                          startIcon={<FileDown size={18} />}
+                          startIcon={<FileDown size={20} />}
                           href={getDocumentUrl(document.certificateUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          sx={{ py: 1.5 }}
+                          sx={{ py: 2, fontSize: '1rem' }}
                         >
-                          View Certificate
+                          Download Certificate
                         </Button>
                       )}
                       {document.offerLetterUrl && (
                         <Button 
                           fullWidth
                           variant="outlined" 
-                          startIcon={<ExternalLink size={18} />}
+                          startIcon={<ExternalLink size={20} />}
                           href={getDocumentUrl(document.offerLetterUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
+                          sx={{ py: 1.5 }}
                         >
                           View Offer Letter
-                        </Button>
-                      )}
-                      {document.paymentSlipUrl && (
-                        <Button 
-                          fullWidth
-                          variant="outlined" 
-                          color="info"
-                          startIcon={<FileDown size={18} />}
-                          href={getDocumentUrl(document.paymentSlipUrl)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          View Fee Receipt
                         </Button>
                       )}
                     </Box>
                   </Grid>
                 </Grid>
 
-                <Box sx={{ mt: 8, pt: 4, borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Verification powered by CodeOrbit Trust Services. 
-                    Questions? Contact us at <strong>verification@codeorbit.ai</strong>
+                <Box sx={{ mt: 10, pt: 6, borderTop: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto', lineHeight: 1.6 }}>
+                    This is a digitally verified record issued by CodeOrbit Solutions. 
+                    For any queries regarding this verification, please contact our support team at 
+                    <strong style={{ color: '#1e293b' }}> verification@codeorbit.ai</strong>
                   </Typography>
                 </Box>
               </Box>
@@ -215,21 +262,5 @@ const VerifyDocument = () => {
     </Box>
   );
 };
-
-const DetailRow = ({ icon, label, value }) => (
-  <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-    <Box sx={{ p: 1, bgcolor: '#eff6ff', color: 'primary.main', borderRadius: 1.5 }}>
-      {icon}
-    </Box>
-    <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5 }}>
-        {label}
-      </Typography>
-      <Typography variant="body1" fontWeight={600}>
-        {value || 'N/A'}
-      </Typography>
-    </Box>
-  </Box>
-);
 
 export default VerifyDocument;
