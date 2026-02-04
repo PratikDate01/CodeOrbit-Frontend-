@@ -11,22 +11,28 @@ import {
   Paper, 
   Button, 
   Chip,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField
 } from '@mui/material';
 
+import API from '../../api/api';
+
 const AdminLMSApprovals = () => {
-  const [approvals] = useState([]);
+  const [approvals, setApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reviewDialog, setReviewDialog] = useState({ open: false, item: null, marks: 0, remarks: '' });
 
   const fetchApprovals = async () => {
-    // This endpoint should be added to backend to fetch pending approvals
-    // For now, it's a placeholder
     try {
-      // const { data } = await API.get('/admin/lms/approvals/pending');
-      // setApprovals(data);
-      setLoading(false);
+      const { data } = await API.get('/admin/lms/approvals/pending');
+      setApprovals(data);
     } catch (error) {
       console.error('Error fetching approvals:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -35,7 +41,21 @@ const AdminLMSApprovals = () => {
     fetchApprovals();
   }, []);
 
-  if (loading) return <CircularProgress />;
+  const handleApprove = async (id, status) => {
+    try {
+      await API.patch(`/admin/lms/progress/${id}/approve`, {
+        status,
+        marks: reviewDialog.marks,
+        remarks: reviewDialog.remarks
+      });
+      setReviewDialog({ open: false, item: null, marks: 0, remarks: '' });
+      fetchApprovals();
+    } catch (error) {
+      console.error('Error approving activity:', error);
+    }
+  };
+
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}><CircularProgress /></Box>;
 
   return (
     <Box>
@@ -47,7 +67,7 @@ const AdminLMSApprovals = () => {
               <TableCell sx={{ fontWeight: 700 }}>Student</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Program</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>Activity</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -61,12 +81,21 @@ const AdminLMSApprovals = () => {
             ) : (
               approvals.map((item) => (
                 <TableRow key={item._id}>
-                  <TableCell>{item.user.name}</TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={700}>{item.user.name}</Typography>
+                    <Typography variant="caption" color="text.secondary">{item.user.email}</Typography>
+                  </TableCell>
                   <TableCell>{item.enrollment.program.title}</TableCell>
                   <TableCell>{item.activity.title}</TableCell>
-                  <TableCell><Chip label={item.status} size="small" color="warning" /></TableCell>
+                  <TableCell><Chip label={item.activity.type} size="small" variant="outlined" /></TableCell>
                   <TableCell align="right">
-                    <Button size="small" variant="outlined" sx={{ mr: 1 }}>Review</Button>
+                    <Button 
+                      size="small" 
+                      variant="contained" 
+                      onClick={() => setReviewDialog({ open: true, item, marks: item.marks || 0, remarks: '' })}
+                    >
+                      Review
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -74,6 +103,48 @@ const AdminLMSApprovals = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Review Dialog */}
+      <Dialog open={reviewDialog.open} onClose={() => setReviewDialog({ ...reviewDialog, open: false })} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 800 }}>Review Submission</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="subtitle2" color="text.secondary">Student: {reviewDialog.item?.user.name}</Typography>
+            <Typography variant="subtitle2" color="text.secondary">Activity: {reviewDialog.item?.activity.title}</Typography>
+            
+            {reviewDialog.item?.submissionContent && (
+              <Paper sx={{ p: 2, my: 2, bgcolor: 'background.alt', maxHeight: 200, overflow: 'auto' }}>
+                <Typography variant="caption" fontWeight={700} sx={{ display: 'block', mb: 1 }}>SUBMISSION CONTENT:</Typography>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{reviewDialog.item.submissionContent}</Typography>
+              </Paper>
+            )}
+
+            <TextField
+              label="Marks / Score"
+              type="number"
+              fullWidth
+              sx={{ mt: 2 }}
+              value={reviewDialog.marks}
+              onChange={(e) => setReviewDialog({ ...reviewDialog, marks: e.target.value })}
+            />
+            <TextField
+              label="Feedback / Remarks"
+              multiline
+              rows={3}
+              fullWidth
+              sx={{ mt: 2 }}
+              value={reviewDialog.remarks}
+              onChange={(e) => setReviewDialog({ ...reviewDialog, remarks: e.target.value })}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button color="error" onClick={() => handleApprove(reviewDialog.item._id, 'Rejected')}>Reject</Button>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button onClick={() => setReviewDialog({ ...reviewDialog, open: false })}>Cancel</Button>
+          <Button variant="contained" color="success" onClick={() => handleApprove(reviewDialog.item._id, 'Completed')}>Approve & Complete</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

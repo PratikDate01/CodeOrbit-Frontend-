@@ -34,34 +34,58 @@ const CoursePlayer = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({ program: null, courses: [], modules: [], lessons: [], activities: [], progress: [] });
   const [activeActivity, setActiveActivity] = useState(null);
+  const [activeCourse, setActiveCourse] = useState(null);
   const [expandedModules, setExpandedModules] = useState({});
 
-  const fetchData = useCallback(async () => {
+  const fetchCourseContent = useCallback(async (courseId) => {
     try {
-      const { data: programData } = await API.get(`/lms/programs/${programId}`);
-      // Assuming backend returns nested structure or we fetch it
-      // Let's assume we fetch all course content for simplicity in this MVP
-      const { data: contentData } = await API.get(`/lms/courses/${programData.courses[0]._id}/content`);
-      
-      setData({
-        program: programData.program,
-        courses: programData.courses,
+      const { data: contentData } = await API.get(`/lms/courses/${courseId}/content`);
+      setData(prev => ({
+        ...prev,
         ...contentData
-      });
-
-      if (contentData.activities.length > 0) {
+      }));
+      
+      if (contentData.activities.length > 0 && !activeActivity) {
         setActiveActivity(contentData.activities[0]);
       }
     } catch (error) {
       console.error('Error fetching course content:', error);
+    }
+  }, [activeActivity]);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data: programData } = await API.get(`/lms/programs/${programId}`);
+      
+      setData(prev => ({
+        ...prev,
+        program: programData.program,
+        courses: programData.courses
+      }));
+
+      if (programData.courses && programData.courses.length > 0) {
+        setActiveCourse(programData.courses[0]);
+        await fetchCourseContent(programData.courses[0]._id);
+      }
+    } catch (error) {
+      console.error('Error fetching program details:', error);
     } finally {
       setLoading(false);
     }
-  }, [programId]);
+  }, [programId, fetchCourseContent]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleCourseChange = async (course) => {
+    setActiveCourse(course);
+    setActiveActivity(null);
+    setLoading(true);
+    await fetchCourseContent(course._id);
+    setLoading(false);
+  };
 
   const toggleModule = (moduleId) => {
     setExpandedModules(prev => ({ ...prev, [moduleId]: !prev[moduleId] }));
@@ -81,7 +105,7 @@ const CoursePlayer = () => {
     try {
       await API.post(`/lms/activities/${activityId}/progress`, { status: 'Completed' });
       // Refresh progress data
-      const { data: contentData } = await API.get(`/lms/courses/${data.courses[0]._id}/content`);
+      const { data: contentData } = await API.get(`/lms/courses/${activeCourse._id}/content`);
       setData(prev => ({ ...prev, progress: contentData.progress }));
     } catch (error) {
       console.error('Error completing activity:', error);
@@ -113,6 +137,29 @@ const CoursePlayer = () => {
             Back to Learning
           </Button>
           <Typography variant="h6" fontWeight={800} noWrap>{data.program?.title}</Typography>
+          {data.courses.length > 1 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary">SELECT COURSE</Typography>
+              <Box sx={{ display: 'flex', gap: 1, mt: 1, overflowX: 'auto', pb: 1 }}>
+                {data.courses.map((course) => (
+                  <Chip 
+                    key={course._id}
+                    label={course.title}
+                    size="small"
+                    onClick={() => handleCourseChange(course)}
+                    color={activeCourse?._id === course._id ? "primary" : "default"}
+                    variant={activeCourse?._id === course._id ? "filled" : "outlined"}
+                    sx={{ fontWeight: 600 }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+          {data.courses.length === 1 && (
+            <Typography variant="body2" color="text.secondary" fontWeight={600} sx={{ mt: 1 }}>
+              {activeCourse?.title}
+            </Typography>
+          )}
         </Box>
 
         <List sx={{ p: 0 }}>

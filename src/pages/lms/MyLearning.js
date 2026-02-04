@@ -19,6 +19,7 @@ import API from '../../api/api';
 const MyLearning = () => {
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchEnrollments = async () => {
@@ -27,6 +28,7 @@ const MyLearning = () => {
         setEnrollments(data);
       } catch (error) {
         console.error('Error fetching enrollments:', error);
+        setError('Failed to load your courses. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -36,8 +38,16 @@ const MyLearning = () => {
   }, []);
 
   if (loading) return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-      <CircularProgress />
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 15 }}>
+      <CircularProgress sx={{ mb: 2 }} />
+      <Typography color="text.secondary">Loading your workspace...</Typography>
+    </Box>
+  );
+
+  if (error) return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 15 }}>
+      <Typography variant="h6" color="error" gutterBottom>{error}</Typography>
+      <Button variant="outlined" onClick={() => window.location.reload()}>Retry</Button>
     </Box>
   );
 

@@ -39,7 +39,8 @@ import {
   CreditCard,
   Search,
   HelpCircle,
-  GraduationCap
+  GraduationCap,
+  FileText
 } from 'lucide-react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -48,6 +49,8 @@ import API, { baseURL } from '../api/api';
 import UserOverview from '../components/user/UserOverview';
 import UserApplications from '../components/user/UserApplications';
 import UserNotifications from '../components/user/UserNotifications';
+import UserPayments from '../components/user/UserPayments';
+import UserDocuments from '../components/user/UserDocuments';
 
 const drawerWidth = 280;
 
@@ -207,8 +210,10 @@ const Dashboard = () => {
   const menuItems = [
     { text: 'Overview', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
     { text: 'Applications', icon: <Briefcase size={20} />, path: '/dashboard/applications' },
-    { text: 'Notifications', icon: <Bell size={20} />, path: '/dashboard/notifications' },
+    { text: 'Payments', icon: <CreditCard size={20} />, path: '/dashboard/payments' },
+    { text: 'Documents', icon: <FileText size={20} />, path: '/dashboard/documents' },
     { text: 'My Learning', icon: <GraduationCap size={20} />, path: '/my-learning' },
+    { text: 'Notifications', icon: <Bell size={20} />, path: '/dashboard/notifications' },
     { text: 'Profile Settings', icon: <Settings size={20} />, path: '/profile' },
   ];
 
@@ -423,6 +428,18 @@ const Dashboard = () => {
                 onClearAll={handleClearNotifications}
               />
             } />
+            <Route path="payments" element={
+              <UserPayments 
+                applications={applications} 
+                onPaymentClick={handlePaymentClick}
+              />
+            } />
+            <Route path="documents" element={
+              <UserDocuments 
+                applications={applications} 
+                getDocumentUrl={getDocumentUrl}
+              />
+            } />
           </Routes>
         </Container>
       </Box>
@@ -441,8 +458,13 @@ const Dashboard = () => {
             <Typography variant="body2" color="text.secondary">Domain</Typography>
             <Typography variant="h6" fontWeight={700}>{selectedApp?.preferredDomain}</Typography>
             <Typography variant="h4" fontWeight={800} sx={{ mt: 2, color: 'primary.main' }}>
-              ₹{couponDetails ? couponDetails.discountedAmount : selectedApp?.amount}
+              ₹{couponDetails ? couponDetails.finalAmount : selectedApp?.amount}
             </Typography>
+            {couponDetails && (
+              <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                ₹{selectedApp?.amount}
+              </Typography>
+            )}
           </Box>
           
           <Divider sx={{ my: 2 }} />
@@ -465,9 +487,19 @@ const Dashboard = () => {
             </Button>
           </Box>
           {couponDetails && (
-            <Typography variant="caption" color="success.main" fontWeight={600}>
-              Code Applied! You saved ₹{selectedApp.amount - couponDetails.discountedAmount}
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="caption" color="success.main" fontWeight={600}>
+                Code Applied! You saved ₹{couponDetails.discountAmount}
+              </Typography>
+              <Button 
+                size="small" 
+                color="error" 
+                onClick={() => { setCouponDetails(null); setCouponCode(''); }}
+                sx={{ fontSize: '0.65rem', minWidth: 'auto', p: 0 }}
+              >
+                Remove
+              </Button>
+            </Box>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>

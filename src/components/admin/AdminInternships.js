@@ -27,7 +27,7 @@ import {
   Skeleton,
   Divider
 } from '@mui/material';
-import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, CheckCircle, Award, ExternalLink, CreditCard, Receipt } from 'lucide-react';
+import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, Award, ExternalLink, CreditCard, Receipt } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -46,20 +46,68 @@ const AdminInternships = () => {
   const [selectedApp, setSelectedApp] = useState(null);
   const [statusFilter, setStatusFilter] = useState('All');
   const [anchorElFilter, setAnchorElFilter] = useState(null);
-  
-  const [openDocDialog, setOpenDocDialog] = useState(false);
-  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+  
   useEffect(() => {
     fetchApplications();
   }, []);
+
+  const [openDocDialog, setOpenDocDialog] = useState(false);
+  const [appDocuments, setAppDocuments] = useState({});
+  const [docLoading, setDocLoading] = useState(false);
+
+  const fetchAppDocuments = async (applicationId) => {
+    setDocLoading(true);
+    try {
+      const { data } = await API.get(`/documents/application/${applicationId}`);
+      setAppDocuments(data);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    } finally {
+      setDocLoading(false);
+    }
+  };
+
+  const handleGenerateDocument = async (type) => {
+    setIsGenerating(true);
+    try {
+      await API.post(`/documents/generate/${type}`, {
+        applicationId: selectedApp._id
+      });
+      showNotification(`${type.replace('-', ' ').toUpperCase()} generated successfully!`, 'success');
+      fetchAppDocuments(selectedApp._id);
+      fetchApplications();
+    } catch (error) {
+      showNotification(error.response?.data?.message || 'Failed to generate document', 'error');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleToggleDocVisibility = async (type, visible) => {
+    try {
+      await API.patch('/documents/visibility', {
+        applicationId: selectedApp._id,
+        type,
+        visible
+      });
+      fetchAppDocuments(selectedApp._id);
+      showNotification('Visibility updated', 'success');
+    } catch (error) {
+      showNotification('Failed to update visibility', 'error');
+    }
+  };
+
+  const handleOpenDocDialog = (app) => {
+    setSelectedApp(app);
+    fetchAppDocuments(app._id);
+    setOpenDocDialog(true);
+    setAnchorEl(null);
+  };
 
   const fetchApplications = async () => {
     setLoading(true);
@@ -213,43 +261,6 @@ const AdminInternships = () => {
     a.href = url;
     a.download = `applications_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
-  };
-
-  const handleGenerateDocs = async () => {
-    setIsGenerating(true);
-    try {
-      await API.post('/documents/generate-offer-letter', {
-        applicationId: selectedApp._id,
-        startDate,
-        endDate,
-        regenerate: true
-      });
-      showNotification('Documents (Offer Letter, Certificate, LOC) generated successfully!', 'success');
-      setOpenDocDialog(false);
-      setStartDate('');
-      setEndDate('');
-      fetchApplications();
-    } catch (error) {
-      console.error('Error generating documents:', error);
-      showNotification('Failed to generate documents. Please try again.', 'error');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleGeneratePaymentSlip = async () => {
-    try {
-      await API.post('/documents/generate-payment-slip', { 
-        applicationId: selectedApp._id,
-        regenerate: true
-      });
-      showNotification('Payment slip generated successfully!', 'success');
-      fetchApplications();
-      setAnchorEl(null);
-    } catch (error) {
-      console.error('Error generating payment slip:', error);
-      showNotification('Failed to generate payment slip. Please check if payment is verified.', 'error');
-    }
   };
 
   return (
@@ -514,120 +525,169 @@ const AdminInternships = () => {
             <ListItemText>{selectedApp.progress?.isEligibleForCertificate ? "Revoke Eligibility" : "Grant Certificate Eligibility"}</ListItemText>
           </MenuItem>
         )}
-        {selectedApp?.paymentStatus === 'Processing' && (
-          <MenuItem onClick={() => { setAnchorEl(null); setOpenPaymentDialog(true); }}>
-            <ListItemIcon><CreditCard size={18} color="#f59e0b" /></ListItemIcon>
-            <ListItemText>Review Payment</ListItemText>
-          </MenuItem>
-        )}
         <MenuItem onClick={() => handleUpdateStatus('Rejected')} sx={{ color: 'error.main' }}>
           <ListItemIcon><Trash2 size={18} color="currentColor" /></ListItemIcon>
           <ListItemText>Reject Application</ListItemText>
         </MenuItem>
         <Divider />
-        {selectedApp?.paymentStatus === 'Verified' && !selectedApp?.documents?.paymentSlipUrl && (
-          <MenuItem onClick={handleGeneratePaymentSlip}>
-            <ListItemIcon><Receipt size={18} color="#06b6d4" /></ListItemIcon>
-            <ListItemText>Generate Payment Slip</ListItemText>
-          </MenuItem>
-        )}
-        <MenuItem onClick={() => { setAnchorEl(null); setOpenDocDialog(true); }}>
+        <MenuItem onClick={() => handleOpenDocDialog(selectedApp)}>
           <ListItemIcon><FileText size={18} /></ListItemIcon>
-          <ListItemText>Generate Documents</ListItemText>
+          <ListItemText>Manage Documents</ListItemText>
         </MenuItem>
-        {selectedApp?.documents && (
-          <Box>
-            <Divider />
-            <MenuItem 
-              component="a" 
-              href={getDocumentUrl(selectedApp.documents.offerLetterUrl)}
-              target="_blank"
-            >
-              <ListItemIcon><FileText size={18} color="#3b82f6" /></ListItemIcon>
-              <ListItemText>View Offer Letter</ListItemText>
-            </MenuItem>
-            {selectedApp.documents.paymentSlipUrl && (
-              <MenuItem 
-                component="a" 
-                href={getDocumentUrl(selectedApp.documents.paymentSlipUrl)}
-                target="_blank"
-              >
-                <ListItemIcon><Receipt size={18} color="#06b6d4" /></ListItemIcon>
-                <ListItemText>View Payment Slip</ListItemText>
-              </MenuItem>
-            )}
-            <MenuItem 
-              component="a" 
-              href={getDocumentUrl(selectedApp.documents.certificateUrl)}
-              target="_blank"
-            >
-              <ListItemIcon><CheckCircle size={18} color="#10b981" /></ListItemIcon>
-              <ListItemText>View Certificate</ListItemText>
-            </MenuItem>
-            <MenuItem 
-              component="a" 
-              href={getDocumentUrl(selectedApp.documents.locUrl)}
-              target="_blank"
-            >
-              <ListItemIcon><Award size={18} color="#8b5cf6" /></ListItemIcon>
-              <ListItemText>View LOC</ListItemText>
-            </MenuItem>
-            <MenuItem 
-              component="a" 
-              href={`${window.location.origin}/verify/${selectedApp.documents.verificationId}`}
-              target="_blank"
-            >
-              <ListItemIcon><ExternalLink size={18} /></ListItemIcon>
-              <ListItemText>Verification Page</ListItemText>
-            </MenuItem>
-          </Box>
-        )}
       </Menu>
 
       <Dialog 
         open={openDocDialog} 
         onClose={() => setOpenDocDialog(false)}
-        PaperProps={{ sx: { borderRadius: 3, width: '100%', maxWidth: 450 } }}
+        PaperProps={{ sx: { borderRadius: 3, width: '100%', maxWidth: 550 } }}
       >
-        <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Generate Documents</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Manage Documents</DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              Generate professional documents (Offer Letter, Certificate, and LOC) for <strong>{selectedApp?.name}</strong>.
-            </Typography>
-            <TextField
-              label="Start Date"
-              type="date"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-            />
-            <TextField
-              label="End Date"
-              type="date"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-            />
-            <Typography variant="caption" color="warning.main" sx={{ fontWeight: 600 }}>
-              Note: This will also update the application status to "Approved".
-            </Typography>
-          </Box>
+          {docLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><Skeleton variant="circular" width={40} height={40} /></Box>
+          ) : (
+            <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Control individual documents for <strong>{selectedApp?.name}</strong>.
+              </Typography>
+              
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={700}>Offer Letter</Typography>
+                    <Typography variant="caption" color="text.secondary">Required after approval</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                      size="small" 
+                      variant="outlined" 
+                      onClick={() => handleGenerateDocument('offer-letter')}
+                      disabled={isGenerating}
+                    >
+                      {appDocuments.offerLetterUrl ? 'Regenerate' : 'Generate'}
+                    </Button>
+                    {appDocuments.offerLetterUrl && (
+                      <Button 
+                        size="small" 
+                        variant={appDocuments.offerLetterVisible ? "contained" : "outlined"}
+                        color={appDocuments.offerLetterVisible ? "success" : "inherit"}
+                        onClick={() => handleToggleDocVisibility('offerLetter', !appDocuments.offerLetterVisible)}
+                      >
+                        {appDocuments.offerLetterVisible ? 'Visible' : 'Hidden'}
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+                {appDocuments.offerLetterUrl && (
+                  <Button size="small" component="a" href={appDocuments.offerLetterUrl} target="_blank" startIcon={<ExternalLink size={14} />}>View PDF</Button>
+                )}
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={700}>Certificate</Typography>
+                    <Typography variant="caption" color="text.secondary">Required after completion</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                      size="small" 
+                      variant="outlined" 
+                      onClick={() => handleGenerateDocument('certificate')}
+                      disabled={isGenerating || !selectedApp?.progress?.isEligibleForCertificate}
+                    >
+                      {appDocuments.certificateUrl ? 'Regenerate' : 'Generate'}
+                    </Button>
+                    {appDocuments.certificateUrl && (
+                      <Button 
+                        size="small" 
+                        variant={appDocuments.certificateVisible ? "contained" : "outlined"}
+                        color={appDocuments.certificateVisible ? "success" : "inherit"}
+                        onClick={() => handleToggleDocVisibility('certificate', !appDocuments.certificateVisible)}
+                      >
+                        {appDocuments.certificateVisible ? 'Visible' : 'Hidden'}
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+                {!selectedApp?.progress?.isEligibleForCertificate && (
+                  <Typography variant="caption" color="error">Student not eligible yet</Typography>
+                )}
+                {appDocuments.certificateUrl && (
+                  <Button size="small" component="a" href={appDocuments.certificateUrl} target="_blank" startIcon={<ExternalLink size={14} />}>View PDF</Button>
+                )}
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={700}>LOC (Letter of Completion)</Typography>
+                    <Typography variant="caption" color="text.secondary">Required after completion</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                      size="small" 
+                      variant="outlined" 
+                      onClick={() => handleGenerateDocument('loc')}
+                      disabled={isGenerating}
+                    >
+                      {appDocuments.locUrl ? 'Regenerate' : 'Generate'}
+                    </Button>
+                    {appDocuments.locUrl && (
+                      <Button 
+                        size="small" 
+                        variant={appDocuments.locVisible ? "contained" : "outlined"}
+                        color={appDocuments.locVisible ? "success" : "inherit"}
+                        onClick={() => handleToggleDocVisibility('loc', !appDocuments.locVisible)}
+                      >
+                        {appDocuments.locVisible ? 'Visible' : 'Hidden'}
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+                {appDocuments.locUrl && (
+                  <Button size="small" component="a" href={appDocuments.locUrl} target="_blank" startIcon={<ExternalLink size={14} />}>View PDF</Button>
+                )}
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={700}>Payment Receipt</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                      size="small" 
+                      variant="outlined" 
+                      onClick={async () => {
+                        await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id, regenerate: true });
+                        fetchAppDocuments(selectedApp._id);
+                      }}
+                      disabled={selectedApp?.paymentStatus !== 'Verified'}
+                    >
+                      {appDocuments.paymentSlipUrl ? 'Regenerate' : 'Generate'}
+                    </Button>
+                    {appDocuments.paymentSlipUrl && (
+                      <Button 
+                        size="small" 
+                        variant={appDocuments.paymentSlipVisible ? "contained" : "outlined"}
+                        color={appDocuments.paymentSlipVisible ? "success" : "inherit"}
+                        onClick={() => handleToggleDocVisibility('paymentSlip', !appDocuments.paymentSlipVisible)}
+                      >
+                        {appDocuments.paymentSlipVisible ? 'Visible' : 'Hidden'}
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+                {appDocuments.paymentSlipUrl && (
+                  <Button size="small" component="a" href={appDocuments.paymentSlipUrl} target="_blank" startIcon={<ExternalLink size={14} />}>View PDF</Button>
+                )}
+              </Paper>
+            </Box>
+          )}
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 0 }}>
-          <Button onClick={() => setOpenDocDialog(false)} color="inherit">Cancel</Button>
-          <Button 
-            onClick={handleGenerateDocs} 
-            variant="contained" 
-            disabled={isGenerating || !startDate || !endDate}
-            sx={{ borderRadius: 2, px: 3 }}
-          >
-            {isGenerating ? 'Generating...' : 'Generate & Send'}
-          </Button>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setOpenDocDialog(false)} variant="contained" fullWidth sx={{ borderRadius: 2 }}>Close</Button>
         </DialogActions>
       </Dialog>
 

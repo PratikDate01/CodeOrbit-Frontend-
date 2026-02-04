@@ -22,7 +22,8 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Award
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -146,8 +147,8 @@ const UserApplications = ({ applications, onPaymentClick, getDocumentUrl }) => {
                             </IconButton>
                           </Tooltip>
                         )}
-                        {app.documents?.offerLetterUrl && (
-                          <Tooltip title="Download Offer Letter">
+                        {app.documents?.offerLetterUrl && app.documents?.offerLetterVisible && (
+                          <Tooltip title="View Offer Letter">
                             <IconButton 
                               size="small" 
                               href={getDocumentUrl(app.documents.offerLetterUrl)}
@@ -155,6 +156,42 @@ const UserApplications = ({ applications, onPaymentClick, getDocumentUrl }) => {
                               sx={{ bgcolor: 'success.lighter', color: 'success.main', '&:hover': { bgcolor: 'success.light' } }}
                             >
                               <FileText size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {app.documents?.certificateUrl && app.documents?.certificateVisible && (
+                          <Tooltip title="View Certificate">
+                            <IconButton 
+                              size="small" 
+                              href={getDocumentUrl(app.documents.certificateUrl)}
+                              target="_blank"
+                              sx={{ bgcolor: 'secondary.lighter', color: 'secondary.main', '&:hover': { bgcolor: 'secondary.light' } }}
+                            >
+                              <Award size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {app.documents?.locUrl && app.documents?.locVisible && (
+                          <Tooltip title="View LOC">
+                            <IconButton 
+                              size="small" 
+                              href={getDocumentUrl(app.documents.locUrl)}
+                              target="_blank"
+                              sx={{ bgcolor: 'info.lighter', color: 'info.main', '&:hover': { bgcolor: 'info.light' } }}
+                            >
+                              <CheckCircle2 size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {app.documents?.paymentSlipUrl && app.documents?.paymentSlipVisible && (
+                          <Tooltip title="View Payment Receipt">
+                            <IconButton 
+                              size="small" 
+                              href={getDocumentUrl(app.documents.paymentSlipUrl)}
+                              target="_blank"
+                              sx={{ bgcolor: 'primary.lighter', color: 'primary.main', '&:hover': { bgcolor: 'primary.light' } }}
+                            >
+                              <CreditCard size={18} />
                             </IconButton>
                           </Tooltip>
                         )}

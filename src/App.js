@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Lazy load pages for better initial load performance
 const Home = lazy(() => import('./pages/Home'));
@@ -219,72 +220,74 @@ function App() {
           <CssBaseline />
           <Router>
             <Header />
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/internships" element={<Internships />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/verify" element={<VerifySearch />} />
-                <Route path="/verify/:id" element={<VerifyDocument />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/refund" element={<RefundPolicy />} />
-                <Route path="/fee-structure" element={<FeeExplanation />} />
-                <Route path="/colleges" element={<Colleges />} />
-                <Route 
-                  path="/dashboard/*" 
-                  element={
-                    <PrivateRoute>
-                      <Dashboard />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/internship-activity/:internshipId" 
-                  element={
-                    <PrivateRoute>
-                      <InternshipActivity />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/my-learning" 
-                  element={
-                    <PrivateRoute>
-                      <MyLearning />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/learning/:programId" 
-                  element={
-                    <PrivateRoute>
-                      <CoursePlayer />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/profile" 
-                  element={
-                    <PrivateRoute>
-                      <Profile />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/*" 
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  } 
-                />
-              </Routes>
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/internships" element={<Internships />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/verify" element={<VerifySearch />} />
+                  <Route path="/verify/:id" element={<VerifyDocument />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/refund" element={<RefundPolicy />} />
+                  <Route path="/fee-structure" element={<FeeExplanation />} />
+                  <Route path="/colleges" element={<Colleges />} />
+                  <Route 
+                    path="/dashboard/*" 
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/internship-activity/:internshipId" 
+                    element={
+                      <PrivateRoute>
+                        <InternshipActivity />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/my-learning" 
+                    element={
+                      <PrivateRoute>
+                        <MyLearning />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/learning/:programId" 
+                    element={
+                      <PrivateRoute>
+                        <CoursePlayer />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/profile" 
+                    element={
+                      <PrivateRoute>
+                        <Profile />
+                      </PrivateRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/*" 
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    } 
+                  />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
             <Footer />
           </Router>
         </AuthProvider>
