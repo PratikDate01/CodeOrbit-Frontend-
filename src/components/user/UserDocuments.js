@@ -7,7 +7,8 @@ import {
   Card,
   CardContent,
   Button,
-  Chip
+  Chip,
+  IconButton
 } from '@mui/material';
 import { 
   FileText, 
@@ -15,21 +16,38 @@ import {
   CheckCircle2, 
   Download,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  ArrowLeft,
+  CreditCard
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const UserDocuments = ({ applications, getDocumentUrl }) => {
-  const hasDocuments = applications.some(app => app.documents && Object.keys(app.documents).length > 0);
+  const hasDocuments = applications.some(app => app.documents && (
+    app.documents.offerLetterUrl || 
+    app.documents.certificateUrl || 
+    app.documents.locUrl || 
+    app.documents.paymentSlipUrl
+  ));
 
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px' }}>
-          My Documents
-        </Typography>
-        <Typography variant="body1" color="text.secondary" fontWeight={500}>
-          Access your offer letters, certificates, and completion documents.
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <IconButton 
+          component={Link} 
+          to="/dashboard" 
+          sx={{ bgcolor: 'background.alt', '&:hover': { bgcolor: 'divider' } }}
+        >
+          <ArrowLeft size={20} />
+        </IconButton>
+        <Box>
+          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px' }}>
+            My Documents
+          </Typography>
+          <Typography variant="body1" color="text.secondary" fontWeight={500}>
+            Access your offer letters, certificates, and completion documents.
+          </Typography>
+        </Box>
       </Box>
 
       {hasDocuments ? (
@@ -129,14 +147,45 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
                   </Grid>
                 )}
 
+                {/* Payment Slip */}
+                {app.documents.paymentSlipUrl && (
+                  <Grid item xs={12} md={6} lg={4}>
+                    <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                          <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'success.lighter', color: 'success.main' }}>
+                            <CreditCard size={24} />
+                          </Box>
+                          <Chip label="Payment Slip" size="small" variant="outlined" color="success" sx={{ fontWeight: 700 }} />
+                        </Box>
+                        <Typography variant="h6" fontWeight={800} gutterBottom>{app.preferredDomain}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                          Official payment receipt for your internship.
+                        </Typography>
+                        <Button 
+                          fullWidth 
+                          variant="contained" 
+                          color="success"
+                          startIcon={<Download size={18} />}
+                          href={getDocumentUrl(app.documents.paymentSlipUrl)}
+                          target="_blank"
+                          sx={{ borderRadius: 2, fontWeight: 700 }}
+                        >
+                          Download PDF
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
+
                 {/* Verification Link */}
                 {app.documents.verificationId && (
                   <Grid item xs={12}>
-                    <Paper sx={{ p: 3, borderRadius: 4, bgcolor: 'background.alt', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                    <Paper sx={{ p: 3, borderRadius: 4, bgcolor: 'background.alt', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <ShieldCheck size={32} color="#10b981" />
                         <Box>
-                          <Typography variant="subtitle1" fontWeight={800}>Digital Verification</Typography>
+                          <Typography variant="subtitle1" fontWeight={800}>Digital Verification ({app.preferredDomain})</Typography>
                           <Typography variant="body2" color="text.secondary">All documents are digitally verifiable using ID: <strong>{app.documents.verificationId}</strong></Typography>
                         </Box>
                       </Box>

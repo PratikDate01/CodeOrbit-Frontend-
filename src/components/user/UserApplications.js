@@ -23,7 +23,8 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  Award
+  Award,
+  ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -53,13 +54,22 @@ const UserApplications = ({ applications, onPaymentClick, getDocumentUrl }) => {
   return (
     <Box>
       <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px' }}>
-            My Applications
-          </Typography>
-          <Typography variant="body1" color="text.secondary" fontWeight={500}>
-            Track your progress and manage your enrollments.
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton 
+            component={Link} 
+            to="/dashboard" 
+            sx={{ bgcolor: 'background.alt', '&:hover': { bgcolor: 'divider' } }}
+          >
+            <ArrowLeft size={20} />
+          </IconButton>
+          <Box>
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px' }}>
+              My Applications
+            </Typography>
+            <Typography variant="body1" color="text.secondary" fontWeight={500}>
+              Track your progress and manage your enrollments.
+            </Typography>
+          </Box>
         </Box>
         <Button 
           variant="contained" 

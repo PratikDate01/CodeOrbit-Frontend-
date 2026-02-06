@@ -458,11 +458,11 @@ const Dashboard = () => {
             <Typography variant="body2" color="text.secondary">Domain</Typography>
             <Typography variant="h6" fontWeight={700}>{selectedApp?.preferredDomain}</Typography>
             <Typography variant="h4" fontWeight={800} sx={{ mt: 2, color: 'primary.main' }}>
-              ₹{couponDetails ? couponDetails.finalAmount : selectedApp?.amount}
+              ₹{couponDetails ? (Number(couponDetails.finalAmount) || 0) : (Number(selectedApp?.amount) || 0)}
             </Typography>
             {couponDetails && (
               <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
-                ₹{selectedApp?.amount}
+                ₹{Number(selectedApp?.amount) || 0}
               </Typography>
             )}
           </Box>
@@ -489,7 +489,7 @@ const Dashboard = () => {
           {couponDetails && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="caption" color="success.main" fontWeight={600}>
-                Code Applied! You saved ₹{couponDetails.discountAmount}
+                Code Applied! You saved ₹{Number(couponDetails.discountAmount) || 0}
               </Typography>
               <Button 
                 size="small" 

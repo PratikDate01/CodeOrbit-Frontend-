@@ -62,14 +62,16 @@ const AdminInternships = () => {
   const [docLoading, setDocLoading] = useState(false);
   const [internshipDates, setInternshipDates] = useState({
     startDate: '',
-    endDate: ''
+    endDate: '',
+    documentIssueDate: ''
   });
 
   const handleOpenDateDialog = (app) => {
     setSelectedApp(app);
     setInternshipDates({
       startDate: app.startDate ? new Date(app.startDate).toISOString().split('T')[0] : '',
-      endDate: app.endDate ? new Date(app.endDate).toISOString().split('T')[0] : ''
+      endDate: app.endDate ? new Date(app.endDate).toISOString().split('T')[0] : '',
+      documentIssueDate: app.documentIssueDate ? new Date(app.documentIssueDate).toISOString().split('T')[0] : ''
     });
     setOpenDateDialog(true);
     setAnchorEl(null);
@@ -750,6 +752,16 @@ const AdminInternships = () => {
               InputLabelProps={{ shrink: true }}
               value={internshipDates.endDate}
               onChange={(e) => setInternshipDates({ ...internshipDates, endDate: e.target.value })}
+            />
+
+            <TextField
+              label="Document Issue Date"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={internshipDates.documentIssueDate}
+              onChange={(e) => setInternshipDates({ ...internshipDates, documentIssueDate: e.target.value })}
+              helperText="This date will appear as 'Date:' on top of letters."
             />
           </Box>
         </DialogContent>

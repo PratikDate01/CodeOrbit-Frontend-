@@ -10,9 +10,10 @@ import {
   LinearProgress, 
   Button, 
   Chip,
-  CircularProgress
+  CircularProgress,
+  IconButton
 } from '@mui/material';
-import { PlayCircle, Award, Clock } from 'lucide-react';
+import { PlayCircle, Award, Clock, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import API from '../../api/api';
 
@@ -54,11 +55,20 @@ const MyLearning = () => {
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '90vh', py: 6 }}>
       <Container maxWidth="lg">
-        <Box sx={{ mb: 5 }}>
-          <Typography variant="h4" fontWeight={800} gutterBottom>My Learning</Typography>
-          <Typography variant="body1" color="text.secondary">
-            Continue where you left off and track your progress.
-          </Typography>
+        <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton 
+            component={Link} 
+            to="/dashboard" 
+            sx={{ bgcolor: 'white', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'background.alt' } }}
+          >
+            <ArrowLeft size={20} />
+          </IconButton>
+          <Box>
+            <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 0 }}>My Learning</Typography>
+            <Typography variant="body1" color="text.secondary">
+              Continue where you left off and track your progress.
+            </Typography>
+          </Box>
         </Box>
 
         {enrollments.length === 0 ? (

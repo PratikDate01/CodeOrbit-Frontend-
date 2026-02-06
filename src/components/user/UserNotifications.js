@@ -8,15 +8,18 @@ import {
   ListItemText, 
   Divider, 
   Button, 
-  Avatar
+  Avatar,
+  IconButton
 } from '@mui/material';
 import { 
   Bell, 
   Trash2, 
   Mail, 
   Briefcase, 
-  CreditCard 
+  CreditCard,
+  ArrowLeft 
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const UserNotifications = ({ notifications, onClearAll }) => {
   const getIcon = (type) => {
@@ -46,13 +49,22 @@ const UserNotifications = ({ notifications, onClearAll }) => {
   return (
     <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
-            Notifications
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Stay updated with your application status and news.
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton 
+            component={Link} 
+            to="/dashboard" 
+            sx={{ bgcolor: 'background.alt', '&:hover': { bgcolor: 'divider' } }}
+          >
+            <ArrowLeft size={20} />
+          </IconButton>
+          <Box>
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
+              Notifications
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Stay updated with your application status and news.
+            </Typography>
+          </Box>
         </Box>
         {notifications.length > 0 && (
           <Button 

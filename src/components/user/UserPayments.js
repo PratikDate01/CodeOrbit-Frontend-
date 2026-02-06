@@ -10,25 +10,37 @@ import {
   TableHead, 
   TableRow, 
   Button,
-  Chip
+  Chip,
+  IconButton
 } from '@mui/material';
 import { 
   CreditCard, 
   CheckCircle2, 
   Clock, 
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const UserPayments = ({ applications, onPaymentClick }) => {
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px' }}>
-          Payments & Billing
-        </Typography>
-        <Typography variant="body1" color="text.secondary" fontWeight={500}>
-          Manage your internship fees and view transaction history.
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <IconButton 
+          component={Link} 
+          to="/dashboard" 
+          sx={{ bgcolor: 'background.alt', '&:hover': { bgcolor: 'divider' } }}
+        >
+          <ArrowLeft size={20} />
+        </IconButton>
+        <Box>
+          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px' }}>
+            Payments & Billing
+          </Typography>
+          <Typography variant="body1" color="text.secondary" fontWeight={500}>
+            Manage your internship fees and view transaction history.
+          </Typography>
+        </Box>
       </Box>
 
       <Paper sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none', overflow: 'hidden' }}>

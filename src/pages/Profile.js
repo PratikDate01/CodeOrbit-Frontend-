@@ -12,9 +12,11 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import { User, ShieldCheck } from 'lucide-react';
+import { User, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/api';
+import { Link } from 'react-router-dom';
+import { IconButton } from '@mui/material';
 
 const Profile = () => {
   const { userInfo, setUserInfo } = useAuth();
@@ -62,6 +64,16 @@ const Profile = () => {
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '90vh', py: 8 }}>
       <Container maxWidth="md">
+        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton 
+            component={Link} 
+            to="/dashboard" 
+            sx={{ bgcolor: 'white', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'background.alt' } }}
+          >
+            <ArrowLeft size={20} />
+          </IconButton>
+          <Typography variant="h6" fontWeight={700}>Back to Dashboard</Typography>
+        </Box>
         <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
             <Avatar sx={{ width: 80, height: 80, bgcolor: 'primary.main', fontSize: '2rem', mr: 3 }}>
