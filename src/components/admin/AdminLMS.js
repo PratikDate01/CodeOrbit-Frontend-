@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { BookOpen, CheckCircle, Award } from 'lucide-react';
 import AdminLMSPrograms from './AdminLMSPrograms';
+import AdminLMSCourses from './AdminLMSCourses';
 import AdminLMSApprovals from './AdminLMSApprovals';
 import AdminLMSEnrollments from './AdminLMSEnrollments';
 
@@ -85,6 +86,7 @@ const AdminLMS = () => {
           <Routes>
             <Route path="/" element={<AdminLMSPrograms />} />
             <Route path="programs" element={<AdminLMSPrograms />} />
+            <Route path="programs/:programId/courses" element={<AdminLMSCourses />} />
             <Route path="approvals" element={<AdminLMSApprovals />} />
             <Route path="enrollments" element={<AdminLMSEnrollments />} />
           </Routes>

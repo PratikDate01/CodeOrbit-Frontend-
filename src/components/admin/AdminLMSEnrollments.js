@@ -50,50 +50,76 @@ const AdminLMSEnrollments = () => {
 
   return (
     <Box>
-      <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>Student Enrollments & Progress</Typography>
-      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
-        <Table>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6" fontWeight={700}>Student Enrollments & Progress</Typography>
+        <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+          Total Students: {enrollments.length}
+        </Typography>
+      </Box>
+      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+        <Table size="small">
           <TableHead sx={{ bgcolor: 'background.alt' }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Student</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Program</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Progress</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>Certification</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Student</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Program</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Progress</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Status</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Certification</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {enrollments.map((enrollment) => (
-              <TableRow key={enrollment._id}>
-                <TableCell>
+              <TableRow key={enrollment._id} hover>
+                <TableCell sx={{ py: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <User size={16} color="#64748b" />
+                    <Box sx={{ 
+                      width: 32, 
+                      height: 32, 
+                      borderRadius: '50%', 
+                      bgcolor: 'primary.lighter', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center' 
+                    }}>
+                      <User size={16} color="#0066FF" />
+                    </Box>
                     <Box>
-                      <Typography variant="body2" fontWeight={600}>{enrollment.user.name}</Typography>
+                      <Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.85rem' }}>{enrollment.user.name}</Typography>
                       <Typography variant="caption" color="text.secondary">{enrollment.user.email}</Typography>
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell>{enrollment.program.title}</TableCell>
-                <TableCell sx={{ minWidth: 150 }}>
+                <TableCell sx={{ py: 1, fontSize: '0.85rem' }}>{enrollment.program.title}</TableCell>
+                <TableCell sx={{ py: 1, minWidth: 140 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Box sx={{ flexGrow: 1 }}>
-                      <LinearProgress variant="determinate" value={enrollment.progress} sx={{ height: 6, borderRadius: 3 }} />
+                      <LinearProgress 
+                        variant="determinate" 
+                        value={enrollment.progress} 
+                        sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover' }} 
+                      />
                     </Box>
-                    <Typography variant="caption" fontWeight={700}>{enrollment.progress}%</Typography>
+                    <Typography variant="caption" fontWeight={800} sx={{ fontSize: '0.7rem' }}>{enrollment.progress}%</Typography>
                   </Box>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ py: 1 }}>
                   <Chip 
                     label={enrollment.status} 
                     size="small" 
                     color={enrollment.status === 'Completed' ? 'success' : 'primary'} 
-                    variant="outlined" 
+                    variant="outlined"
+                    sx={{ fontSize: '0.65rem', fontWeight: 700, height: 20, textTransform: 'uppercase' }} 
                   />
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="right" sx={{ py: 1 }}>
                   {enrollment.isCertificateIssued ? (
-                    <Chip label="Issued" size="small" color="success" icon={<Award size={14} />} />
+                    <Chip 
+                      label="Issued" 
+                      size="small" 
+                      color="success" 
+                      icon={<Award size={12} />} 
+                      sx={{ fontSize: '0.65rem', fontWeight: 700, height: 20 }}
+                    />
                   ) : (
                     <Button 
                       size="small" 
@@ -101,6 +127,7 @@ const AdminLMSEnrollments = () => {
                       color="success"
                       disabled={enrollment.progress < 100}
                       onClick={() => handleIssueCertificate(enrollment._id)}
+                      sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 700, fontSize: '0.75rem', px: 1.5 }}
                     >
                       Issue Cert
                     </Button>

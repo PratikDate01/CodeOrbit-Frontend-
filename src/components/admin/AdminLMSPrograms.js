@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
@@ -31,6 +32,7 @@ import {
 import API from '../../api/api';
 
 const AdminLMSPrograms = () => {
+  const navigate = useNavigate();
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -103,113 +105,108 @@ const AdminLMSPrograms = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         {programs.map((program) => (
           <Grid item xs={12} md={6} lg={4} key={program._id}>
             <Card sx={{ 
-              height: '100%', 
               display: 'flex', 
-              flexDirection: 'column',
-              borderRadius: 3,
+              height: 120,
+              borderRadius: 1,
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
               overflow: 'hidden',
               transition: 'all 0.2s',
-              '&:hover': { borderColor: 'primary.main', transform: 'translateY(-4px)' }
+              '&:hover': { borderColor: 'primary.main', bgcolor: 'background.alt' }
             }}>
               <CardMedia
                 component="img"
-                height="160"
+                sx={{ width: 120, height: 120, objectFit: 'cover' }}
                 image={program.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop'}
                 alt={program.title}
               />
-              <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Chip 
-                    label={program.internshipDomain} 
-                    size="small" 
-                    color="primary" 
-                    variant="soft" 
-                    sx={{ fontWeight: 600, borderRadius: 1.5 }}
-                  />
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    {program.isPublished ? (
-                      <Chip 
-                        icon={<CheckCircle2 size={14} />} 
-                        label="Live" 
-                        size="small" 
-                        color="success" 
-                        variant="filled"
-                        sx={{ height: 24, fontSize: '0.75rem', fontWeight: 700 }}
-                      />
-                    ) : (
-                      <Chip 
-                        icon={<XCircle size={14} />} 
-                        label="Draft" 
-                        size="small" 
-                        color="default" 
-                        variant="filled"
-                        sx={{ height: 24, fontSize: '0.75rem', fontWeight: 700 }}
-                      />
-                    )}
+              <CardContent sx={{ 
+                flex: 1, 
+                p: '12px !important', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'space-between',
+                overflow: 'hidden'
+              }}>
+                <Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                    <Typography 
+                      variant="caption" 
+                      fontWeight={700} 
+                      color="primary" 
+                      sx={{ 
+                        textTransform: 'uppercase', 
+                        fontSize: '0.6rem',
+                        bgcolor: 'primary.lighter',
+                        px: 0.8,
+                        borderRadius: 0.5
+                      }}
+                    >
+                      {program.internshipDomain}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: program.isPublished ? 'success.main' : 'text.disabled' }} />
+                      <Typography variant="caption" fontWeight={700} sx={{ fontSize: '0.65rem' }}>
+                        {program.isPublished ? "Live" : "Draft"}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-                
-                <Typography variant="h6" fontWeight={800} gutterBottom sx={{ lineHeight: 1.3 }}>
-                  {program.title}
-                </Typography>
-                
-                <Typography variant="body2" color="text.secondary" sx={{ 
-                  mb: 3,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  lineHeight: 1.6
-                }}>
-                  {program.description}
-                </Typography>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
-                    <BookOpen size={16} />
-                    <Typography variant="caption" fontWeight={600}>Courses Available</Typography>
-                  </Box>
+                  
+                  <Typography variant="subtitle2" fontWeight={700} noWrap sx={{ lineHeight: 1.2 }}>
+                    {program.title}
+                  </Typography>
+                  
+                  <Typography variant="caption" color="text.secondary" sx={{ 
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    lineHeight: 1.3,
+                    height: '2.6em',
+                    mt: 0.5
+                  }}>
+                    {program.description}
+                  </Typography>
                 </Box>
 
-                <Divider sx={{ mb: 2, opacity: 0.6 }} />
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Tooltip title="Manage Content">
-                      <IconButton size="small" sx={{ bgcolor: 'primary.lighter', color: 'primary.main' }}>
-                        <Edit size={18} />
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <Tooltip title="Edit Details">
+                      <IconButton size="small" sx={{ p: 0.5 }}>
+                        <Edit size={14} />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Delete Program">
+                    <Tooltip title="Manage Courses">
+                      <IconButton 
+                        size="small" 
+                        sx={{ p: 0.5, color: 'primary.main' }}
+                        onClick={() => navigate(`/admin/lms/programs/${program._id}/courses`)}
+                      >
+                        <BookOpen size={14} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
                       <IconButton 
                         size="small" 
                         color="error" 
-                        sx={{ bgcolor: 'error.lighter' }}
                         onClick={() => handleDelete(program._id)}
+                        sx={{ p: 0.5 }}
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={14} />
                       </IconButton>
                     </Tooltip>
                   </Box>
                   
-                  <FormControlLabel
-                    control={
-                      <Switch 
-                        size="small"
-                        checked={program.isPublished} 
-                        onChange={() => handleTogglePublish(program)}
-                      />
-                    }
-                    label={<Typography variant="caption" fontWeight={700}>{program.isPublished ? 'Public' : 'Private'}</Typography>}
-                    labelPlacement="start"
-                    sx={{ m: 0 }}
+                  <Switch 
+                    size="small"
+                    checked={program.isPublished} 
+                    onChange={() => handleTogglePublish(program)}
+                    sx={{ transform: 'scale(0.8)' }}
                   />
                 </Box>
               </CardContent>

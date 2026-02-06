@@ -59,40 +59,51 @@ const AdminLMSApprovals = () => {
 
   return (
     <Box>
-      <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>Pending Activity Approvals</Typography>
-      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
-        <Table>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6" fontWeight={700}>Pending Activity Approvals</Typography>
+        <Chip label={`${approvals.length} Pending`} color="primary" size="small" sx={{ fontWeight: 700 }} />
+      </Box>
+      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+        <Table size="small">
           <TableHead sx={{ bgcolor: 'background.alt' }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Student</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Program</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Activity</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>Actions</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Student</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Program</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Activity</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Type</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {approvals.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
-                  <Typography color="text.secondary">No pending approvals found.</Typography>
+                <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                  <Typography color="text.secondary" variant="body2">No pending approvals found.</Typography>
                 </TableCell>
               </TableRow>
             ) : (
               approvals.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={700}>{item.user.name}</Typography>
+                <TableRow key={item._id} hover>
+                  <TableCell sx={{ py: 1 }}>
+                    <Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.85rem' }}>{item.user.name}</Typography>
                     <Typography variant="caption" color="text.secondary">{item.user.email}</Typography>
                   </TableCell>
-                  <TableCell>{item.enrollment.program.title}</TableCell>
-                  <TableCell>{item.activity.title}</TableCell>
-                  <TableCell><Chip label={item.activity.type} size="small" variant="outlined" /></TableCell>
-                  <TableCell align="right">
+                  <TableCell sx={{ py: 1, fontSize: '0.85rem' }}>{item.enrollment.program.title}</TableCell>
+                  <TableCell sx={{ py: 1, fontSize: '0.85rem' }}>{item.activity.title}</TableCell>
+                  <TableCell sx={{ py: 1 }}>
+                    <Chip 
+                      label={item.activity.type} 
+                      size="small" 
+                      variant="outlined" 
+                      sx={{ fontSize: '0.65rem', height: 20, fontWeight: 700, textTransform: 'uppercase' }} 
+                    />
+                  </TableCell>
+                  <TableCell align="right" sx={{ py: 1 }}>
                     <Button 
                       size="small" 
                       variant="contained" 
                       onClick={() => setReviewDialog({ open: true, item, marks: item.marks || 0, remarks: '' })}
+                      sx={{ borderRadius: 1.5, textTransform: 'none', px: 2, fontWeight: 700, fontSize: '0.75rem' }}
                     >
                       Review
                     </Button>
