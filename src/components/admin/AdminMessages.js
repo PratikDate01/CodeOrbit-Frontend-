@@ -22,10 +22,13 @@ import {
 } from '@mui/material';
 import { Eye, Trash2, Mail, Phone, Calendar, Search, MessageSquare } from 'lucide-react';
 import API from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const AdminMessages = () => {
+  const { showNotification } = useNotification();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -50,24 +53,34 @@ const AdminMessages = () => {
   };
 
   const handleUpdateStatus = async (id, status) => {
+    setProcessingId(id);
     try {
       await API.put(`/contact/${id}/status`, { status });
+      showNotification(`Message marked as ${status.toLowerCase()}`, 'success');
       fetchMessages();
       if (selectedMessage && selectedMessage._id === id) {
         setSelectedMessage(prev => ({ ...prev, status }));
       }
     } catch (error) {
       console.error('Error updating status:', error);
+      showNotification('Failed to update message status', 'error');
+    } finally {
+      setProcessingId(null);
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Delete this message?')) {
+      setProcessingId(id);
       try {
         await API.delete(`/contact/${id}`);
+        showNotification('Message deleted successfully', 'success');
         fetchMessages();
       } catch (error) {
         console.error('Error deleting:', error);
+        showNotification('Failed to delete message', 'error');
+      } finally {
+        setProcessingId(null);
       }
     }
   };
@@ -214,6 +227,7 @@ const AdminMessages = () => {
                       <Tooltip title="View Message">
                         <IconButton 
                           color="primary" 
+                          disabled={processingId === msg._id}
                           onClick={() => { 
                             setSelectedMessage(msg); 
                             setOpen(true); 
@@ -229,10 +243,11 @@ const AdminMessages = () => {
                       <Tooltip title="Delete">
                         <IconButton 
                           color="error" 
+                          disabled={processingId === msg._id}
                           onClick={() => handleDelete(msg._id)}
                           sx={{ border: '1px solid', borderColor: 'divider' }}
                         >
-                          <Trash2 size={16} />
+                          {processingId === msg._id ? <CircularProgress size={16} color="inherit" /> : <Trash2 size={16} />}
                         </IconButton>
                       </Tooltip>
                     </TableCell>

@@ -25,11 +25,16 @@ import {
   Trash2, 
 } from 'lucide-react';
 import API from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const AdminLMSPrograms = () => {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -41,10 +46,11 @@ const AdminLMSPrograms = () => {
 
   const fetchPrograms = async () => {
     try {
+      setLoading(true);
       const { data } = await API.get('/admin/lms/programs');
       setPrograms(data);
     } catch (error) {
-      console.error('Error fetching programs:', error);
+      showNotification('Error fetching programs', 'error');
     } finally {
       setLoading(false);
     }
@@ -56,31 +62,43 @@ const AdminLMSPrograms = () => {
 
   const handleCreate = async () => {
     try {
+      setSubmitting(true);
       await API.post('/admin/lms/programs', formData);
+      showNotification('Program created successfully', 'success');
       setOpen(false);
       fetchPrograms();
       setFormData({ title: '', description: '', internshipDomain: '', duration: '', thumbnail: '' });
     } catch (error) {
-      console.error('Error creating program:', error);
+      showNotification(error.response?.data?.message || 'Error creating program', 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleTogglePublish = async (program) => {
     try {
+      setTogglingId(program._id);
       await API.put(`/admin/lms/programs/${program._id}`, { isPublished: !program.isPublished });
+      showNotification(`Program ${!program.isPublished ? 'published' : 'unpublished'}`, 'success');
       fetchPrograms();
     } catch (error) {
-      console.error('Error updating program:', error);
+      showNotification(error.response?.data?.message || 'Error updating program', 'error');
+    } finally {
+      setTogglingId(null);
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this program? All associated courses and content will remain but the program entry will be removed.')) {
       try {
+        setDeletingId(id);
         await API.delete(`/admin/lms/programs/${id}`);
+        showNotification('Program deleted successfully', 'success');
         fetchPrograms();
       } catch (error) {
-        console.error('Error deleting program:', error);
+        showNotification(error.response?.data?.message || 'Error deleting program', 'error');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -191,18 +209,23 @@ const AdminLMSPrograms = () => {
                         color="error" 
                         onClick={() => handleDelete(program._id)}
                         sx={{ p: 0.5 }}
+                        disabled={deletingId === program._id}
                       >
-                        <Trash2 size={14} />
+                        {deletingId === program._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
                       </IconButton>
                     </Tooltip>
                   </Box>
                   
-                  <Switch 
-                    size="small"
-                    checked={program.isPublished} 
-                    onChange={() => handleTogglePublish(program)}
-                    sx={{ transform: 'scale(0.8)' }}
-                  />
+                  {togglingId === program._id ? (
+                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                  ) : (
+                    <Switch 
+                      size="small"
+                      checked={program.isPublished} 
+                      onChange={() => handleTogglePublish(program)}
+                      sx={{ transform: 'scale(0.8)' }}
+                    />
+                  )}
                 </Box>
               </CardContent>
             </Card>
@@ -251,8 +274,15 @@ const AdminLMSPrograms = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreate}>Create</Button>
+          <Button onClick={() => setOpen(false)} disabled={submitting}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleCreate}
+            disabled={submitting}
+            startIcon={submitting && <CircularProgress size={16} color="inherit" />}
+          >
+            {submitting ? 'Creating...' : 'Create'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

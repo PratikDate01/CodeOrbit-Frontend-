@@ -20,10 +20,13 @@ import {
 } from '@mui/material';
 
 import API from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const AdminLMSApprovals = () => {
+  const { showNotification } = useNotification();
   const [approvals, setApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [reviewDialog, setReviewDialog] = useState({ open: false, item: null, marks: 0, remarks: '' });
 
   const fetchApprovals = async () => {
@@ -42,16 +45,21 @@ const AdminLMSApprovals = () => {
   }, []);
 
   const handleApprove = async (id, status) => {
+    setSubmitting(true);
     try {
       await API.patch(`/admin/lms/progress/${id}/approve`, {
         status,
         marks: reviewDialog.marks,
         remarks: reviewDialog.remarks
       });
+      showNotification(`Submission ${status.toLowerCase()} successfully`, 'success');
       setReviewDialog({ open: false, item: null, marks: 0, remarks: '' });
       fetchApprovals();
     } catch (error) {
       console.error('Error approving activity:', error);
+      showNotification(error.response?.data?.message || 'Failed to update submission', 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -150,10 +158,12 @@ const AdminLMSApprovals = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button color="error" onClick={() => handleApprove(reviewDialog.item._id, 'Rejected')}>Reject</Button>
+          <Button color="error" onClick={() => handleApprove(reviewDialog.item._id, 'Rejected')} disabled={submitting}>Reject</Button>
           <Box sx={{ flexGrow: 1 }} />
-          <Button onClick={() => setReviewDialog({ ...reviewDialog, open: false })}>Cancel</Button>
-          <Button variant="contained" color="success" onClick={() => handleApprove(reviewDialog.item._id, 'Completed')}>Approve & Complete</Button>
+          <Button onClick={() => setReviewDialog({ ...reviewDialog, open: false })} disabled={submitting}>Cancel</Button>
+          <Button variant="contained" color="success" onClick={() => handleApprove(reviewDialog.item._id, 'Completed')} disabled={submitting}>
+            {submitting ? <CircularProgress size={20} /> : 'Approve & Complete'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

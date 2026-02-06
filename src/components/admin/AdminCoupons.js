@@ -20,8 +20,6 @@ import {
   Chip,
   Tooltip,
   CircularProgress,
-  Snackbar,
-  Alert,
   FormControl,
   InputLabel,
   Select,
@@ -31,12 +29,15 @@ import {
 } from '@mui/material';
 import { Plus, Edit2, Trash2, History } from 'lucide-react';
 import API from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const PLANS = [399, 599, 999];
 
 const AdminCoupons = () => {
+  const { showNotification } = useNotification();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [usageModalOpen, setUsageModalOpen] = useState(false);
   const [usageHistory, setUsageHistory] = useState([]);
@@ -53,7 +54,6 @@ const AdminCoupons = () => {
     status: 'active',
     applicablePlans: [399, 599, 999]
   });
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     fetchCoupons();
@@ -116,33 +116,35 @@ const AdminCoupons = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setProcessing(true);
     try {
       if (editMode) {
         await API.put(`/admin/coupons/${selectedCoupon._id}`, formData);
-        setSnackbar({ open: true, message: 'Coupon updated successfully', severity: 'success' });
+        showNotification('Coupon updated successfully', 'success');
       } else {
         await API.post('/admin/coupons', formData);
-        setSnackbar({ open: true, message: 'Coupon created successfully', severity: 'success' });
+        showNotification('Coupon created successfully', 'success');
       }
       fetchCoupons();
       setModalOpen(false);
     } catch (error) {
-      setSnackbar({ 
-        open: true, 
-        message: error.response?.data?.message || 'Something went wrong', 
-        severity: 'error' 
-      });
+      showNotification(error.response?.data?.message || 'Something went wrong', 'error');
+    } finally {
+      setProcessing(false);
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this coupon?')) {
+      setProcessing(true);
       try {
         await API.delete(`/admin/coupons/${id}`);
-        setSnackbar({ open: true, message: 'Coupon deleted successfully', severity: 'success' });
+        showNotification('Coupon deleted successfully', 'success');
         fetchCoupons();
       } catch (error) {
-        setSnackbar({ open: true, message: 'Error deleting coupon', severity: 'error' });
+        showNotification('Error deleting coupon', 'error');
+      } finally {
+        setProcessing(false);
       }
     }
   };
@@ -152,9 +154,9 @@ const AdminCoupons = () => {
       const newStatus = coupon.status === 'active' ? 'inactive' : 'active';
       await API.put(`/admin/coupons/${coupon._id}`, { status: newStatus });
       fetchCoupons();
-      setSnackbar({ open: true, message: `Coupon ${newStatus === 'active' ? 'activated' : 'deactivated'}`, severity: 'success' });
+      showNotification(`Coupon ${newStatus === 'active' ? 'activated' : 'deactivated'}`, 'success');
     } catch (error) {
-      setSnackbar({ open: true, message: 'Error updating status', severity: 'error' });
+      showNotification('Error updating status', 'error');
     }
   };
 
@@ -358,8 +360,8 @@ const AdminCoupons = () => {
           </DialogContent>
           <DialogActions sx={{ p: 2.5 }}>
             <Button onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="contained" sx={{ px: 4, borderRadius: 2 }}>
-              {editMode ? 'Update Coupon' : 'Create Coupon'}
+            <Button type="submit" variant="contained" sx={{ px: 4, borderRadius: 2 }} disabled={processing}>
+              {processing ? <CircularProgress size={24} /> : (editMode ? 'Update Coupon' : 'Create Coupon')}
             </Button>
           </DialogActions>
         </form>
@@ -410,16 +412,6 @@ const AdminCoupons = () => {
           <Button onClick={() => setUsageModalOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

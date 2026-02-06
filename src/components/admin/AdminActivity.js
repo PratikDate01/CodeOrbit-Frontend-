@@ -50,6 +50,9 @@ const AdminActivity = () => {
   const [tabValue, setTabValue] = useState(0);
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [evaluatingId, setEvaluatingId] = useState(null);
   
   // Tasks state
   const [tasks, setTasks] = useState([]);
@@ -131,6 +134,7 @@ const AdminActivity = () => {
 
   const handleSaveTask = async () => {
     try {
+      setSubmitting(true);
       if (selectedTask) {
         await API.put(`/activity/tasks/${selectedTask._id}`, taskForm);
         showNotification('Task updated successfully', 'success');
@@ -141,18 +145,23 @@ const AdminActivity = () => {
       setTaskDialogOpen(false);
       fetchTasks();
     } catch (error) {
-      showNotification('Error saving task', 'error');
+      showNotification(error.response?.data?.message || 'Error saving task', 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleDeleteTask = async (id) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
+        setDeletingId(id);
         await API.delete(`/activity/tasks/${id}`);
         showNotification('Task deleted', 'success');
         fetchTasks();
       } catch (error) {
-        showNotification('Error deleting task', 'error');
+        showNotification(error.response?.data?.message || 'Error deleting task', 'error');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -170,12 +179,15 @@ const AdminActivity = () => {
 
   const handleSaveEvaluation = async () => {
     try {
+      setEvaluatingId(selectedSubmission._id);
       await API.put(`/activity/submissions/${selectedSubmission._id}/evaluate`, evaluationForm);
       showNotification('Evaluation saved', 'success');
       setEvaluateDialogOpen(false);
       fetchSubmissions();
     } catch (error) {
-      showNotification('Error saving evaluation', 'error');
+      showNotification(error.response?.data?.message || 'Error saving evaluation', 'error');
+    } finally {
+      setEvaluatingId(null);
     }
   };
 
@@ -251,11 +263,19 @@ const AdminActivity = () => {
                     <TableCell>{task.type}</TableCell>
                     <TableCell>{task.passingMarks}/{task.maxMarks}</TableCell>
                     <TableCell align="right">
-                      <IconButton color="primary" onClick={() => handleOpenTaskDialog(task)}>
+                      <IconButton 
+                        color="primary" 
+                        onClick={() => handleOpenTaskDialog(task)}
+                        disabled={deletingId === task._id}
+                      >
                         <EditIcon size={18} />
                       </IconButton>
-                      <IconButton color="error" onClick={() => handleDeleteTask(task._id)}>
-                        <TrashIcon size={18} />
+                      <IconButton 
+                        color="error" 
+                        onClick={() => handleDeleteTask(task._id)}
+                        disabled={deletingId === task._id}
+                      >
+                        {deletingId === task._id ? <CircularProgress size={18} /> : <TrashIcon size={18} />}
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -390,8 +410,15 @@ const AdminActivity = () => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setTaskDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveTask}>Save Task</Button>
+          <Button onClick={() => setTaskDialogOpen(false)} disabled={submitting}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSaveTask} 
+            disabled={submitting}
+            startIcon={submitting && <CircularProgress size={16} />}
+          >
+            {submitting ? 'Saving...' : 'Save Task'}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -415,6 +442,7 @@ const AdminActivity = () => {
                     fullWidth select label="Status"
                     value={evaluationForm.status}
                     onChange={(e) => setEvaluationForm({...evaluationForm, status: e.target.value})}
+                    disabled={evaluatingId !== null}
                   >
                     <MenuItem value="Approved">Approve</MenuItem>
                     <MenuItem value="Rejected">Reject</MenuItem>
@@ -427,6 +455,7 @@ const AdminActivity = () => {
                     value={evaluationForm.marks}
                     onChange={(e) => setEvaluationForm({...evaluationForm, marks: parseInt(e.target.value)})}
                     helperText={`Max marks: ${selectedSubmission.task?.maxMarks}`}
+                    disabled={evaluatingId !== null}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -434,6 +463,7 @@ const AdminActivity = () => {
                     fullWidth multiline rows={2} label="Admin Remarks"
                     value={evaluationForm.adminRemarks}
                     onChange={(e) => setEvaluationForm({...evaluationForm, adminRemarks: e.target.value})}
+                    disabled={evaluatingId !== null}
                   />
                 </Grid>
               </Grid>
@@ -441,8 +471,16 @@ const AdminActivity = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEvaluateDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="primary" onClick={handleSaveEvaluation}>Save Evaluation</Button>
+          <Button onClick={() => setEvaluateDialogOpen(false)} disabled={evaluatingId !== null}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleSaveEvaluation}
+            disabled={evaluatingId !== null}
+            startIcon={evaluatingId !== null && <CircularProgress size={16} color="inherit" />}
+          >
+            {evaluatingId !== null ? 'Saving...' : 'Save Evaluation'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

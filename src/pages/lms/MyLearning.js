@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   Container, 
@@ -22,21 +22,23 @@ const MyLearning = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchEnrollments = async () => {
-      try {
-        const { data } = await API.get('/lms/my-enrollments');
-        setEnrollments(data);
-      } catch (error) {
-        console.error('Error fetching enrollments:', error);
-        setError('Failed to load your courses. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEnrollments();
+  const fetchEnrollments = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await API.get('/lms/my-enrollments');
+      setEnrollments(data);
+    } catch (error) {
+      console.error('Error fetching enrollments:', error);
+      setError('Failed to load your courses. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchEnrollments();
+  }, [fetchEnrollments]);
 
   if (loading) return (
     <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 15 }}>
@@ -48,7 +50,7 @@ const MyLearning = () => {
   if (error) return (
     <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 15 }}>
       <Typography variant="h6" color="error" gutterBottom>{error}</Typography>
-      <Button variant="outlined" onClick={() => window.location.reload()}>Retry</Button>
+      <Button variant="outlined" onClick={fetchEnrollments}>Retry</Button>
     </Box>
   );
 

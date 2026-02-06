@@ -16,10 +16,13 @@ import {
 } from '@mui/material';
 import { Award, User } from 'lucide-react';
 import API from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const AdminLMSEnrollments = () => {
+  const { showNotification } = useNotification();
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [issuingId, setIssuingId] = useState(null);
 
   const fetchEnrollments = async () => {
     try {
@@ -37,12 +40,16 @@ const AdminLMSEnrollments = () => {
   }, []);
 
   const handleIssueCertificate = async (id) => {
+    setIssuingId(id);
     try {
       await API.post(`/admin/lms/enrollments/${id}/issue-certificate`);
+      showNotification('Certificate issued successfully', 'success');
       fetchEnrollments();
     } catch (error) {
       console.error('Error issuing certificate:', error);
-      alert(error.response?.data?.message || 'Failed to issue certificate');
+      showNotification(error.response?.data?.message || 'Failed to issue certificate', 'error');
+    } finally {
+      setIssuingId(null);
     }
   };
 
@@ -125,11 +132,11 @@ const AdminLMSEnrollments = () => {
                       size="small" 
                       variant="contained" 
                       color="success"
-                      disabled={enrollment.progress < 100}
+                      disabled={enrollment.progress < 100 || issuingId === enrollment._id}
                       onClick={() => handleIssueCertificate(enrollment._id)}
                       sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 700, fontSize: '0.75rem', px: 1.5 }}
                     >
-                      Issue Cert
+                      {issuingId === enrollment._id ? <CircularProgress size={16} color="inherit" /> : 'Issue Cert'}
                     </Button>
                   )}
                 </TableCell>

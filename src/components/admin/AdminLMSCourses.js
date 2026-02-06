@@ -27,13 +27,17 @@ import {
   ChevronRight
 } from 'lucide-react';
 import API from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const AdminLMSCourses = () => {
   const { programId } = useParams();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const [courses, setCourses] = useState([]);
   const [program, setProgram] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [open, setOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [formData, setFormData] = useState({
@@ -54,11 +58,11 @@ const AdminLMSCourses = () => {
       const currentProgram = programsRes.data.find(p => p._id === programId);
       setProgram(currentProgram);
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      showNotification('Error fetching courses', 'error');
     } finally {
       setLoading(false);
     }
-  }, [programId]);
+  }, [programId, showNotification]);
 
   useEffect(() => {
     fetchData();
@@ -84,31 +88,41 @@ const AdminLMSCourses = () => {
   };
 
   const handleClose = () => {
+    if (submitting) return;
     setOpen(false);
     setEditingCourse(null);
   };
 
   const handleSubmit = async () => {
     try {
+      setSubmitting(true);
       if (editingCourse) {
         await API.put(`/admin/lms/courses/${editingCourse._id}`, formData);
+        showNotification('Course updated successfully', 'success');
       } else {
         await API.post('/admin/lms/courses', { ...formData, program: programId });
+        showNotification('Course created successfully', 'success');
       }
       fetchData();
       handleClose();
     } catch (error) {
-      console.error('Error saving course:', error);
+      showNotification(error.response?.data?.message || 'Error saving course', 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this course?')) {
       try {
+        setDeletingId(id);
         await API.delete(`/admin/lms/courses/${id}`);
+        showNotification('Course deleted successfully', 'success');
         fetchData();
       } catch (error) {
-        console.error('Error deleting course:', error);
+        showNotification(error.response?.data?.message || 'Error deleting course', 'error');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -198,11 +212,22 @@ const AdminLMSCourses = () => {
                       {course.title}
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <IconButton size="small" onClick={() => handleOpen(course)} sx={{ p: 0.5 }}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleOpen(course)} 
+                        sx={{ p: 0.5 }}
+                        disabled={deletingId === course._id}
+                      >
                         <Edit size={14} />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => handleDelete(course._id)} sx={{ p: 0.5 }}>
-                        <Trash2 size={14} />
+                      <IconButton 
+                        size="small" 
+                        color="error" 
+                        onClick={() => handleDelete(course._id)} 
+                        sx={{ p: 0.5 }}
+                        disabled={deletingId === course._id}
+                      >
+                        {deletingId === course._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
                       </IconButton>
                     </Box>
                   </Box>
@@ -283,9 +308,15 @@ const AdminLMSCourses = () => {
           />
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained" onClick={handleSubmit} sx={{ px: 3 }}>
-            {editingCourse ? 'Save Changes' : 'Create Course'}
+          <Button onClick={handleClose} disabled={submitting}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSubmit} 
+            sx={{ px: 3 }}
+            disabled={submitting}
+            startIcon={submitting && <CircularProgress size={16} color="inherit" />}
+          >
+            {submitting ? 'Saving...' : (editingCourse ? 'Save Changes' : 'Create Course')}
           </Button>
         </DialogActions>
       </Dialog>

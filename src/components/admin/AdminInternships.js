@@ -50,6 +50,10 @@ const AdminInternships = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isGenerating, setIsGenerating] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [updatingDates, setUpdatingDates] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [updatingEligibilityId, setUpdatingEligibilityId] = useState(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
   
   useEffect(() => {
@@ -79,12 +83,15 @@ const AdminInternships = () => {
 
   const handleUpdateDates = async () => {
     try {
+      setUpdatingDates(true);
       await API.patch(`/internships/${selectedApp._id}/status`, internshipDates);
       showNotification('Internship dates updated successfully', 'success');
       setOpenDateDialog(false);
       fetchApplications();
     } catch (error) {
-      showNotification('Failed to update dates', 'error');
+      showNotification(error.response?.data?.message || 'Failed to update dates', 'error');
+    } finally {
+      setUpdatingDates(false);
     }
   };
 
@@ -94,7 +101,7 @@ const AdminInternships = () => {
       const { data } = await API.get(`/documents/application/${applicationId}`);
       setAppDocuments(data);
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      showNotification('Error fetching documents', 'error');
     } finally {
       setDocLoading(false);
     }
@@ -162,6 +169,7 @@ const AdminInternships = () => {
 
   const handleToggleEligibility = async (app) => {
     try {
+      setUpdatingEligibilityId(app._id);
       const currentEligible = app.progress?.isEligibleForCertificate || false;
       await API.put(`/activity/progress/${app._id}/eligibility`, {
         isEligibleForCertificate: !currentEligible,
@@ -170,17 +178,23 @@ const AdminInternships = () => {
       showNotification(`Eligibility ${!currentEligible ? 'granted' : 'revoked'} successfully`, 'success');
       fetchApplications();
     } catch (error) {
-      showNotification('Failed to update eligibility', 'error');
+      showNotification(error.response?.data?.message || 'Failed to update eligibility', 'error');
+    } finally {
+      setUpdatingEligibilityId(null);
     }
   };
 
   const handleUpdateStatus = async (status) => {
     try {
+      setUpdatingStatusId(selectedApp._id);
       await API.patch(`/internships/${selectedApp._id}/status`, { status });
+      showNotification(`Status updated to ${status}`, 'success');
       fetchApplications();
       setAnchorEl(null);
     } catch (error) {
-      console.error('Error updating status:', error);
+      showNotification(error.response?.data?.message || 'Error updating status', 'error');
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
@@ -192,17 +206,19 @@ const AdminInternships = () => {
       if (paymentStatus === 'Verified') {
         try {
           await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id });
+          showNotification('Payment verified and slip generated', 'success');
         } catch (slipError) {
-          console.error('Error generating payment slip:', slipError);
-          showNotification('Payment verified but failed to generate slip. You can try again later.', 'warning');
+          showNotification('Payment verified but failed to generate slip', 'warning');
         }
+      } else {
+        showNotification(`Payment status updated to ${paymentStatus}`, 'success');
       }
       
       fetchApplications();
       setOpenPaymentDialog(false);
       setAnchorEl(null);
     } catch (error) {
-      console.error('Error verifying payment:', error);
+      showNotification(error.response?.data?.message || 'Error verifying payment', 'error');
     } finally {
       setVerifying(false);
     }
@@ -211,10 +227,14 @@ const AdminInternships = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this application?')) {
       try {
+        setDeletingId(id);
         await API.delete(`/internships/${id}`);
+        showNotification('Application deleted successfully', 'success');
         fetchApplications();
       } catch (error) {
-        console.error('Error deleting:', error);
+        showNotification(error.response?.data?.message || 'Error deleting application', 'error');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -485,9 +505,10 @@ const AdminInternships = () => {
                             size="small"
                             color="error" 
                             onClick={() => handleDelete(app._id)}
+                            disabled={deletingId === app._id}
                             sx={{ ml: 0.5, border: '1px solid', borderColor: 'divider' }}
                           >
-                            <Trash2 size={16} />
+                            {deletingId === app._id ? <CircularProgress size={16} /> : <Trash2 size={16} />}
                           </IconButton>
                         </Tooltip>
                       </Box>
@@ -535,26 +556,34 @@ const AdminInternships = () => {
           }
         }}
       >
-        <MenuItem onClick={() => handleUpdateStatus('Reviewed')}>
-          <ListItemIcon><Clock size={18} /></ListItemIcon>
+        <MenuItem onClick={() => handleUpdateStatus('Reviewed')} disabled={updatingStatusId !== null}>
+          <ListItemIcon>{updatingStatusId === selectedApp?._id ? <CircularProgress size={18} /> : <Clock size={18} />}</ListItemIcon>
           <ListItemText>Mark as Reviewed</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleUpdateStatus('Contacted')}>
-          <ListItemIcon><Phone size={18} /></ListItemIcon>
+        <MenuItem onClick={() => handleUpdateStatus('Contacted')} disabled={updatingStatusId !== null}>
+          <ListItemIcon>{updatingStatusId === selectedApp?._id ? <CircularProgress size={18} /> : <Phone size={18} />}</ListItemIcon>
           <ListItemText>Mark as Contacted</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleUpdateStatus('Selected')}>
-          <ListItemIcon><User size={18} /></ListItemIcon>
+        <MenuItem onClick={() => handleUpdateStatus('Selected')} disabled={updatingStatusId !== null}>
+          <ListItemIcon>{updatingStatusId === selectedApp?._id ? <CircularProgress size={18} /> : <User size={18} />}</ListItemIcon>
           <ListItemText>Mark as Selected</ListItemText>
         </MenuItem>
         {selectedApp?.paymentStatus === 'Verified' && (
-          <MenuItem onClick={() => { handleToggleEligibility(selectedApp); setAnchorEl(null); }}>
-            <ListItemIcon><Award size={18} color={selectedApp.progress?.isEligibleForCertificate ? "#64748b" : "#8b5cf6"} /></ListItemIcon>
+          <MenuItem 
+            onClick={() => { handleToggleEligibility(selectedApp); setAnchorEl(null); }}
+            disabled={updatingEligibilityId !== null}
+          >
+            <ListItemIcon>
+              {updatingEligibilityId === selectedApp?._id ? 
+                <CircularProgress size={18} /> : 
+                <Award size={18} color={selectedApp.progress?.isEligibleForCertificate ? "#64748b" : "#8b5cf6"} />
+              }
+            </ListItemIcon>
             <ListItemText>{selectedApp.progress?.isEligibleForCertificate ? "Revoke Eligibility" : "Grant Certificate Eligibility"}</ListItemText>
           </MenuItem>
         )}
-        <MenuItem onClick={() => handleUpdateStatus('Rejected')} sx={{ color: 'error.main' }}>
-          <ListItemIcon><Trash2 size={18} color="currentColor" /></ListItemIcon>
+        <MenuItem onClick={() => handleUpdateStatus('Rejected')} sx={{ color: 'error.main' }} disabled={updatingStatusId !== null}>
+          <ListItemIcon>{updatingStatusId === selectedApp?._id ? <CircularProgress size={18} color="inherit" /> : <Trash2 size={18} color="currentColor" />}</ListItemIcon>
           <ListItemText>Reject Application</ListItemText>
         </MenuItem>
         <Divider />
@@ -766,11 +795,17 @@ const AdminInternships = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1 }}>
-          <Button onClick={() => setOpenDateDialog(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1 }}>
+          <Button onClick={() => setOpenDateDialog(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1 }} disabled={updatingDates}>
             Cancel
           </Button>
-          <Button onClick={handleUpdateDates} variant="contained" sx={{ borderRadius: 2, flex: 1 }}>
-            Save Dates
+          <Button 
+            onClick={handleUpdateDates} 
+            variant="contained" 
+            sx={{ borderRadius: 2, flex: 1 }}
+            disabled={updatingDates}
+            startIcon={updatingDates && <CircularProgress size={16} color="inherit" />}
+          >
+            {updatingDates ? 'Saving...' : 'Save Dates'}
           </Button>
         </DialogActions>
       </Dialog>

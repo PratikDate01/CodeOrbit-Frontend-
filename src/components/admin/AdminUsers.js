@@ -20,10 +20,13 @@ import {
 } from '@mui/material';
 import { Trash2, User, Mail, Search, Phone, Calendar } from 'lucide-react';
 import API from '../../api/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const AdminUsers = () => {
+  const { showNotification } = useNotification();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [page, setPage] = useState(0);
@@ -47,11 +50,16 @@ const AdminUsers = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Delete this user? This action cannot be undone.')) {
+      setDeletingId(id);
       try {
         await API.delete(`/admin/users/${id}`);
+        showNotification('User deleted successfully', 'success');
         fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
+        showNotification(error.response?.data?.message || 'Failed to delete user', 'error');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -211,9 +219,10 @@ const AdminUsers = () => {
                         <IconButton 
                           color="error" 
                           onClick={() => handleDelete(user._id)}
+                          disabled={deletingId === user._id}
                           sx={{ border: '1px solid', borderColor: 'divider' }}
                         >
-                          <Trash2 size={16} />
+                          {deletingId === user._id ? <CircularProgress size={16} color="inherit" /> : <Trash2 size={16} />}
                         </IconButton>
                       </Tooltip>
                     </TableCell>
