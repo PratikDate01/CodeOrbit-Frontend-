@@ -8,7 +8,6 @@ import {
   Card, 
   CardContent, 
   CardMedia, 
-  Chip,
   IconButton,
   Dialog,
   DialogTitle,
@@ -17,17 +16,13 @@ import {
   TextField,
   CircularProgress,
   Switch,
-  FormControlLabel,
   Tooltip,
-  Divider
 } from '@mui/material';
 import { 
   Plus, 
   Edit, 
   BookOpen, 
   Trash2, 
-  CheckCircle2,
-  XCircle
 } from 'lucide-react';
 import API from '../../api/api';
 

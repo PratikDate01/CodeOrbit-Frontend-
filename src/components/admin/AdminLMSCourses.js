@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   Box, 
@@ -14,7 +14,6 @@ import {
   DialogActions,
   TextField,
   CircularProgress,
-  Tooltip,
   Breadcrumbs,
   Link as MuiLink,
   Divider
@@ -43,7 +42,7 @@ const AdminLMSCourses = () => {
     order: 0
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [coursesRes, programsRes] = await Promise.all([
@@ -59,11 +58,11 @@ const AdminLMSCourses = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [programId]);
 
   useEffect(() => {
     fetchData();
-  }, [programId]);
+  }, [fetchData]);
 
   const handleOpen = (course = null) => {
     if (course) {
