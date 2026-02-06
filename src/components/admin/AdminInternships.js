@@ -57,8 +57,34 @@ const AdminInternships = () => {
   }, []);
 
   const [openDocDialog, setOpenDocDialog] = useState(false);
+  const [openDateDialog, setOpenDateDialog] = useState(false);
   const [appDocuments, setAppDocuments] = useState({});
   const [docLoading, setDocLoading] = useState(false);
+  const [internshipDates, setInternshipDates] = useState({
+    startDate: '',
+    endDate: ''
+  });
+
+  const handleOpenDateDialog = (app) => {
+    setSelectedApp(app);
+    setInternshipDates({
+      startDate: app.startDate ? new Date(app.startDate).toISOString().split('T')[0] : '',
+      endDate: app.endDate ? new Date(app.endDate).toISOString().split('T')[0] : ''
+    });
+    setOpenDateDialog(true);
+    setAnchorEl(null);
+  };
+
+  const handleUpdateDates = async () => {
+    try {
+      await API.patch(`/internships/${selectedApp._id}/status`, internshipDates);
+      showNotification('Internship dates updated successfully', 'success');
+      setOpenDateDialog(false);
+      fetchApplications();
+    } catch (error) {
+      showNotification('Failed to update dates', 'error');
+    }
+  };
 
   const fetchAppDocuments = async (applicationId) => {
     setDocLoading(true);
@@ -530,6 +556,10 @@ const AdminInternships = () => {
           <ListItemText>Reject Application</ListItemText>
         </MenuItem>
         <Divider />
+        <MenuItem onClick={() => handleOpenDateDialog(selectedApp)}>
+          <ListItemIcon><Clock size={18} /></ListItemIcon>
+          <ListItemText>Edit Internship Dates</ListItemText>
+        </MenuItem>
         <MenuItem onClick={() => handleOpenDocDialog(selectedApp)}>
           <ListItemIcon><FileText size={18} /></ListItemIcon>
           <ListItemText>Manage Documents</ListItemText>
@@ -688,6 +718,48 @@ const AdminInternships = () => {
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setOpenDocDialog(false)} variant="contained" fullWidth sx={{ borderRadius: 2 }}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Dates Dialog */}
+      <Dialog 
+        open={openDateDialog} 
+        onClose={() => setOpenDateDialog(false)}
+        PaperProps={{ sx: { borderRadius: 3, width: '100%', maxWidth: 450 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Edit Internship Dates</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              Set the internship duration for <strong>{selectedApp?.name}</strong>. These dates will reflect in all generated documents.
+            </Typography>
+            
+            <TextField
+              label="Internship Start Date"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={internshipDates.startDate}
+              onChange={(e) => setInternshipDates({ ...internshipDates, startDate: e.target.value })}
+            />
+
+            <TextField
+              label="Internship End Date"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={internshipDates.endDate}
+              onChange={(e) => setInternshipDates({ ...internshipDates, endDate: e.target.value })}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, gap: 1 }}>
+          <Button onClick={() => setOpenDateDialog(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1 }}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpdateDates} variant="contained" sx={{ borderRadius: 2, flex: 1 }}>
+            Save Dates
+          </Button>
         </DialogActions>
       </Dialog>
 
