@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -44,7 +44,7 @@ const AdminLMSPrograms = () => {
     thumbnail: ''
   });
 
-  const fetchPrograms = async () => {
+  const fetchPrograms = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await API.get('/admin/lms/programs');
@@ -54,11 +54,11 @@ const AdminLMSPrograms = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showNotification]);
 
   useEffect(() => {
     fetchPrograms();
-  }, []);
+  }, [fetchPrograms]);
 
   const handleCreate = async () => {
     try {
