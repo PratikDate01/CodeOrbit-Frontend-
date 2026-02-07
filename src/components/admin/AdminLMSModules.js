@@ -23,23 +23,23 @@ import {
   Edit, 
   Trash2, 
   ArrowLeft,
-  Layers,
+  BookOpen,
   ChevronRight
 } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';
 
-const AdminLMSCourses = () => {
-  const { programId } = useParams();
+const AdminLMSModules = () => {
+  const { programId, courseId } = useParams();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
-  const [courses, setCourses] = useState([]);
-  const [program, setProgram] = useState(null);
+  const [modules, setModules] = useState([]);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [open, setOpen] = useState(false);
-  const [editingCourse, setEditingCourse] = useState(null);
+  const [editingModule, setEditingModule] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -49,39 +49,39 @@ const AdminLMSCourses = () => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [coursesRes, programsRes] = await Promise.all([
-        API.get(`/admin/lms/programs/${programId}/courses`),
-        API.get('/admin/lms/programs')
+      const [modulesRes, coursesRes] = await Promise.all([
+        API.get(`/admin/lms/courses/${courseId}/modules`),
+        API.get(`/admin/lms/programs/${programId}/courses`)
       ]);
       
-      setCourses(coursesRes.data);
-      const currentProgram = programsRes.data.find(p => p._id === programId);
-      setProgram(currentProgram);
+      setModules(modulesRes.data);
+      const currentCourse = coursesRes.data.find(c => c._id === courseId);
+      setCourse(currentCourse);
     } catch (error) {
-      showNotification('Error fetching courses', 'error');
+      showNotification('Error fetching modules', 'error');
     } finally {
       setLoading(false);
     }
-  }, [programId, showNotification]);
+  }, [programId, courseId, showNotification]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const handleOpen = (course = null) => {
-    if (course) {
-      setEditingCourse(course);
+  const handleOpen = (moduleObj = null) => {
+    if (moduleObj) {
+      setEditingModule(moduleObj);
       setFormData({
-        title: course.title,
-        description: course.description,
-        order: course.order || 0
+        title: moduleObj.title,
+        description: moduleObj.description,
+        order: moduleObj.order || 0
       });
     } else {
-      setEditingCourse(null);
+      setEditingModule(null);
       setFormData({
         title: '',
         description: '',
-        order: courses.length + 1
+        order: modules.length + 1
       });
     }
     setOpen(true);
@@ -90,37 +90,37 @@ const AdminLMSCourses = () => {
   const handleClose = () => {
     if (submitting) return;
     setOpen(false);
-    setEditingCourse(null);
+    setEditingModule(null);
   };
 
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
-      if (editingCourse) {
-        await API.put(`/admin/lms/courses/${editingCourse._id}`, formData);
-        showNotification('Course updated successfully', 'success');
+      if (editingModule) {
+        await API.put(`/admin/lms/modules/${editingModule._id}`, formData);
+        showNotification('Module updated successfully', 'success');
       } else {
-        await API.post('/admin/lms/courses', { ...formData, program: programId });
-        showNotification('Course created successfully', 'success');
+        await API.post('/admin/lms/modules', { ...formData, course: courseId });
+        showNotification('Module created successfully', 'success');
       }
       fetchData();
       handleClose();
     } catch (error) {
-      showNotification(error.response?.data?.message || 'Error saving course', 'error');
+      showNotification(error.response?.data?.message || 'Error saving module', 'error');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this course?')) {
+    if (window.confirm('Are you sure you want to delete this module?')) {
       try {
         setDeletingId(id);
-        await API.delete(`/admin/lms/courses/${id}`);
-        showNotification('Course deleted successfully', 'success');
+        await API.delete(`/admin/lms/modules/${id}`);
+        showNotification('Module deleted successfully', 'success');
         fetchData();
       } catch (error) {
-        showNotification(error.response?.data?.message || 'Error deleting course', 'error');
+        showNotification(error.response?.data?.message || 'Error deleting module', 'error');
       } finally {
         setDeletingId(null);
       }
@@ -142,22 +142,25 @@ const AdminLMSCourses = () => {
           <MuiLink component={Link} to="/admin/lms/programs" underline="hover" color="inherit" sx={{ fontSize: '0.8rem' }}>
             Programs
           </MuiLink>
+          <MuiLink component={Link} to={`/admin/lms/programs/${programId}/courses`} underline="hover" color="inherit" sx={{ fontSize: '0.8rem' }}>
+            {course?.program?.title || 'Courses'}
+          </MuiLink>
           <Typography color="text.primary" sx={{ fontSize: '0.8rem', fontWeight: 500 }}>
-            {program?.title || 'Courses'}
+            {course?.title || 'Modules'}
           </Typography>
         </Breadcrumbs>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton onClick={() => navigate('/admin/lms/programs')} size="small" sx={{ bgcolor: 'action.hover' }}>
+            <IconButton onClick={() => navigate(`/admin/lms/programs/${programId}/courses`)} size="small" sx={{ bgcolor: 'action.hover' }}>
               <ArrowLeft size={18} />
             </IconButton>
             <Box>
               <Typography variant="h5" fontWeight={700}>
-                {program?.title} - Courses
+                {course?.title} - Modules
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Manage modules and lessons for this program
+                Manage lessons for this module
               </Typography>
             </Box>
           </Box>
@@ -167,14 +170,14 @@ const AdminLMSCourses = () => {
             onClick={() => handleOpen()}
             sx={{ borderRadius: 2, px: 3 }}
           >
-            Add Course
+            Add Module
           </Button>
         </Box>
       </Box>
 
       <Grid container spacing={3}>
-        {courses.map((course, index) => (
-          <Grid item xs={12} sm={6} lg={4} key={course._id}>
+        {modules.map((moduleObj, index) => (
+          <Grid item xs={12} sm={6} lg={4} key={moduleObj._id}>
             <Card sx={{ 
               height: 320, // Uniform height
               display: 'flex', 
@@ -214,29 +217,29 @@ const AdminLMSCourses = () => {
                     fontSize: '0.9rem',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                   }}>
-                    {course.order || index + 1}
+                    {moduleObj.order || index + 1}
                   </Box>
                   <Typography variant="subtitle2" fontWeight={800} color="primary.main" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Module {course.order || index + 1}
+                    Unit {moduleObj.order || index + 1}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                   <IconButton 
                     size="small" 
-                    onClick={() => handleOpen(course)} 
+                    onClick={() => handleOpen(moduleObj)} 
                     sx={{ bgcolor: 'white', '&:hover': { bgcolor: 'primary.main', color: 'white' } }}
-                    disabled={deletingId === course._id}
+                    disabled={deletingId === moduleObj._id}
                   >
                     <Edit size={14} />
                   </IconButton>
                   <IconButton 
                     size="small" 
                     color="error" 
-                    onClick={() => handleDelete(course._id)} 
+                    onClick={() => handleDelete(moduleObj._id)} 
                     sx={{ bgcolor: 'white', '&:hover': { bgcolor: 'error.main', color: 'white' } }}
-                    disabled={deletingId === course._id}
+                    disabled={deletingId === moduleObj._id}
                   >
-                    {deletingId === course._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
+                    {deletingId === moduleObj._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
                   </IconButton>
                 </Box>
               </Box>
@@ -257,7 +260,7 @@ const AdminLMSCourses = () => {
                   overflow: 'hidden',
                   minHeight: '2.6em'
                 }}>
-                  {course.title}
+                  {moduleObj.title}
                 </Typography>
                 
                 <Typography variant="body2" color="text.secondary" sx={{ 
@@ -268,21 +271,21 @@ const AdminLMSCourses = () => {
                   lineHeight: 1.6,
                   minHeight: '4.8em'
                 }}>
-                  {course.description}
+                  {moduleObj.description}
                 </Typography>
 
                 <Box sx={{ mt: 'auto', pt: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                    <Layers size={14} color="#64748b" />
+                    <BookOpen size={14} color="#64748b" />
                     <Typography variant="caption" color="text.secondary" fontWeight={700}>
-                      {course.modulesCount || 0} Lessons
+                      {moduleObj.lessonsCount || 0} Lessons
                     </Typography>
                   </Box>
                   <Button 
                     size="small" 
                     variant="outlined"
                     endIcon={<ChevronRight size={14} />}
-                    onClick={() => navigate(`/admin/lms/programs/${programId}/courses/${course._id}/modules`)}
+                    onClick={() => navigate(`/admin/lms/programs/${programId}/courses/${courseId}/modules/${moduleObj._id}/lessons`)}
                     sx={{ 
                       borderRadius: 1.5, 
                       textTransform: 'none', 
@@ -297,17 +300,17 @@ const AdminLMSCourses = () => {
             </Card>
           </Grid>
         ))}
-        {courses.length === 0 && (
+        {modules.length === 0 && (
           <Grid item xs={12}>
             <Box sx={{ py: 8, textAlign: 'center', bgcolor: 'action.hover', borderRadius: 2, border: '1px dashed', borderColor: 'divider' }}>
-              <Typography color="text.secondary">No courses found for this program.</Typography>
+              <Typography color="text.secondary">No modules found for this course.</Typography>
               <Button 
                 variant="outlined" 
                 startIcon={<Plus size={18} />} 
                 onClick={() => handleOpen()}
                 sx={{ mt: 2 }}
               >
-                Create your first course
+                Create your first module
               </Button>
             </Box>
           </Grid>
@@ -316,13 +319,13 @@ const AdminLMSCourses = () => {
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>
-          {editingCourse ? 'Edit Course' : 'Add New Course'}
+          {editingModule ? 'Edit Module' : 'Add New Module'}
         </DialogTitle>
         <Divider />
         <DialogContent sx={{ mt: 1 }}>
           <TextField
             fullWidth
-            label="Course Title"
+            label="Module Title"
             margin="normal"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -346,7 +349,7 @@ const AdminLMSCourses = () => {
             value={formData.order}
             onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
             variant="outlined"
-            helperText="Display order of the course"
+            helperText="Display order of the module"
           />
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
@@ -358,7 +361,7 @@ const AdminLMSCourses = () => {
             disabled={submitting}
             startIcon={submitting && <CircularProgress size={16} color="inherit" />}
           >
-            {submitting ? 'Saving...' : (editingCourse ? 'Save Changes' : 'Create Course')}
+            {submitting ? 'Saving...' : (editingModule ? 'Save Changes' : 'Create Module')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -366,4 +369,4 @@ const AdminLMSCourses = () => {
   );
 };
 
-export default AdminLMSCourses;
+export default AdminLMSModules;

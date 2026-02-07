@@ -36,6 +36,7 @@ const AdminLMSPrograms = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [togglingId, setTogglingId] = useState(null);
   const [open, setOpen] = useState(false);
+  const [editingProgram, setEditingProgram] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -60,16 +61,37 @@ const AdminLMSPrograms = () => {
     fetchPrograms();
   }, [fetchPrograms]);
 
-  const handleCreate = async () => {
+  const handleOpen = (program = null) => {
+    if (program) {
+      setEditingProgram(program);
+      setFormData({
+        title: program.title,
+        description: program.description,
+        internshipDomain: program.internshipDomain,
+        duration: program.duration,
+        thumbnail: program.thumbnail || ''
+      });
+    } else {
+      setEditingProgram(null);
+      setFormData({ title: '', description: '', internshipDomain: '', duration: '', thumbnail: '' });
+    }
+    setOpen(true);
+  };
+
+  const handleSubmit = async () => {
     try {
       setSubmitting(true);
-      await API.post('/admin/lms/programs', formData);
-      showNotification('Program created successfully', 'success');
+      if (editingProgram) {
+        await API.put(`/admin/lms/programs/${editingProgram._id}`, formData);
+        showNotification('Program updated successfully', 'success');
+      } else {
+        await API.post('/admin/lms/programs', formData);
+        showNotification('Program created successfully', 'success');
+      }
       setOpen(false);
       fetchPrograms();
-      setFormData({ title: '', description: '', internshipDomain: '', duration: '', thumbnail: '' });
     } catch (error) {
-      showNotification(error.response?.data?.message || 'Error creating program', 'error');
+      showNotification(error.response?.data?.message || 'Error saving program', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -112,7 +134,7 @@ const AdminLMSPrograms = () => {
         <Button 
           variant="contained" 
           startIcon={<Plus size={18} />} 
-          onClick={() => setOpen(true)}
+          onClick={() => handleOpen()}
         >
           Create Program
         </Button>
@@ -122,7 +144,7 @@ const AdminLMSPrograms = () => {
         {programs.map((program) => (
           <Grid item xs={12} sm={6} lg={4} key={program._id}>
             <Card sx={{ 
-              height: '100%',
+              height: 380, // Enforce identical height
               display: 'flex', 
               flexDirection: 'column',
               borderRadius: 1.5,
@@ -225,7 +247,11 @@ const AdminLMSPrograms = () => {
                 }}>
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
                     <Tooltip title="Edit Details">
-                      <IconButton size="small" sx={{ p: 0.5, color: 'text.secondary' }}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleOpen(program)}
+                        sx={{ p: 0.5, color: 'text.secondary' }}
+                      >
                         <Edit size={14} />
                       </IconButton>
                     </Tooltip>
@@ -293,7 +319,7 @@ const AdminLMSPrograms = () => {
       </Grid>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Program</DialogTitle>
+        <DialogTitle>{editingProgram ? 'Edit Program' : 'Create New Program'}</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField 
@@ -336,11 +362,11 @@ const AdminLMSPrograms = () => {
           <Button onClick={() => setOpen(false)} disabled={submitting}>Cancel</Button>
           <Button 
             variant="contained" 
-            onClick={handleCreate}
+            onClick={handleSubmit}
             disabled={submitting}
             startIcon={submitting && <CircularProgress size={16} color="inherit" />}
           >
-            {submitting ? 'Creating...' : 'Create'}
+            {submitting ? 'Saving...' : (editingProgram ? 'Save Changes' : 'Create')}
           </Button>
         </DialogActions>
       </Dialog>
