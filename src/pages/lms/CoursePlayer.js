@@ -11,7 +11,6 @@ import {
   Collapse,
   Button,
   Divider,
-  CircularProgress,
   Chip,
   Skeleton
 } from '@mui/material';
@@ -25,8 +24,7 @@ import {
   Video,
   FileDown,
   BookOpen,
-  Clock,
-  Circle
+  Clock
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../../api/api';

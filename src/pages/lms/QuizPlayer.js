@@ -11,7 +11,7 @@ import {
   Divider,
   Alert
 } from '@mui/material';
-import { CheckCircle, AlertCircle, Send } from 'lucide-react';
+import { CheckCircle, Send } from 'lucide-react';
 
 const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
   const [answers, setAnswers] = useState({});
