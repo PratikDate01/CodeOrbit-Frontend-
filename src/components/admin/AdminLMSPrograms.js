@@ -118,124 +118,124 @@ const AdminLMSPrograms = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2.5}>
         {programs.map((program) => (
           <Grid item xs={12} sm={6} lg={4} key={program._id}>
             <Card sx={{ 
               height: '100%',
               display: 'flex', 
               flexDirection: 'column',
-              borderRadius: 2,
+              borderRadius: 1.5,
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
               overflow: 'hidden',
-              transition: 'all 0.2s ease-in-out',
+              transition: 'all 0.15s ease-in-out',
               '&:hover': { 
                 borderColor: 'primary.main', 
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                transform: 'translateY(-4px)'
+                bgcolor: 'rgba(0,0,0,0.01)'
               }
             }}>
-              <Box sx={{ position: 'relative' }}>
+              {/* Thumbnail Section - Fixed Height */}
+              <Box sx={{ height: 140, overflow: 'hidden', position: 'relative', bgcolor: 'action.hover' }}>
                 <CardMedia
                   component="img"
-                  sx={{ height: 180, width: '100%', objectFit: 'cover' }}
+                  sx={{ height: '100%', width: '100%', objectFit: 'cover' }}
                   image={program.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop'}
                   alt={program.title}
                 />
                 <Box sx={{ 
                   position: 'absolute', 
-                  top: 12, 
-                  right: 12, 
+                  top: 10, 
+                  right: 10, 
                   bgcolor: program.isPublished ? 'success.main' : 'text.disabled',
                   color: 'white',
-                  px: 1.5,
-                  py: 0.5,
+                  px: 1,
+                  py: 0.3,
                   borderRadius: 1,
-                  fontSize: '0.65rem',
-                  fontWeight: 800,
+                  fontSize: '0.6rem',
+                  fontWeight: 900,
                   textTransform: 'uppercase',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
                   {program.isPublished ? "Live" : "Draft"}
                 </Box>
               </Box>
 
               <CardContent sx={{ 
+                p: 2, 
                 flexGrow: 1, 
-                p: 2.5, 
                 display: 'flex', 
-                flexDirection: 'column',
-                gap: 1.5
+                flexDirection: 'column' 
               }}>
-                <Box>
-                  <Typography 
-                    variant="caption" 
-                    fontWeight={800} 
-                    color="primary" 
-                    sx={{ 
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.5px',
-                      fontSize: '0.7rem',
-                      bgcolor: 'primary.lighter',
-                      px: 1,
-                      py: 0.4,
-                      borderRadius: 1,
-                      display: 'inline-block',
-                      mb: 1.5
-                    }}
-                  >
-                    {program.internshipDomain}
-                  </Typography>
-                  
-                  <Typography variant="h6" fontWeight={700} sx={{ 
-                    lineHeight: 1.3, 
+                {/* Program Category */}
+                <Typography 
+                  variant="caption" 
+                  fontWeight={800} 
+                  color="primary.main"
+                  sx={{ 
+                    textTransform: 'uppercase', 
+                    fontSize: '0.65rem',
+                    letterSpacing: '1px',
                     mb: 1,
+                    display: 'block'
+                  }}
+                >
+                  {program.internshipDomain}
+                </Typography>
+                
+                {/* Program Title - Clamped to 2 lines */}
+                <Box sx={{ minHeight: 44, mb: 0.5 }}>
+                  <Typography variant="subtitle2" fontWeight={700} sx={{ 
+                    lineHeight: 1.3,
                     display: '-webkit-box',
-                    WebkitLineClamp: 1,
+                    WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    color: 'text.primary',
+                    fontSize: '0.9rem'
                   }}>
                     {program.title}
                   </Typography>
-                  
-                  <Typography variant="body2" color="text.secondary" sx={{ 
+                </Box>
+                
+                {/* Description - Clamped to 2 lines */}
+                <Box sx={{ minHeight: 36, mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ 
                     display: '-webkit-box',
-                    WebkitLineClamp: 3,
+                    WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
-                    lineHeight: 1.6,
-                    minHeight: '4.8em' // 3 lines * 1.6
+                    lineHeight: 1.4,
+                    fontSize: '0.75rem'
                   }}>
                     {program.description}
                   </Typography>
                 </Box>
 
-                <Box sx={{ mt: 'auto', pt: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
+                {/* Actions + Status Row */}
+                <Box sx={{ 
+                  mt: 'auto', 
+                  pt: 1.5, 
+                  borderTop: '1px solid', 
+                  borderColor: 'divider', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between' 
+                }}>
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
                     <Tooltip title="Edit Details">
-                      <IconButton 
-                        size="small" 
-                        sx={{ 
-                          bgcolor: 'action.hover',
-                          '&:hover': { bgcolor: 'primary.lighter', color: 'primary.main' }
-                        }}
-                      >
-                        <Edit size={16} />
+                      <IconButton size="small" sx={{ p: 0.5, color: 'text.secondary' }}>
+                        <Edit size={14} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Manage Courses">
                       <IconButton 
                         size="small" 
                         onClick={() => navigate(`/admin/lms/programs/${program._id}/courses`)}
-                        sx={{ 
-                          bgcolor: 'action.hover',
-                          color: 'primary.main',
-                          '&:hover': { bgcolor: 'primary.main', color: 'white' }
-                        }}
+                        sx={{ p: 0.5, color: 'primary.main' }}
                       >
-                        <BookOpen size={16} />
+                        <BookOpen size={14} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete">
@@ -244,27 +244,44 @@ const AdminLMSPrograms = () => {
                         color="error" 
                         onClick={() => handleDelete(program._id)}
                         disabled={deletingId === program._id}
-                        sx={{ 
-                          bgcolor: 'action.hover',
-                          '&:hover': { bgcolor: 'error.lighter' }
-                        }}
+                        sx={{ p: 0.5 }}
                       >
-                        {deletingId === program._id ? <CircularProgress size={16} /> : <Trash2 size={16} />}
+                        {deletingId === program._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
                       </IconButton>
                     </Tooltip>
                   </Box>
                   
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="caption" fontWeight={600} color="text.secondary">
-                      {program.isPublished ? 'Published' : 'Draft'}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ fontSize: '0.6rem', textTransform: 'uppercase' }}>
+                      {program.isPublished ? 'Live' : 'Draft'}
                     </Typography>
                     {togglingId === program._id ? (
-                      <CircularProgress size={20} />
+                      <CircularProgress size={16} sx={{ ml: 1 }} />
                     ) : (
                       <Switch 
                         size="small"
                         checked={program.isPublished} 
                         onChange={() => handleTogglePublish(program)}
+                        sx={{ 
+                          width: 34,
+                          height: 20,
+                          padding: 0,
+                          display: 'flex',
+                          '& .MuiSwitch-switchBase': {
+                            padding: '3px',
+                            '&.Mui-checked': {
+                              transform: 'translateX(14px)',
+                            },
+                          },
+                          '& .MuiSwitch-thumb': {
+                            width: 14,
+                            height: 14,
+                            boxShadow: 'none',
+                          },
+                          '& .MuiSwitch-track': {
+                            borderRadius: 10,
+                          },
+                        }}
                       />
                     )}
                   </Box>
