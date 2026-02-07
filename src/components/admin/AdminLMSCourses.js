@@ -172,81 +172,122 @@ const AdminLMSCourses = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {courses.map((course, index) => (
-          <Grid item xs={12} md={6} lg={4} key={course._id}>
+          <Grid item xs={12} sm={6} lg={4} key={course._id}>
             <Card sx={{ 
-              display: 'flex',
-              height: 100,
-              borderRadius: 1,
+              height: '100%',
+              display: 'flex', 
+              flexDirection: 'column',
+              borderRadius: 2,
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              transition: 'all 0.2s',
               overflow: 'hidden',
-              '&:hover': { borderColor: 'primary.main', bgcolor: 'background.alt' }
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': { 
+                borderColor: 'primary.main', 
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                transform: 'translateY(-4px)'
+              }
             }}>
               <Box sx={{ 
-                width: 40, 
-                bgcolor: 'primary.main', 
+                p: 2, 
+                bgcolor: 'primary.lighter', 
+                borderBottom: '1px solid', 
+                borderColor: 'divider', 
                 display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 800,
-                fontSize: '1rem'
+                justifyContent: 'space-between', 
+                alignItems: 'center' 
               }}>
-                {course.order || index + 1}
-              </Box>
-              <CardContent sx={{ 
-                flex: 1, 
-                p: '12px !important', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'space-between',
-                overflow: 'hidden'
-              }}>
-                <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="subtitle2" fontWeight={700} noWrap sx={{ lineHeight: 1.2, maxWidth: '70%' }}>
-                      {course.title}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <IconButton 
-                        size="small" 
-                        onClick={() => handleOpen(course)} 
-                        sx={{ p: 0.5 }}
-                        disabled={deletingId === course._id}
-                      >
-                        <Edit size={14} />
-                      </IconButton>
-                      <IconButton 
-                        size="small" 
-                        color="error" 
-                        onClick={() => handleDelete(course._id)} 
-                        sx={{ p: 0.5 }}
-                        disabled={deletingId === course._id}
-                      >
-                        {deletingId === course._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
-                      </IconButton>
-                    </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ 
+                    width: 32, 
+                    height: 32, 
+                    borderRadius: 1, 
+                    bgcolor: 'primary.main', 
+                    color: 'white', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    fontWeight: 800, 
+                    fontSize: '0.9rem',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}>
+                    {course.order || index + 1}
                   </Box>
-                  <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
-                    {course.description}
+                  <Typography variant="subtitle2" fontWeight={800} color="primary.main" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Module {course.order || index + 1}
                   </Typography>
                 </Box>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleOpen(course)} 
+                    sx={{ bgcolor: 'white', '&:hover': { bgcolor: 'primary.main', color: 'white' } }}
+                    disabled={deletingId === course._id}
+                  >
+                    <Edit size={14} />
+                  </IconButton>
+                  <IconButton 
+                    size="small" 
+                    color="error" 
+                    onClick={() => handleDelete(course._id)} 
+                    sx={{ bgcolor: 'white', '&:hover': { bgcolor: 'error.main', color: 'white' } }}
+                    disabled={deletingId === course._id}
+                  >
+                    {deletingId === course._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
+                  </IconButton>
+                </Box>
+              </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Layers size={12} color="#64748b" />
-                    <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ fontSize: '0.65rem' }}>
-                      {course.modulesCount || 0} Modules
+              <CardContent sx={{ 
+                flexGrow: 1, 
+                p: 2.5, 
+                display: 'flex', 
+                flexDirection: 'column',
+                gap: 1
+              }}>
+                <Typography variant="h6" fontWeight={700} sx={{ 
+                  lineHeight: 1.3, 
+                  mb: 1,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  minHeight: '2.6em'
+                }}>
+                  {course.title}
+                </Typography>
+                
+                <Typography variant="body2" color="text.secondary" sx={{ 
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  lineHeight: 1.6,
+                  minHeight: '4.8em'
+                }}>
+                  {course.description}
+                </Typography>
+
+                <Box sx={{ mt: 'auto', pt: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                    <Layers size={14} color="#64748b" />
+                    <Typography variant="caption" color="text.secondary" fontWeight={700}>
+                      {course.modulesCount || 0} Lessons
                     </Typography>
                   </Box>
                   <Button 
                     size="small" 
-                    endIcon={<ChevronRight size={12} />}
-                    sx={{ fontSize: '0.65rem', fontWeight: 700, p: 0, minWidth: 0 }}
+                    variant="outlined"
+                    endIcon={<ChevronRight size={14} />}
+                    sx={{ 
+                      borderRadius: 1.5, 
+                      textTransform: 'none', 
+                      fontWeight: 700,
+                      px: 2
+                    }}
                   >
                     Manage
                   </Button>

@@ -118,89 +118,124 @@ const AdminLMSPrograms = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {programs.map((program) => (
-          <Grid item xs={12} md={6} lg={4} key={program._id}>
+          <Grid item xs={12} sm={6} lg={4} key={program._id}>
             <Card sx={{ 
+              height: '100%',
               display: 'flex', 
-              height: 120,
-              borderRadius: 1,
+              flexDirection: 'column',
+              borderRadius: 2,
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
               overflow: 'hidden',
-              transition: 'all 0.2s',
-              '&:hover': { borderColor: 'primary.main', bgcolor: 'background.alt' }
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': { 
+                borderColor: 'primary.main', 
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                transform: 'translateY(-4px)'
+              }
             }}>
-              <CardMedia
-                component="img"
-                sx={{ width: 120, height: 120, objectFit: 'cover' }}
-                image={program.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop'}
-                alt={program.title}
-              />
+              <Box sx={{ position: 'relative' }}>
+                <CardMedia
+                  component="img"
+                  sx={{ height: 180, width: '100%', objectFit: 'cover' }}
+                  image={program.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop'}
+                  alt={program.title}
+                />
+                <Box sx={{ 
+                  position: 'absolute', 
+                  top: 12, 
+                  right: 12, 
+                  bgcolor: program.isPublished ? 'success.main' : 'text.disabled',
+                  color: 'white',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  fontSize: '0.65rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}>
+                  {program.isPublished ? "Live" : "Draft"}
+                </Box>
+              </Box>
+
               <CardContent sx={{ 
-                flex: 1, 
-                p: '12px !important', 
+                flexGrow: 1, 
+                p: 2.5, 
                 display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'space-between',
-                overflow: 'hidden'
+                flexDirection: 'column',
+                gap: 1.5
               }}>
                 <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                    <Typography 
-                      variant="caption" 
-                      fontWeight={700} 
-                      color="primary" 
-                      sx={{ 
-                        textTransform: 'uppercase', 
-                        fontSize: '0.6rem',
-                        bgcolor: 'primary.lighter',
-                        px: 0.8,
-                        borderRadius: 0.5
-                      }}
-                    >
-                      {program.internshipDomain}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: program.isPublished ? 'success.main' : 'text.disabled' }} />
-                      <Typography variant="caption" fontWeight={700} sx={{ fontSize: '0.65rem' }}>
-                        {program.isPublished ? "Live" : "Draft"}
-                      </Typography>
-                    </Box>
-                  </Box>
+                  <Typography 
+                    variant="caption" 
+                    fontWeight={800} 
+                    color="primary" 
+                    sx={{ 
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.5px',
+                      fontSize: '0.7rem',
+                      bgcolor: 'primary.lighter',
+                      px: 1,
+                      py: 0.4,
+                      borderRadius: 1,
+                      display: 'inline-block',
+                      mb: 1.5
+                    }}
+                  >
+                    {program.internshipDomain}
+                  </Typography>
                   
-                  <Typography variant="subtitle2" fontWeight={700} noWrap sx={{ lineHeight: 1.2 }}>
+                  <Typography variant="h6" fontWeight={700} sx={{ 
+                    lineHeight: 1.3, 
+                    mb: 1,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
                     {program.title}
                   </Typography>
                   
-                  <Typography variant="caption" color="text.secondary" sx={{ 
+                  <Typography variant="body2" color="text.secondary" sx={{ 
                     display: '-webkit-box',
-                    WebkitLineClamp: 2,
+                    WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
-                    lineHeight: 1.3,
-                    height: '2.6em',
-                    mt: 0.5
+                    lineHeight: 1.6,
+                    minHeight: '4.8em' // 3 lines * 1.6
                   }}>
                     {program.description}
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Box sx={{ mt: 'auto', pt: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
                     <Tooltip title="Edit Details">
-                      <IconButton size="small" sx={{ p: 0.5 }}>
-                        <Edit size={14} />
+                      <IconButton 
+                        size="small" 
+                        sx={{ 
+                          bgcolor: 'action.hover',
+                          '&:hover': { bgcolor: 'primary.lighter', color: 'primary.main' }
+                        }}
+                      >
+                        <Edit size={16} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Manage Courses">
                       <IconButton 
                         size="small" 
-                        sx={{ p: 0.5, color: 'primary.main' }}
                         onClick={() => navigate(`/admin/lms/programs/${program._id}/courses`)}
+                        sx={{ 
+                          bgcolor: 'action.hover',
+                          color: 'primary.main',
+                          '&:hover': { bgcolor: 'primary.main', color: 'white' }
+                        }}
                       >
-                        <BookOpen size={14} />
+                        <BookOpen size={16} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete">
@@ -208,24 +243,31 @@ const AdminLMSPrograms = () => {
                         size="small" 
                         color="error" 
                         onClick={() => handleDelete(program._id)}
-                        sx={{ p: 0.5 }}
                         disabled={deletingId === program._id}
+                        sx={{ 
+                          bgcolor: 'action.hover',
+                          '&:hover': { bgcolor: 'error.lighter' }
+                        }}
                       >
-                        {deletingId === program._id ? <CircularProgress size={14} /> : <Trash2 size={14} />}
+                        {deletingId === program._id ? <CircularProgress size={16} /> : <Trash2 size={16} />}
                       </IconButton>
                     </Tooltip>
                   </Box>
                   
-                  {togglingId === program._id ? (
-                    <CircularProgress size={20} sx={{ mr: 1 }} />
-                  ) : (
-                    <Switch 
-                      size="small"
-                      checked={program.isPublished} 
-                      onChange={() => handleTogglePublish(program)}
-                      sx={{ transform: 'scale(0.8)' }}
-                    />
-                  )}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="caption" fontWeight={600} color="text.secondary">
+                      {program.isPublished ? 'Published' : 'Draft'}
+                    </Typography>
+                    {togglingId === program._id ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <Switch 
+                        size="small"
+                        checked={program.isPublished} 
+                        onChange={() => handleTogglePublish(program)}
+                      />
+                    )}
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
