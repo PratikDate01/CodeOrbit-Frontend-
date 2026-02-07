@@ -98,12 +98,21 @@ const AdminLMSPrograms = () => {
   };
 
   const handleTogglePublish = async (program) => {
+    // Optimistic Update
+    const originalPrograms = [...programs];
+    setPrograms(programs.map(p => 
+      p._id === program._id ? { ...p, isPublished: !p.isPublished } : p
+    ));
+
     try {
       setTogglingId(program._id);
       await API.put(`/admin/lms/programs/${program._id}`, { isPublished: !program.isPublished });
       showNotification(`Program ${!program.isPublished ? 'published' : 'unpublished'}`, 'success');
-      fetchPrograms();
+      // No need to fetchPrograms() here as state is already updated, 
+      // but good to do for syncing if needed, or just skip to save requests
     } catch (error) {
+      // Revert on error
+      setPrograms(originalPrograms);
       showNotification(error.response?.data?.message || 'Error updating program', 'error');
     } finally {
       setTogglingId(null);
@@ -111,13 +120,18 @@ const AdminLMSPrograms = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this program? All associated courses and content will remain but the program entry will be removed.')) {
+    if (window.confirm('Are you sure you want to delete this program? All associated courses and content will be permanently removed.')) {
+      // Optimistic Update
+      const originalPrograms = [...programs];
+      setPrograms(programs.filter(p => p._id !== id));
+
       try {
         setDeletingId(id);
         await API.delete(`/admin/lms/programs/${id}`);
         showNotification('Program deleted successfully', 'success');
-        fetchPrograms();
       } catch (error) {
+        // Revert on error
+        setPrograms(originalPrograms);
         showNotification(error.response?.data?.message || 'Error deleting program', 'error');
       } finally {
         setDeletingId(null);

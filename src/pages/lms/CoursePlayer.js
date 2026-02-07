@@ -12,7 +12,8 @@ import {
   Button,
   Divider,
   CircularProgress,
-  Chip
+  Chip,
+  Skeleton
 } from '@mui/material';
 import { 
   ChevronLeft, 
@@ -23,10 +24,13 @@ import {
   CheckCircle2, 
   Video,
   FileDown,
-  BookOpen
+  BookOpen,
+  Clock,
+  Circle
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../../api/api';
+import QuizPlayer from './QuizPlayer';
 
 const CoursePlayer = () => {
   const { programId } = useParams();
@@ -91,8 +95,10 @@ const CoursePlayer = () => {
     setExpandedModules(prev => ({ ...prev, [moduleId]: !prev[moduleId] }));
   };
 
-  const getActivityIcon = (type, isCompleted) => {
-    if (isCompleted) return <CheckCircle2 size={18} color="#10b981" />;
+  const getActivityIcon = (type, progress) => {
+    if (progress?.status === 'Completed') return <CheckCircle2 size={18} color="#10b981" />;
+    if (progress?.status === 'Pending Approval') return <Clock size={18} color="#f59e0b" />;
+    
     switch (type) {
       case 'Video': return <Video size={18} />;
       case 'PDF': return <FileDown size={18} />;
@@ -112,7 +118,40 @@ const CoursePlayer = () => {
     }
   };
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>;
+  const handleQuizSubmit = async (answers) => {
+    try {
+      const { data: result } = await API.post(`/lms/activities/${activeActivity._id}/submit-quiz`, { answers });
+      // Refresh progress data
+      const { data: contentData } = await API.get(`/lms/courses/${activeCourse._id}/content`);
+      setData(prev => ({ ...prev, progress: contentData.progress }));
+      return result;
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      return null;
+    }
+  };
+
+  if (loading) return (
+    <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+      {/* Sidebar Skeleton */}
+      <Box sx={{ width: 320, borderRight: '1px solid #e2e8f0', p: 3 }}>
+        <Skeleton variant="text" width="60%" height={32} sx={{ mb: 2 }} />
+        <Skeleton variant="rectangular" height={40} sx={{ mb: 4, borderRadius: 2 }} />
+        {[1, 2, 3, 4].map((i) => (
+          <Box key={i} sx={{ mb: 2 }}>
+            <Skeleton variant="text" width="80%" height={24} />
+            <Skeleton variant="text" width="40%" height={16} sx={{ ml: 2 }} />
+          </Box>
+        ))}
+      </Box>
+      {/* Content Skeleton */}
+      <Box sx={{ flexGrow: 1, p: 6 }}>
+        <Skeleton variant="rectangular" width={100} height={24} sx={{ mb: 2 }} />
+        <Skeleton variant="text" width="40%" height={48} sx={{ mb: 4 }} />
+        <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 4 }} />
+      </Box>
+    </Box>
+  );
 
   return (
     <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
@@ -185,7 +224,8 @@ const CoursePlayer = () => {
                         {lesson.title}
                       </Typography>
                       {data.activities.filter(a => a.lesson === lesson._id).map((activity) => {
-                        const isCompleted = data.progress.find(p => p.activity === activity._id)?.status === 'Completed';
+                        const progress = data.progress.find(p => p.activity === activity._id);
+                        const isCompleted = progress?.status === 'Completed';
                         const isActive = activeActivity?._id === activity._id;
                         
                         return (
@@ -201,7 +241,7 @@ const CoursePlayer = () => {
                             }}
                           >
                             <ListItemIcon sx={{ minWidth: 32 }}>
-                              {getActivityIcon(activity.type, isCompleted)}
+                              {getActivityIcon(activity.type, progress)}
                             </ListItemIcon>
                             <ListItemText 
                               primary={activity.title} 
@@ -233,14 +273,16 @@ const CoursePlayer = () => {
                 <Chip label={activeActivity.type} size="small" color="primary" sx={{ mb: 1, fontWeight: 700 }} />
                 <Typography variant="h4" fontWeight={800}>{activeActivity.title}</Typography>
               </Box>
-              <Button 
-                variant="contained" 
-                color="success" 
-                onClick={() => handleCompleteActivity(activeActivity._id)}
-                disabled={data.progress.find(p => p.activity === activeActivity._id)?.status === 'Completed'}
-              >
-                Mark as Completed
-              </Button>
+              {activeActivity.type !== 'Quiz' && (
+                <Button 
+                  variant="contained" 
+                  color="success" 
+                  onClick={() => handleCompleteActivity(activeActivity._id)}
+                  disabled={data.progress.find(p => p.activity === activeActivity._id)?.status === 'Completed'}
+                >
+                  {data.progress.find(p => p.activity === activeActivity._id)?.status === 'Completed' ? 'Completed' : 'Mark as Completed'}
+                </Button>
+              )}
             </Box>
 
             <Paper sx={{ p: 4, borderRadius: 4, minHeight: 400 }}>
@@ -269,11 +311,11 @@ const CoursePlayer = () => {
                 </Box>
               )}
               {activeActivity.type === 'Quiz' && (
-                <Box sx={{ textAlign: 'center', py: 5 }}>
-                  <HelpCircle size={64} color="#64748b" />
-                  <Typography variant="h6" sx={{ mt: 2, mb: 3 }}>Interactive Quiz Activity</Typography>
-                  <Button variant="contained">Start Quiz Assessment</Button>
-                </Box>
+                <QuizPlayer 
+                  quiz={activeActivity.content} 
+                  onSubmit={handleQuizSubmit}
+                  previousResult={data.progress.find(p => p.activity === activeActivity._id)}
+                />
               )}
             </Paper>
           </Box>

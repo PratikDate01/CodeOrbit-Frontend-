@@ -128,12 +128,15 @@ const AdminLMSActivities = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this activity?')) {
+      const originalActivities = [...activities];
+      setActivities(activities.filter(a => a._id !== id));
+
       try {
         setDeletingId(id);
         await API.delete(`/admin/lms/activities/${id}`);
         showNotification('Activity deleted successfully', 'success');
-        fetchData();
       } catch (error) {
+        setActivities(originalActivities);
         showNotification(error.response?.data?.message || 'Error deleting activity', 'error');
       } finally {
         setDeletingId(null);
@@ -174,7 +177,7 @@ const AdminLMSActivities = () => {
             Modules
           </MuiLink>
           <MuiLink component={Link} to={`/admin/lms/programs/${programId}/courses/${courseId}/modules/${moduleId}/lessons`} underline="hover" color="inherit" sx={{ fontSize: '0.8rem' }}>
-            {lesson?.title || 'Lessons'}
+            Lessons
           </MuiLink>
           <Typography color="text.primary" sx={{ fontSize: '0.8rem', fontWeight: 500 }}>
             Activities

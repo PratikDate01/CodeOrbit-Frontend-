@@ -114,12 +114,15 @@ const AdminLMSLessons = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this lesson?')) {
+      const originalLessons = [...lessons];
+      setLessons(lessons.filter(l => l._id !== id));
+
       try {
         setDeletingId(id);
         await API.delete(`/admin/lms/lessons/${id}`);
         showNotification('Lesson deleted successfully', 'success');
-        fetchData();
       } catch (error) {
+        setLessons(originalLessons);
         showNotification(error.response?.data?.message || 'Error deleting lesson', 'error');
       } finally {
         setDeletingId(null);
@@ -146,7 +149,7 @@ const AdminLMSLessons = () => {
             Courses
           </MuiLink>
           <MuiLink component={Link} to={`/admin/lms/programs/${programId}/courses/${courseId}/modules`} underline="hover" color="inherit" sx={{ fontSize: '0.8rem' }}>
-            {module?.course?.title || 'Modules'}
+            Modules
           </MuiLink>
           <Typography color="text.primary" sx={{ fontSize: '0.8rem', fontWeight: 500 }}>
             {module?.title || 'Lessons'}

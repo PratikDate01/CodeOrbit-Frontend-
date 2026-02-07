@@ -114,12 +114,15 @@ const AdminLMSCourses = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this course?')) {
+      const originalCourses = [...courses];
+      setCourses(courses.filter(c => c._id !== id));
+
       try {
         setDeletingId(id);
         await API.delete(`/admin/lms/courses/${id}`);
         showNotification('Course deleted successfully', 'success');
-        fetchData();
       } catch (error) {
+        setCourses(originalCourses);
         showNotification(error.response?.data?.message || 'Error deleting course', 'error');
       } finally {
         setDeletingId(null);

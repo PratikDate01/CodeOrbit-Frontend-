@@ -114,12 +114,15 @@ const AdminLMSModules = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this module?')) {
+      const originalModules = [...modules];
+      setModules(modules.filter(m => m._id !== id));
+
       try {
         setDeletingId(id);
         await API.delete(`/admin/lms/modules/${id}`);
         showNotification('Module deleted successfully', 'success');
-        fetchData();
       } catch (error) {
+        setModules(originalModules);
         showNotification(error.response?.data?.message || 'Error deleting module', 'error');
       } finally {
         setDeletingId(null);
@@ -143,7 +146,7 @@ const AdminLMSModules = () => {
             Programs
           </MuiLink>
           <MuiLink component={Link} to={`/admin/lms/programs/${programId}/courses`} underline="hover" color="inherit" sx={{ fontSize: '0.8rem' }}>
-            {course?.program?.title || 'Courses'}
+            Courses
           </MuiLink>
           <Typography color="text.primary" sx={{ fontSize: '0.8rem', fontWeight: 500 }}>
             {course?.title || 'Modules'}
