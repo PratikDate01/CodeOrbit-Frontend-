@@ -29,6 +29,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../../api/api';
 import QuizPlayer from './QuizPlayer';
+import VideoPlayer from '../../components/common/VideoPlayer';
 
 const CoursePlayer = () => {
   const { programId } = useParams();
@@ -285,16 +286,10 @@ const CoursePlayer = () => {
 
             <Paper sx={{ p: 4, borderRadius: 4, minHeight: 400 }}>
               {activeActivity.type === 'Video' && (
-                <Box sx={{ position: 'relative', pt: '56.25%', bgcolor: 'black', borderRadius: 2, overflow: 'hidden' }}>
-                  <iframe
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    src={activeActivity.content}
-                    title={activeActivity.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </Box>
+                <VideoPlayer 
+                  url={activeActivity.content} 
+                  title={activeActivity.title} 
+                />
               )}
               {activeActivity.type === 'Text' && (
                 <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
