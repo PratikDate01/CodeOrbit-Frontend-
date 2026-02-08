@@ -49,9 +49,6 @@ const AdminInternships = () => {
   const [anchorElFilter, setAnchorElFilter] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [updatingDates, setUpdatingDates] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [updatingEligibilityId, setUpdatingEligibilityId] = useState(null);
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
@@ -64,7 +61,6 @@ const AdminInternships = () => {
   const [openDocDialog, setOpenDocDialog] = useState(false);
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [appDocuments, setAppDocuments] = useState({});
-  const [docLoading, setDocLoading] = useState(false);
   const [internshipDates, setInternshipDates] = useState({
     startDate: '',
     endDate: '',

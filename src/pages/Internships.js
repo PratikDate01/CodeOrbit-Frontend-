@@ -34,7 +34,6 @@ const Internships = () => {
   const [programs, setPrograms] = useState([]);
   const [fetchingApps, setFetchingApps] = useState(false);
   const [fetchingPrograms, setFetchingPrograms] = useState(true);
-  const [loading, setLoading] = useState(false);
 
   const durationPlans = [
     { 
