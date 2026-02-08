@@ -601,13 +601,10 @@ const AdminInternships = () => {
       >
         <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Manage Documents</DialogTitle>
         <DialogContent>
-          {docLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><Skeleton variant="circular" width={40} height={40} /></Box>
-          ) : (
-            <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                Control individual documents for <strong>{selectedApp?.name}</strong>.
-              </Typography>
+          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              Control individual documents for <strong>{selectedApp?.name}</strong>.
+            </Typography>
               
               <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -620,7 +617,6 @@ const AdminInternships = () => {
                       size="small" 
                       variant="outlined" 
                       onClick={() => handleGenerateDocument('offer-letter')}
-                      disabled={isGenerating}
                     >
                       {appDocuments.offerLetterUrl ? 'Regenerate' : 'Generate'}
                     </Button>
@@ -652,7 +648,7 @@ const AdminInternships = () => {
                       size="small" 
                       variant="outlined" 
                       onClick={() => handleGenerateDocument('certificate')}
-                      disabled={isGenerating || !selectedApp?.progress?.isEligibleForCertificate}
+                      disabled={!selectedApp?.progress?.isEligibleForCertificate}
                     >
                       {appDocuments.certificateUrl ? 'Regenerate' : 'Generate'}
                     </Button>
@@ -687,7 +683,6 @@ const AdminInternships = () => {
                       size="small" 
                       variant="outlined" 
                       onClick={() => handleGenerateDocument('loc')}
-                      disabled={isGenerating}
                     >
                       {appDocuments.locUrl ? 'Regenerate' : 'Generate'}
                     </Button>
@@ -742,7 +737,6 @@ const AdminInternships = () => {
                 )}
               </Paper>
             </Box>
-          )}
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setOpenDocDialog(false)} variant="contained" fullWidth sx={{ borderRadius: 2 }}>Close</Button>
@@ -792,17 +786,15 @@ const AdminInternships = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1 }}>
-          <Button onClick={() => setOpenDateDialog(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1 }} disabled={updatingDates}>
+          <Button onClick={() => setOpenDateDialog(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1 }}>
             Cancel
           </Button>
           <Button 
             onClick={handleUpdateDates} 
             variant="contained" 
             sx={{ borderRadius: 2, flex: 1 }}
-            disabled={updatingDates}
-            startIcon={updatingDates && <CircularProgress size={16} color="inherit" />}
           >
-            {updatingDates ? 'Saving...' : 'Save Dates'}
+            Save Dates
           </Button>
         </DialogActions>
       </Dialog>
@@ -861,7 +853,6 @@ const AdminInternships = () => {
             onClick={() => handleVerifyPayment('Failed')} 
             color="error"
             variant="outlined"
-            disabled={verifying}
             sx={{ borderRadius: 2 }}
           >
             Reject
@@ -870,10 +861,9 @@ const AdminInternships = () => {
             onClick={() => handleVerifyPayment('Verified')} 
             variant="contained" 
             color="success"
-            disabled={verifying}
             sx={{ borderRadius: 2, px: 3 }}
           >
-            {verifying ? 'Verifying...' : 'Verify & Approve Payment'}
+            Verify & Approve Payment
           </Button>
         </DialogActions>
       </Dialog>

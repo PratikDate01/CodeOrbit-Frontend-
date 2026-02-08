@@ -405,7 +405,6 @@ const Internships = () => {
 
 
           <Box component="form" onSubmit={handleSubmit}>
-            {loading && <LoadingSpinner />}
             <Grid container spacing={4}>
               {/* Personal Details Group */}
               <Grid size={12}>
@@ -526,7 +525,6 @@ const Internships = () => {
                   variant="contained" 
                   size="large" 
                   type="submit" 
-                  disabled={loading}
                   sx={{ 
                     px: 10, 
                     py: 2, 
@@ -537,7 +535,7 @@ const Internships = () => {
                     boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
                   }}
                 >
-                  {loading ? 'Submitting...' : 'Apply Now'}
+                  Apply Now
                 </Button>
               </Grid>
             </Grid>
