@@ -84,43 +84,40 @@ const AdminInternships = () => {
 
   const handleUpdateDates = async () => {
     try {
-      setUpdatingDates(true);
-      await API.patch(`/internships/${selectedApp._id}/status`, internshipDates);
+      await API.patch(`/internships/${selectedApp._id}/status`, internshipDates, {
+        loaderMessage: 'Updating internship dates...'
+      });
       showNotification('Internship dates updated successfully', 'success');
       setOpenDateDialog(false);
       fetchApplications();
     } catch (error) {
       showNotification(error.response?.data?.message || 'Failed to update dates', 'error');
-    } finally {
-      setUpdatingDates(false);
     }
   };
 
   const fetchAppDocuments = async (applicationId) => {
-    setDocLoading(true);
     try {
-      const { data } = await API.get(`/documents/application/${applicationId}`);
+      const { data } = await API.get(`/documents/application/${applicationId}`, {
+        showLoader: false // Silent fetch
+      });
       setAppDocuments(data);
     } catch (error) {
       showNotification('Error fetching documents', 'error');
-    } finally {
-      setDocLoading(false);
     }
   };
 
   const handleGenerateDocument = async (type) => {
-    setIsGenerating(true);
     try {
       await API.post(`/documents/generate/${type}`, {
         applicationId: selectedApp._id
+      }, {
+        loaderMessage: `Generating ${type.replace('-', ' ').toUpperCase()}...`
       });
       showNotification(`${type.replace('-', ' ').toUpperCase()} generated successfully!`, 'success');
       fetchAppDocuments(selectedApp._id);
       fetchApplications();
     } catch (error) {
       showNotification(error.response?.data?.message || 'Failed to generate document', 'error');
-    } finally {
-      setIsGenerating(false);
     }
   };
 
@@ -200,13 +197,18 @@ const AdminInternships = () => {
   };
 
   const handleVerifyPayment = async (paymentStatus) => {
-    setVerifying(true);
     try {
-      await API.patch(`/internships/${selectedApp._id}/status`, { paymentStatus });
+      await API.patch(`/internships/${selectedApp._id}/status`, { paymentStatus }, {
+        loaderMessage: 'Verifying payment...'
+      });
       
       if (paymentStatus === 'Verified') {
         try {
-          await API.post('/documents/generate-payment-slip', { applicationId: selectedApp._id });
+          await API.post('/documents/generate-payment-slip', { 
+            applicationId: selectedApp._id 
+          }, {
+            loaderMessage: 'Generating payment slip...'
+          });
           showNotification('Payment verified and slip generated', 'success');
         } catch (slipError) {
           showNotification('Payment verified but failed to generate slip', 'warning');
@@ -220,8 +222,6 @@ const AdminInternships = () => {
       setAnchorEl(null);
     } catch (error) {
       showNotification(error.response?.data?.message || 'Error verifying payment', 'error');
-    } finally {
-      setVerifying(false);
     }
   };
 

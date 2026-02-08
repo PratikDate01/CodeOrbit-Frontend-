@@ -153,8 +153,6 @@ const Internships = () => {
     e.preventDefault();
     if (!userInfo) return;
     
-    setLoading(true);
-
     try {
       // Submit Application directly
       await API.post('/internships/apply', { 
@@ -162,6 +160,8 @@ const Internships = () => {
         duration: formData.duration,
         amount: formData.amount,
         formData: { ...formData }
+      }, {
+        loaderMessage: 'Submitting your application...'
       });
 
       showNotification('Application Successful! Welcome to the program.', 'success');
@@ -178,8 +178,6 @@ const Internships = () => {
       }));
     } catch (error) {
       showNotification(error.response?.data?.message || 'Error processing application.', 'error');
-    } finally {
-      setLoading(false);
     }
   };
 

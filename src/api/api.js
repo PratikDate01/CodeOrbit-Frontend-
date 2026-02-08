@@ -1,4 +1,5 @@
 import axios from "axios";
+import { showLoader, hideLoader } from "../utils/loaderService";
 
 const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const API = axios.create({ 
@@ -6,10 +7,33 @@ const API = axios.create({
   timeout: 60000, // 60 seconds timeout to accommodate PDF generation
 });
 
+// Track active requests to hide loader only when all are done
+let activeRequests = 0;
+
+const handleRequestStart = (config) => {
+  if (config.showLoader !== false) {
+    activeRequests++;
+    showLoader(config.loaderMessage || "Processing...");
+  }
+  return config;
+};
+
+const handleRequestStop = () => {
+  activeRequests--;
+  if (activeRequests <= 0) {
+    activeRequests = 0;
+    hideLoader();
+  }
+};
+
 // Basic Retry logic for network errors or 5xx
 API.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    handleRequestStop();
+    return response;
+  },
   async (error) => {
+    handleRequestStop();
     const { config, response } = error;
     if (!config || !config.retry) config.retry = 0;
     
@@ -27,6 +51,7 @@ API.interceptors.response.use(
 export { baseURL };
 
 API.interceptors.request.use((req) => {
+  handleRequestStart(req);
   try {
     const userInfo = localStorage.getItem("userInfo");
     if (userInfo) {

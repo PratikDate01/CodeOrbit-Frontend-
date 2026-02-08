@@ -8,8 +8,10 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { LoaderProvider } from './context/LoaderContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import GlobalLoader from './components/common/GlobalLoader';
 
 // Lazy load pages for better initial load performance
 const Home = lazy(() => import('./pages/Home'));
@@ -35,8 +37,53 @@ const CoursePlayer = lazy(() => import('./pages/lms/CoursePlayer'));
 
 // Loading component for Suspense
 const PageLoader = () => (
-  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-    <CircularProgress />
+  <Box 
+    sx={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '80vh',
+      gap: 2
+    }}
+  >
+    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+      <CircularProgress
+        variant="determinate"
+        sx={{ color: (theme) => theme.palette.grey[200] }}
+        size={50}
+        thickness={4}
+        value={100}
+      />
+      <CircularProgress
+        variant="indeterminate"
+        disableShrink
+        sx={{
+          color: 'primary.main',
+          animationDuration: '550ms',
+          position: 'absolute',
+          left: 0,
+        }}
+        size={50}
+        thickness={4}
+      />
+    </Box>
+    <Typography 
+      variant="body2" 
+      color="text.secondary"
+      sx={{ 
+        fontWeight: 500,
+        letterSpacing: '0.05em',
+        animation: 'pulse 1.5s infinite ease-in-out',
+        '@keyframes pulse': {
+          '0%': { opacity: 0.5 },
+          '50%': { opacity: 1 },
+          '100%': { opacity: 0.5 },
+        }
+      }}
+    >
+      LOADING
+    </Typography>
   </Box>
 );
 
@@ -216,9 +263,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <NotificationProvider>
-        <AuthProvider>
-          <CssBaseline />
-          <Router>
+        <LoaderProvider>
+          <AuthProvider>
+            <CssBaseline />
+            <GlobalLoader />
+            <Router>
             <Header />
             <ErrorBoundary>
               <Suspense fallback={<PageLoader />}>
@@ -291,8 +340,9 @@ function App() {
             <Footer />
           </Router>
         </AuthProvider>
-      </NotificationProvider>
-    </ThemeProvider>
+      </LoaderProvider>
+    </NotificationProvider>
+  </ThemeProvider>
   );
 }
 
