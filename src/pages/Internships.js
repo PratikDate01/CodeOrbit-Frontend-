@@ -150,15 +150,34 @@ const Internships = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userInfo) return;
+    if (!userInfo) {
+      showNotification('Please login to apply for internships.', 'error');
+      return;
+    }
+
+    // Basic frontend validation
+    const { name, email, phone, course, year, skills, preferredDomain } = formData;
+    if (!name || !email || !phone || !course || !year || !skills || !preferredDomain) {
+      showNotification('Please fill in all required fields.', 'error');
+      return;
+    }
     
     try {
-      // Submit Application directly
+      // Submit Application
       await API.post('/internships/apply', { 
         preferredDomain: formData.preferredDomain,
         duration: formData.duration,
         amount: formData.amount,
-        formData: { ...formData }
+        formData: {
+          name,
+          email,
+          phone,
+          college: formData.college,
+          course,
+          year,
+          skills,
+          experience: formData.experience
+        }
       }, {
         loaderMessage: 'Submitting your application...'
       });
@@ -514,7 +533,9 @@ const Internships = () => {
                       name="skills" 
                       value={formData.skills} 
                       onChange={handleChange} 
+                      required
                       placeholder="List your technical skills (e.g. JavaScript, Python) and any previous projects or internships..."
+                      helperText="Please list your technical skills. This is required for application review."
                     />
                   </Grid>
                 </Grid>
