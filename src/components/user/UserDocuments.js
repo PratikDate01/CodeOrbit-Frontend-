@@ -27,7 +27,8 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
     app.documents.offerLetterUrl || 
     app.documents.certificateUrl || 
     app.documents.locUrl || 
-    app.documents.paymentSlipUrl
+    app.documents.paymentSlipUrl ||
+    app.documents.internshipDetailsUrl
   ));
 
   return (
@@ -106,6 +107,37 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
                           color="secondary"
                           startIcon={<Download size={18} />}
                           href={getDocumentUrl(app.documents.certificateUrl)}
+                          target="_blank"
+                          sx={{ borderRadius: 2, fontWeight: 700 }}
+                        >
+                          Download PDF
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
+
+                {/* Internship Details */}
+                {app.documents.internshipDetailsUrl && (
+                  <Grid item xs={12} md={6} lg={4}>
+                    <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                          <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'warning.lighter', color: 'warning.main' }}>
+                            <FileText size={24} />
+                          </Box>
+                          <Chip label="Internship Details" size="small" variant="outlined" color="warning" sx={{ fontWeight: 700 }} />
+                        </Box>
+                        <Typography variant="h6" fontWeight={800} gutterBottom>{app.preferredDomain}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                          Company profile and internship scope document.
+                        </Typography>
+                        <Button 
+                          fullWidth 
+                          variant="contained" 
+                          color="warning"
+                          startIcon={<Download size={18} />}
+                          href={getDocumentUrl(app.documents.internshipDetailsUrl)}
                           target="_blank"
                           sx={{ borderRadius: 2, fontWeight: 700 }}
                         >

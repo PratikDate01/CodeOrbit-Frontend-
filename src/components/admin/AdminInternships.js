@@ -706,6 +706,37 @@ const AdminInternships = () => {
               <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                   <Box>
+                    <Typography variant="subtitle2" fontWeight={700}>Internship Details</Typography>
+                    <Typography variant="caption" color="text.secondary">Company profile and internship scope</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                      size="small" 
+                      variant="outlined" 
+                      onClick={() => handleGenerateDocument('internship-details')}
+                    >
+                      {appDocuments.internshipDetailsUrl ? 'Regenerate' : 'Generate'}
+                    </Button>
+                    {appDocuments.internshipDetailsUrl && (
+                      <Button 
+                        size="small" 
+                        variant={appDocuments.internshipDetailsVisible ? "contained" : "outlined"}
+                        color={appDocuments.internshipDetailsVisible ? "success" : "inherit"}
+                        onClick={() => handleToggleDocVisibility('internshipDetails', !appDocuments.internshipDetailsVisible)}
+                      >
+                        {appDocuments.internshipDetailsVisible ? 'Visible' : 'Hidden'}
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+                {appDocuments.internshipDetailsUrl && (
+                  <Button size="small" component="a" href={appDocuments.internshipDetailsUrl} target="_blank" startIcon={<ExternalLink size={14} />}>View PDF</Button>
+                )}
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box>
                     <Typography variant="subtitle2" fontWeight={700}>Payment Receipt</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1 }}>
