@@ -31,7 +31,7 @@ import { Plus, Edit2, Trash2, History } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';
 
-const PLANS = [399, 599, 999];
+const PLANS = [599, 999, 1499];
 
 const AdminCoupons = () => {
   const { showNotification } = useNotification();
@@ -52,7 +52,7 @@ const AdminCoupons = () => {
     maxUsesPerUser: 1,
     expiryDate: '',
     status: 'active',
-    applicablePlans: [399, 599, 999]
+    applicablePlans: [599, 999, 1499]
   });
 
   useEffect(() => {
@@ -108,7 +108,7 @@ const AdminCoupons = () => {
         maxUsesPerUser: 1,
         expiryDate: '',
         status: 'active',
-        applicablePlans: [399, 599, 999]
+        applicablePlans: [599, 999, 1499]
       });
     }
     setModalOpen(true);
