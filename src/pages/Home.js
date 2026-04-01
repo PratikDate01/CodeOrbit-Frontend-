@@ -14,9 +14,6 @@ const Home = () => {
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
       {/* Hero Section */}
-      <Head>
-  <meta name="google-site-verification" content="zN_fXiB63fx9WR7Gkhn-9s9oXpRvLivSpqJyOer4tBw" />
-</Head>
       <Box
         sx={{
           background: 'linear-gradient(135deg, #0f0f0f 0%, #1f1f1f 50%, #000000 100%)',
