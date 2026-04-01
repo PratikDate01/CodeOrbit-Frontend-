@@ -14,6 +14,9 @@ import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import GlobalLoader from './components/common/GlobalLoader';
 
+<Head>
+  <meta name="google-site-verification" content="zN_fXiB63fx9WR7Gkhn-9s9oXpRvLivSpqJyOer4tBw" />
+</Head>
 // Lazy load pages for better initial load performance
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
