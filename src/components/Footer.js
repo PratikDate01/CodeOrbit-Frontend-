@@ -81,14 +81,34 @@ const Footer = () => {
             {/* Social Media */}
             <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
               {[
-                { icon: <LinkedInIcon />, label: 'LinkedIn' },
-                { icon: <TwitterIcon />, label: 'Twitter' },
-                { icon: <FacebookIcon />, label: 'Facebook' },
-                { icon: <InstagramIcon />, label: 'Instagram' }
+                { 
+                  icon: <LinkedInIcon />, 
+                  label: 'LinkedIn', 
+                  url: 'https://www.linkedin.com/company/111551140/' 
+                },
+                { 
+                  icon: <TwitterIcon />, 
+                  label: 'Twitter',
+                  url: '#'
+                },
+                { 
+                  icon: <FacebookIcon />, 
+                  label: 'Facebook',
+                  url: '#'
+                },
+                { 
+                  icon: <InstagramIcon />, 
+                  label: 'Instagram', 
+                  url: 'https://www.instagram.com/codeorbit_solutions/' 
+                }
               ].map((social) => (
                 <IconButton 
                   key={social.label}
                   aria-label={social.label}
+                  component="a"
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   sx={{ 
                     color: 'rgba(255,255,255,0.6)',
                     '&:hover': { 
