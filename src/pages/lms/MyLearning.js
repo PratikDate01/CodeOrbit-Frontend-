@@ -1,23 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Grid, 
-  Card, 
-  CardContent, 
-  CardMedia, 
-  LinearProgress, 
-  Button, 
-  Chip,
-  CircularProgress,
-  IconButton
-} from '@mui/material';
-import { PlayCircle, Award, Clock, ArrowLeft } from 'lucide-react';
+import { PlayCircle, Award, Clock, ArrowLeft, BookOpen, ChevronRight, CheckCircle2, Layout, Zap, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import API from '../../api/api';
 
 const MyLearning = () => {
+  const { userInfo } = useAuth();
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,103 +29,203 @@ const MyLearning = () => {
   }, [fetchEnrollments]);
 
   if (loading) return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 15 }}>
-      <CircularProgress sx={{ mb: 2 }} />
-      <Typography color="text.secondary">Loading your workspace...</Typography>
-    </Box>
+    <div className="flex flex-col justify-center items-center min-h-[60vh] bg-white">
+      <div className="relative">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 border-r-transparent border-b-transparent border-l-transparent"></div>
+        <div className="absolute inset-0 animate-pulse bg-blue-50 rounded-full -z-10 scale-150 opacity-50"></div>
+      </div>
+      <p className="text-gray-900 font-black mt-8 text-xl tracking-tight">Preparing your workspace...</p>
+      <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">Hang tight!</p>
+    </div>
   );
 
   if (error) return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 15 }}>
-      <Typography variant="h6" color="error" gutterBottom>{error}</Typography>
-      <Button variant="outlined" onClick={fetchEnrollments}>Retry</Button>
-    </Box>
+    <div className="flex flex-col justify-center items-center min-h-[60vh] px-4">
+      <div className="bg-red-50 text-red-600 p-6 rounded-[32px] mb-6 text-center max-w-sm border border-red-100">
+        <p className="font-bold text-lg mb-2">Oops!</p>
+        <p className="font-medium opacity-80">{error}</p>
+      </div>
+      <button 
+        onClick={fetchEnrollments}
+        className="px-10 py-4 bg-gray-900 text-white rounded-2xl shadow-xl hover:bg-black transition-all font-black active:scale-95"
+      >
+        Retry Fetching
+      </button>
+    </div>
   );
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '90vh', py: 6 }}>
-      <Container maxWidth="lg">
-        <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton 
-            component={Link} 
-            to="/dashboard" 
-            sx={{ bgcolor: 'white', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'background.alt' } }}
-          >
-            <ArrowLeft size={20} />
-          </IconButton>
-          <Box>
-            <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 0 }}>My Learning</Typography>
-            <Typography variant="body1" color="text.secondary">
-              Continue where you left off and track your progress.
-            </Typography>
-          </Box>
-        </Box>
+    <div className="bg-[#FAFBFF] min-h-screen py-12 pb-32">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+          <div className="flex items-start gap-6">
+            <Link 
+              to="/dashboard" 
+              className="p-4 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 transition-all shadow-sm group mt-1"
+            >
+              <ArrowLeft size={24} className="text-gray-900 group-hover:-translate-x-1 transition-transform" />
+            </Link>
+            <div>
+              <div className="flex items-center gap-3 text-blue-600 mb-2">
+                <Layout size={20} />
+                <span className="text-sm font-black uppercase tracking-[0.2em]">Student Workspace</span>
+              </div>
+              <h1 className="text-5xl font-black text-gray-900 tracking-tight leading-none">My Learning</h1>
+              <p className="text-gray-400 mt-4 font-bold max-w-lg">
+                Your professional journey continues here. Track your progress, complete tasks, and earn your certification.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex gap-4">
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+                <Star size={24} fill="currentColor" />
+              </div>
+              <div>
+                <p className="text-2xl font-black text-gray-900 leading-none">{userInfo?.totalXP || 0}</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Total XP Earned</p>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                <BookOpen size={24} />
+              </div>
+              <div>
+                <p className="text-2xl font-black text-gray-900 leading-none">{enrollments.length}</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Active Programs</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {enrollments.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'white', borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>No enrollments found.</Typography>
-            <Typography variant="body2" color="text.muted" sx={{ mb: 3 }}>
-              You will be automatically enrolled once your internship is approved.
-            </Typography>
-            <Button component={Link} to="/dashboard" variant="contained">Go to Dashboard</Button>
-          </Box>
+          <div className="bg-white rounded-[48px] border border-gray-100 p-20 text-center shadow-xl shadow-blue-900/5">
+            <div className="bg-blue-50 w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-8 text-blue-600">
+              <BookOpen size={48} />
+            </div>
+            <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Nothing here yet</h2>
+            <p className="text-gray-400 mb-10 max-w-md mx-auto font-bold">
+              Your learning journey begins once your internship is approved. Check your application status on the dashboard.
+            </p>
+            <Link 
+              to="/dashboard" 
+              className="inline-flex items-center px-10 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-2xl shadow-blue-200 active:scale-95"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
         ) : (
-          <Grid container spacing={4}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {enrollments.map((enrollment) => (
-              <Grid item xs={12} md={6} key={enrollment._id}>
-                <Card sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, height: '100%' }}>
-                  <CardMedia
-                    component="img"
-                    sx={{ width: { xs: '100%', sm: 200 }, height: { xs: 160, sm: 'auto' } }}
-                    image={enrollment.program.thumbnail || 'https://via.placeholder.com/200x200?text=LMS'}
-                    alt={enrollment.program.title}
-                  />
-                  <CardContent sx={{ flex: 1, p: 3 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Chip label={enrollment.program.internshipDomain} size="small" variant="outlined" color="primary" />
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Clock size={14} color="#64748b" />
-                        <Typography variant="caption" color="text.secondary">{enrollment.program.duration}</Typography>
-                      </Box>
-                    </Box>
-                    <Typography variant="h6" fontWeight={700} gutterBottom>{enrollment.program.title}</Typography>
-                    
-                    <Box sx={{ mt: 2, mb: 3 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption" fontWeight={700}>Progress</Typography>
-                        <Typography variant="caption" fontWeight={700}>{enrollment.progress}%</Typography>
-                      </Box>
-                      <LinearProgress variant="determinate" value={enrollment.progress} sx={{ height: 8, borderRadius: 4 }} />
-                    </Box>
+              <div 
+                key={enrollment._id} 
+                className="bg-white rounded-[40px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-500 group flex flex-col h-full relative"
+              >
+                {/* Status Badge */}
+                <div className="absolute top-6 right-6 z-10">
+                  {enrollment.status === 'Completed' ? (
+                    <span className="flex items-center gap-1.5 px-4 py-2 bg-green-500 text-white text-[10px] font-black rounded-full shadow-lg shadow-green-200">
+                      <CheckCircle2 size={12} /> COMPLETED
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-[10px] font-black rounded-full shadow-lg shadow-blue-200">
+                      <PlayCircle size={12} /> IN PROGRESS
+                    </span>
+                  )}
+                </div>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                      <Button 
-                        component={Link} 
-                        to={`/learning/${enrollment.program._id}`}
-                        variant="contained" 
-                        fullWidth
-                        startIcon={<PlayCircle size={18} />}
-                      >
-                        {enrollment.progress === 0 ? 'Start Learning' : 'Continue'}
-                      </Button>
-                      {enrollment.isCertificateIssued && (
-                        <Button 
-                          variant="outlined" 
-                          color="success"
-                          startIcon={<Award size={18} />}
-                        >
-                          Certificate
-                        </Button>
+                {/* Hero Section */}
+                <div className="h-64 relative overflow-hidden">
+                  <img 
+                    src={enrollment.program.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop'} 
+                    alt={enrollment.program.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute bottom-6 left-8">
+                    <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest border border-blue-400 mb-2 inline-block">
+                      {enrollment.program.internshipDomain}
+                    </span>
+                    <h3 className="text-2xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                      {enrollment.program.title}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Info Section */}
+                <div className="p-8 flex flex-col flex-1">
+                  <div className="flex items-center gap-6 mb-8">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Clock size={16} />
+                      <span className="text-xs font-bold uppercase tracking-widest">{enrollment.program.duration || '4 Weeks'}</span>
+                    </div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <BookOpen size={16} />
+                      <span className="text-xs font-bold uppercase tracking-widest">Self-Paced</span>
+                    </div>
+                  </div>
+
+                  {/* Current Module Display */}
+                  {enrollment.currentModule && (
+                    <div className="bg-blue-50/50 rounded-2xl p-4 mb-6 border border-blue-50 group-hover:bg-blue-50 transition-colors">
+                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Current Module</p>
+                      <div className="flex items-center justify-between gap-4">
+                        <h4 className="font-bold text-gray-900 truncate">{enrollment.currentModule.title}</h4>
+                        <ChevronRight size={16} className="text-blue-600 shrink-0" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Progress Bar */}
+                  <div className="mt-auto pt-4 border-t border-gray-50">
+                    <div className="flex justify-between items-end mb-4">
+                      <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Completion</p>
+                        <p className="text-3xl font-black text-gray-900 leading-none">{enrollment.progress}%</p>
+                      </div>
+                      {enrollment.progress > 0 && (
+                        <p className="text-xs font-bold text-blue-600 mb-1">Keep it up!</p>
                       )}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
+                    </div>
+                    <div className="w-full bg-gray-50 h-3 rounded-full overflow-hidden mb-10 border border-gray-100">
+                      <div 
+                        className="bg-blue-600 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                        style={{ width: `${enrollment.progress}%` }}
+                      ></div>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <Link 
+                        to={`/learning/${enrollment.program._id}`}
+                        className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-5 bg-gray-900 text-white font-black rounded-[24px] hover:bg-black transition-all shadow-xl shadow-gray-200 group/btn active:scale-95"
+                      >
+                        <PlayCircle size={20} className="group-hover:scale-125 transition-transform" />
+                        <span>{enrollment.progress === 0 ? 'Start Program' : 'Continue Learning'}</span>
+                      </Link>
+                      
+                      {enrollment.isCertificateIssued && (
+                        <button className="w-16 h-16 bg-green-50 text-green-600 flex items-center justify-center rounded-[24px] hover:bg-green-100 transition-all border border-green-100 group shadow-lg shadow-green-900/5 active:scale-95">
+                          <Award size={28} className="group-hover:rotate-12 transition-transform" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </Grid>
+          </div>
         )}
-      </Container>
-    </Box>
+      </div>
+      
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+      ` }} />
+    </div>
   );
 };
 

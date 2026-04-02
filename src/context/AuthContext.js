@@ -27,8 +27,18 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userInfo");
   };
 
+  const refreshUserInfo = async () => {
+    try {
+      const { data } = await API.get("/auth/me");
+      setUserInfo(data);
+      localStorage.setItem("userInfo", JSON.stringify(data));
+    } catch (error) {
+      console.error("Error refreshing user info:", error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ userInfo, setUserInfo, login, register, logout }}>
+    <AuthContext.Provider value={{ userInfo, setUserInfo, login, register, logout, refreshUserInfo }}>
       {children}
     </AuthContext.Provider>
   );
