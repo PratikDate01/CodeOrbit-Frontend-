@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   CheckCircle2, 
   XCircle, 
   Clock, 
   Search, 
   Info, 
-  ChevronRight,
   X,
-  ClipboardList,
-  User,
-  BookOpen
+  User
 } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';
@@ -22,7 +19,7 @@ const AdminLMSApprovals = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [reviewDialog, setReviewDialog] = useState({ open: false, item: null, marks: 0, remarks: '' });
 
-  const fetchApprovals = async () => {
+  const fetchApprovals = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await API.get('/admin/lms/approvals/pending');
@@ -33,11 +30,11 @@ const AdminLMSApprovals = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showNotification]);
 
   useEffect(() => {
     fetchApprovals();
-  }, []);
+  }, [fetchApprovals]);
 
   const handleApprove = async (id, status) => {
     if (!reviewDialog.item) return;

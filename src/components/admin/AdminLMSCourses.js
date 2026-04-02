@@ -9,9 +9,7 @@ import {
   ChevronRight,
   BookOpen,
   Search,
-  X,
-  Settings,
-  MoreVertical
+  X
 } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';

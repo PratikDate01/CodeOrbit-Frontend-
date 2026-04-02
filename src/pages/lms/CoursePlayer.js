@@ -20,8 +20,7 @@ import {
   BookOpen,
   ClipboardList
 } from 'lucide-react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useParams, Link } from 'react-router-dom';
 import API from '../../api/api';
 import VideoPlayer from '../../components/common/VideoPlayer';
 
