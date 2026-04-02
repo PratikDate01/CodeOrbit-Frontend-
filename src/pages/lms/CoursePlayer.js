@@ -8,7 +8,6 @@ import {
   CheckCircle2, 
   Clock, 
   Lock, 
-  Unlock, 
   Video, 
   HelpCircle, 
   ArrowLeft,
@@ -268,9 +267,7 @@ const TaskSubmission = ({ activity, onSubmit, previousResult }) => {
 };
 
 const CoursePlayer = () => {
-  const { userInfo } = useAuth();
   const { programId } = useParams();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({ program: null, courses: [], modules: [], lessons: [], activities: [], progress: [] });
   const [activeActivity, setActiveActivity] = useState(null);

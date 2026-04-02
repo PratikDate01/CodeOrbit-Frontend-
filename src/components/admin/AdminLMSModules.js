@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Search,
   X,
-  Layers,
   Calendar
 } from 'lucide-react';
 import API from '../../api/api';

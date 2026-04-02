@@ -6,13 +6,9 @@ import {
   BookOpen, 
   Trash2, 
   Search,
-  MoreVertical,
   Layers,
   Clock,
-  ExternalLink,
   ChevronRight,
-  Eye,
-  Settings,
   X,
   Image as ImageIcon
 } from 'lucide-react';

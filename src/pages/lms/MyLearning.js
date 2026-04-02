@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { PlayCircle, Award, Clock, ArrowLeft, BookOpen, ChevronRight, CheckCircle2, Layout, Zap, Star } from 'lucide-react';
+import { PlayCircle, Award, Clock, ArrowLeft, BookOpen, ChevronRight, CheckCircle2, Layout, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/api';
