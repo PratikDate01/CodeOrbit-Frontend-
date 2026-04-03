@@ -29,39 +29,67 @@ const QuizPlayer = ({ activity, onSubmit, previousResult }) => {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(
     previousResult?.status === 'Pending Approval' || 
-    previousResult?.status === 'Completed'
+    previousResult?.status === 'Completed' ||
+    previousResult?.status === 'Rejected'
   );
+  const [quizResult, setQuizResult] = useState(previousResult);
+
+  const questions = activity.questions && activity.questions.length > 0 
+    ? activity.questions 
+    : (activity.quizData || []);
 
   const handleOptionChange = (questionIndex, value) => {
     setAnswers({ ...answers, [questionIndex]: value });
   };
 
   const handleSubmit = async () => {
-    if (Object.keys(answers).length < activity.quizData.length) {
+    if (Object.keys(answers).length < questions.length) {
       alert('Please answer all questions before submitting.');
       return;
     }
 
-    const answerArray = activity.quizData.map((_, index) => answers[index]);
-    const success = await onSubmit(answerArray);
-    if (success) {
+    const answerArray = questions.map((_, index) => answers[index]);
+    const result = await onSubmit(answerArray);
+    if (result) {
+      setQuizResult(result);
       setSubmitted(true);
     }
   };
 
   if (submitted) {
+    const isPassed = quizResult?.passed || quizResult?.status === 'Completed';
+    const score = quizResult?.score !== undefined ? quizResult.score : quizResult?.marks;
+
     return (
       <div className="text-center py-12 px-6 bg-white rounded-3xl border border-gray-100 shadow-sm">
-        <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
-          <CheckCircle2 size={32} />
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isPassed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+          {isPassed ? <CheckCircle2 size={32} /> : <X size={32} />}
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">Quiz Submitted!</h3>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          {isPassed ? 'Quiz Passed!' : 'Quiz Failed'}
+        </h3>
         <p className="text-gray-500 mb-8 max-w-md mx-auto">
-          Your answers have been recorded. {previousResult?.status === 'Pending Approval' ? 'It is currently pending admin review.' : 'Well done!'}
+          {isPassed 
+            ? 'Well done! You have successfully completed this knowledge check.' 
+            : `You didn't reach the passing score of ${activity.passingScore || 60}%. You can try again later.`}
         </p>
-        {(previousResult?.marks !== undefined || previousResult?.marks === 0) && (
-          <div className="inline-block bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100">
-            <span className="text-blue-700 font-bold">Score: {previousResult.marks.toFixed(1)}%</span>
+        {(score !== undefined || score === 0) && (
+          <div className={`inline-block px-8 py-4 rounded-2xl border ${isPassed ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
+            <span className="text-sm font-bold uppercase tracking-widest block mb-1">Your Score</span>
+            <span className="text-3xl font-black">{score.toFixed(1)}%</span>
+          </div>
+        )}
+        {!isPassed && (
+          <div className="mt-8">
+            <button 
+              onClick={() => {
+                setSubmitted(false);
+                setAnswers({});
+              }}
+              className="px-8 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all"
+            >
+              Try Again
+            </button>
           </div>
         )}
       </div>
@@ -76,11 +104,16 @@ const QuizPlayer = ({ activity, onSubmit, previousResult }) => {
           <span className="text-sm font-bold uppercase tracking-widest">Knowledge Check</span>
         </div>
         <h3 className="text-3xl font-black text-gray-900 mb-2">{activity.title}</h3>
+        {activity.instructions && (
+          <p className="text-gray-600 mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 italic">
+            {activity.instructions}
+          </p>
+        )}
         <p className="text-gray-500 font-medium">Test your understanding of the module topics.</p>
       </div>
       
       <div className="space-y-6">
-        {activity.quizData.map((q, index) => (
+        {questions.map((q, index) => (
           <div key={index} className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex gap-4 mb-6">
               <span className="flex shrink-0 w-8 h-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 font-bold text-sm">
@@ -91,28 +124,31 @@ const QuizPlayer = ({ activity, onSubmit, previousResult }) => {
               </p>
             </div>
             <div className="grid grid-cols-1 gap-3 ml-12">
-              {q.options.map((option, optIndex) => (
-                <label 
-                  key={optIndex} 
-                  className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                    answers[index] === option 
-                      ? 'border-blue-600 bg-blue-50' 
-                      : 'border-gray-50 hover:border-gray-100 hover:bg-gray-50'
-                  }`}
-                >
-                  <input 
-                    type="radio" 
-                    name={`q-${index}`} 
-                    value={option}
-                    checked={answers[index] === option}
-                    onChange={() => handleOptionChange(index, option)}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className={`font-semibold ${answers[index] === option ? 'text-blue-900' : 'text-gray-600'}`}>
-                    {option}
-                  </span>
-                </label>
-              ))}
+              {q.options.map((option, optIndex) => {
+                const isSelected = answers[index] === optIndex || answers[index] === option;
+                return (
+                  <label 
+                    key={optIndex} 
+                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                      isSelected 
+                        ? 'border-blue-600 bg-blue-50' 
+                        : 'border-gray-50 hover:border-gray-100 hover:bg-gray-50'
+                    }`}
+                  >
+                    <input 
+                      type="radio" 
+                      name={`q-${index}`} 
+                      value={optIndex}
+                      checked={isSelected}
+                      onChange={() => handleOptionChange(index, optIndex)}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className={`font-semibold ${isSelected ? 'text-blue-900' : 'text-gray-600'}`}>
+                      {option}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -387,13 +423,13 @@ const CoursePlayer = () => {
 
   const handleQuizSubmit = async (answers) => {
     try {
-      await API.post(`/lms/activities/${activeActivity._id}/submit-quiz`, { answers });
+      const { data: result } = await API.post(`/lms/activities/${activeActivity._id}/submit-quiz`, { answers });
       // Refresh progress data
       if (data.courses.length > 0) {
         const { data: contentData } = await API.get(`/lms/courses/${data.courses[0]._id}/content`);
         setData(prev => ({ ...prev, progress: contentData.progress }));
       }
-      return true;
+      return result;
     } catch (error) {
       console.error('Error submitting quiz:', error);
       return false;

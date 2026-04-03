@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';
+import QuizBuilder from './QuizBuilder';
 
 const AdminLMSActivities = () => {
   const { programId, courseId, moduleId, lessonId } = useParams();
@@ -53,7 +54,11 @@ const AdminLMSActivities = () => {
     type: 'Video',
     content: '',
     order: 0,
-    isRequired: true
+    isRequired: true,
+    questions: [],
+    passingScore: 60,
+    instructions: '',
+    maxMarks: 100
   });
 
   const fetchData = useCallback(async () => {
@@ -86,7 +91,11 @@ const AdminLMSActivities = () => {
         type: activity.type,
         content: activity.content || '',
         order: activity.order || 0,
-        isRequired: activity.isRequired !== undefined ? activity.isRequired : true
+        isRequired: activity.isRequired !== undefined ? activity.isRequired : true,
+        questions: activity.questions || [],
+        passingScore: activity.passingScore || 60,
+        instructions: activity.instructions || '',
+        maxMarks: activity.maxMarks || 100
       });
     } else {
       setEditingActivity(null);
@@ -95,7 +104,11 @@ const AdminLMSActivities = () => {
         type: 'Video',
         content: '',
         order: activities.length + 1,
-        isRequired: true
+        isRequired: true,
+        questions: [],
+        passingScore: 60,
+        instructions: '',
+        maxMarks: 100
       });
     }
     setOpen(true);
@@ -300,7 +313,12 @@ const AdminLMSActivities = () => {
         )}
       </Grid>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <Dialog 
+        open={open} 
+        onClose={handleClose} 
+        maxWidth={formData.type === 'Quiz' ? "md" : "sm"} 
+        fullWidth
+      >
         <DialogTitle sx={{ fontWeight: 700 }}>
           {editingActivity ? 'Edit Activity' : 'Add New Activity'}
         </DialogTitle>
@@ -331,16 +349,57 @@ const AdminLMSActivities = () => {
               </Select>
             </FormControl>
 
-            <TextField
-              fullWidth
-              label={formData.type === 'Text' ? 'Content (Markdown/HTML)' : 'Content URL / Resource'}
-              multiline={formData.type === 'Text'}
-              rows={formData.type === 'Text' ? 8 : 1}
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              variant="outlined"
-              placeholder={formData.type === 'Video' ? 'https://youtube.com/watch?v=...' : ''}
-            />
+            {formData.type === 'Quiz' ? (
+              <Box sx={{ mt: 1 }}>
+                <TextField
+                  fullWidth
+                  label="Instructions (Optional)"
+                  multiline
+                  rows={2}
+                  value={formData.instructions}
+                  onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+                  variant="outlined"
+                  sx={{ mb: 3 }}
+                />
+                <Divider sx={{ my: 2 }} />
+                <QuizBuilder 
+                  questions={formData.questions || []} 
+                  setQuestions={(newQuestions) => setFormData({ ...formData, questions: newQuestions })} 
+                />
+              </Box>
+            ) : formData.type === 'Assignment' ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <TextField
+                  fullWidth
+                  label="Assignment Instructions"
+                  multiline
+                  rows={4}
+                  value={formData.instructions}
+                  onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+                  variant="outlined"
+                  placeholder="Provide detailed instructions for the student..."
+                />
+                <TextField
+                  fullWidth
+                  label="Maximum Marks"
+                  type="number"
+                  value={formData.maxMarks}
+                  onChange={(e) => setFormData({ ...formData, maxMarks: parseInt(e.target.value) })}
+                  variant="outlined"
+                />
+              </Box>
+            ) : (
+              <TextField
+                fullWidth
+                label={formData.type === 'Text' ? 'Content (Markdown/HTML)' : 'Content URL / Resource'}
+                multiline={formData.type === 'Text'}
+                rows={formData.type === 'Text' ? 8 : 1}
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                variant="outlined"
+                placeholder={formData.type === 'Video' ? 'https://youtube.com/watch?v=...' : ''}
+              />
+            )}
 
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
@@ -351,6 +410,18 @@ const AdminLMSActivities = () => {
                 variant="outlined"
                 sx={{ width: 120 }}
               />
+              
+              {formData.type === 'Quiz' && (
+                <TextField
+                  label="Passing Score (%)"
+                  type="number"
+                  value={formData.passingScore}
+                  onChange={(e) => setFormData({ ...formData, passingScore: parseInt(e.target.value) })}
+                  variant="outlined"
+                  sx={{ width: 160 }}
+                />
+              )}
+
               <FormControl fullWidth>
                 <InputLabel>Requirement</InputLabel>
                 <Select
