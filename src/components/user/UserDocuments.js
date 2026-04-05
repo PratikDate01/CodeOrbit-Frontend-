@@ -24,11 +24,12 @@ import { Link } from 'react-router-dom';
 
 const UserDocuments = ({ applications, getDocumentUrl }) => {
   const hasDocuments = applications.some(app => app.documents && (
-    app.documents.offerLetterUrl || 
-    app.documents.certificateUrl || 
-    app.documents.locUrl || 
-    app.documents.paymentSlipUrl ||
-    app.documents.internshipDetailsUrl
+    (app.documents.offerLetterUrl && app.documents.offerLetterVisible) || 
+    (app.documents.certificateUrl && app.documents.certificateVisible) || 
+    (app.documents.locUrl && app.documents.locVisible) || 
+    (app.documents.paymentSlipUrl && app.documents.paymentSlipVisible) ||
+    (app.documents.internshipDetailsUrl && app.documents.internshipDetailsVisible) ||
+    (app.documents.attendanceUrl && app.documents.attendanceVisible)
   ));
 
   return (
@@ -57,7 +58,7 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
             app.documents && (
               <React.Fragment key={app._id}>
                 {/* Offer Letter */}
-                {app.documents.offerLetterUrl && (
+                {app.documents.offerLetterUrl && app.documents.offerLetterVisible && (
                   <Grid item xs={12} md={6} lg={4}>
                     <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
                       <CardContent sx={{ p: 3 }}>
@@ -87,7 +88,7 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
                 )}
 
                 {/* Certificate */}
-                {app.documents.certificateUrl && (
+                {app.documents.certificateUrl && app.documents.certificateVisible && (
                   <Grid item xs={12} md={6} lg={4}>
                     <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
                       <CardContent sx={{ p: 3 }}>
@@ -118,7 +119,7 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
                 )}
 
                 {/* Internship Details */}
-                {app.documents.internshipDetailsUrl && (
+                {app.documents.internshipDetailsUrl && app.documents.internshipDetailsVisible && (
                   <Grid item xs={12} md={6} lg={4}>
                     <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
                       <CardContent sx={{ p: 3 }}>
@@ -149,7 +150,7 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
                 )}
 
                 {/* LOC */}
-                {app.documents.locUrl && (
+                {app.documents.locUrl && app.documents.locVisible && (
                   <Grid item xs={12} md={6} lg={4}>
                     <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
                       <CardContent sx={{ p: 3 }}>
@@ -179,8 +180,39 @@ const UserDocuments = ({ applications, getDocumentUrl }) => {
                   </Grid>
                 )}
 
+                {/* Attendance Record */}
+                {app.documents.attendanceUrl && app.documents.attendanceVisible && (
+                  <Grid item xs={12} md={6} lg={4}>
+                    <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                          <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'error.lighter', color: 'error.main' }}>
+                            <CheckCircle2 size={24} />
+                          </Box>
+                          <Chip label="Attendance" size="small" variant="outlined" color="error" sx={{ fontWeight: 700 }} />
+                        </Box>
+                        <Typography variant="h6" fontWeight={800} gutterBottom>{app.preferredDomain}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                          Official record of your attendance during the internship.
+                        </Typography>
+                        <Button 
+                          fullWidth 
+                          variant="contained" 
+                          color="error"
+                          startIcon={<Download size={18} />}
+                          href={getDocumentUrl(app.documents.attendanceUrl)}
+                          target="_blank"
+                          sx={{ borderRadius: 2, fontWeight: 700 }}
+                        >
+                          Download PDF
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
+
                 {/* Payment Slip */}
-                {app.documents.paymentSlipUrl && (
+                {app.documents.paymentSlipUrl && app.documents.paymentSlipVisible && (
                   <Grid item xs={12} md={6} lg={4}>
                     <Card sx={{ borderRadius: 4, height: '100%', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
                       <CardContent sx={{ p: 3 }}>
