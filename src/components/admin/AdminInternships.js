@@ -28,9 +28,10 @@ import {
   Divider,
   CircularProgress
 } from '@mui/material';
-import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, Award, ExternalLink, CreditCard, Receipt } from 'lucide-react';
+import { MoreVertical, Search, Download, Trash2, Filter, User, Clock, Phone, FileText, Award, ExternalLink, CreditCard, Receipt, CalendarCheck } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';
+import AdminAttendanceDialog from './AdminAttendanceDialog';
 
 const getDocumentUrl = (url) => {
   if (!url) return '#';
@@ -53,6 +54,7 @@ const AdminInternships = () => {
   const [updatingEligibilityId, setUpdatingEligibilityId] = useState(null);
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+  const [openAttendanceDialog, setOpenAttendanceDialog] = useState(false);
   
   useEffect(() => {
     fetchApplications();
@@ -588,11 +590,22 @@ const AdminInternships = () => {
           <ListItemIcon><Clock size={18} /></ListItemIcon>
           <ListItemText>Edit Internship Dates</ListItemText>
         </MenuItem>
+        <MenuItem onClick={() => { setOpenAttendanceDialog(true); setAnchorEl(null); }}>
+          <ListItemIcon><CalendarCheck size={18} /></ListItemIcon>
+          <ListItemText>Manage Attendance</ListItemText>
+        </MenuItem>
         <MenuItem onClick={() => handleOpenDocDialog(selectedApp)}>
           <ListItemIcon><FileText size={18} /></ListItemIcon>
           <ListItemText>Manage Documents</ListItemText>
         </MenuItem>
       </Menu>
+
+      <AdminAttendanceDialog 
+        open={openAttendanceDialog}
+        onClose={() => setOpenAttendanceDialog(false)}
+        application={selectedApp}
+        onAttendanceSaved={() => fetchApplications()}
+      />
 
       <Dialog 
         open={openDocDialog} 
@@ -731,6 +744,37 @@ const AdminInternships = () => {
                 </Box>
                 {appDocuments.internshipDetailsUrl && (
                   <Button size="small" component="a" href={appDocuments.internshipDetailsUrl} target="_blank" startIcon={<ExternalLink size={14} />}>View PDF</Button>
+                )}
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={700}>Attendance Record</Typography>
+                    <Typography variant="caption" color="text.secondary">Week-wise attendance summary</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                      size="small" 
+                      variant="outlined" 
+                      onClick={() => handleGenerateDocument('attendance')}
+                    >
+                      {appDocuments.attendanceUrl ? 'Regenerate' : 'Generate'}
+                    </Button>
+                    {appDocuments.attendanceUrl && (
+                      <Button 
+                        size="small" 
+                        variant={appDocuments.attendanceVisible ? "contained" : "outlined"}
+                        color={appDocuments.attendanceVisible ? "success" : "inherit"}
+                        onClick={() => handleToggleDocVisibility('attendance', !appDocuments.attendanceVisible)}
+                      >
+                        {appDocuments.attendanceVisible ? 'Visible' : 'Hidden'}
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+                {appDocuments.attendanceUrl && (
+                  <Button size="small" component="a" href={appDocuments.attendanceUrl} target="_blank" startIcon={<ExternalLink size={14} />}>View PDF</Button>
                 )}
               </Paper>
 
