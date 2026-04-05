@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,12 +9,10 @@ import {
   Typography,
   TextField,
   Grid,
-  Divider,
   CircularProgress,
-  IconButton,
   Paper
 } from '@mui/material';
-import { Plus, Minus, Save, FileText } from 'lucide-react';
+import { Plus, Minus, Save } from 'lucide-react';
 import API from '../../api/api';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -24,13 +22,8 @@ const AdminAttendanceDialog = ({ open, onClose, application, onAttendanceSaved }
   const [saving, setSaving] = useState(false);
   const [weeks, setWeeks] = useState(['']); // Initial one week
 
-  useEffect(() => {
-    if (open && application) {
-      fetchAttendance();
-    }
-  }, [open, application]);
-
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
+    if (!application?._id) return;
     setLoading(true);
     try {
       const { data } = await API.get(`/attendance/${application._id}`);
@@ -46,7 +39,13 @@ const AdminAttendanceDialog = ({ open, onClose, application, onAttendanceSaved }
     } finally {
       setLoading(false);
     }
-  };
+  }, [application, showNotification]);
+
+  useEffect(() => {
+    if (open && application) {
+      fetchAttendance();
+    }
+  }, [open, application, fetchAttendance]);
 
   const handleAddWeek = () => {
     setWeeks([...weeks, '']);
