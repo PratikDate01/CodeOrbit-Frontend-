@@ -27,7 +27,7 @@ const Internships = () => {
     experience: '',
     preferredDomain: '',
     duration: 1,
-    amount: 599
+    amount: 1499
   });
 
   const [myApplications, setMyApplications] = useState([]);
@@ -38,7 +38,7 @@ const Internships = () => {
   const durationPlans = [
     { 
       months: 1, 
-      price: 599, 
+      price: 1499, 
       label: 'Internship Only',
       ideal: 'Beginners, Students exploring a domain, First-time interns',
       what: 'Learn core fundamentals of the selected domain, Study provided learning materials, Complete assigned tasks and exercises, Attempt knowledge assessment tests',
@@ -56,7 +56,7 @@ const Internships = () => {
     },
     { 
       months: 3, 
-      price: 999, 
+      price: 2499, 
       label: 'Internship + Training',
       ideal: 'Intermediate learners, Students wanting hands-on experience, Portfolio building',
       what: 'Study advanced concepts through provided materials, Work on structured tasks and case-based assignments, Complete regular evaluations and tests, Develop a real-world project',
@@ -75,7 +75,7 @@ const Internships = () => {
     },
     { 
       months: 6, 
-      price: 1499, 
+      price: 4999, 
       label: 'Internship + Training + Placement Prep',
       ideal: 'Final-year students, Long-term industrial training seekers, Career-focused learners',
       what: 'Follow a complete industry-level learning roadmap, Work on complex assignments & evaluations, Develop production-level project(s), Complete documentation & internship reports, Undergo final assessments',
@@ -192,7 +192,7 @@ const Internships = () => {
         experience: '',
         preferredDomain: '',
         duration: 1,
-        amount: 599
+        amount: 1499
       }));
     } catch (error) {
       showNotification(error.response?.data?.message || 'Error processing application.', 'error');
@@ -572,7 +572,7 @@ const Internships = () => {
                 We believe in complete honesty. Selection for all CodeOrbit internships is <strong>100% Free</strong>.
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                The Program Contribution Fee (starting at ₹599) is only charged after selection to cover the costs of training resources, cloud infrastructure, verifiable certification, and lifetime credential maintenance.
+                The Program Contribution Fee (starting at ₹1499) is only charged after selection to cover the costs of training resources, cloud infrastructure, verifiable certification, and lifetime credential maintenance.
               </Typography>
             </Grid>
             <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
