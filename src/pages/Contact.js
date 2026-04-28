@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Button, Grid, Box, Paper, TextField, Avatar } from '@mui/material';
+import { Container, Typography, Button, Grid, Box, TextField, Stack } from '@mui/material';
 import API from '../api/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 
 const Contact = () => {
   const { userInfo } = useAuth();
   const { showNotification } = useNotification();
   const [formData, setFormData] = useState({
-    name: userInfo?.name || '', 
-    email: userInfo?.email || '', 
-    phone: userInfo?.phone || '', 
-    company: '', 
-    subject: '', 
+    name: userInfo?.name || '',
+    email: userInfo?.email || '',
+    phone: userInfo?.phone || '',
+    company: '',
+    subject: '',
     message: ''
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (userInfo) {
@@ -27,7 +33,6 @@ const Contact = () => {
       }));
     }
   }, [userInfo]);
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,7 +44,10 @@ const Contact = () => {
     try {
       await API.post('/contact', formData);
       showNotification('Thank you for reaching out! We will get back to you soon.', 'success');
-      setFormData({ name: userInfo?.name || '', email: userInfo?.email || '', phone: userInfo?.phone || '', company: '', subject: '', message: '' });
+      setFormData({
+        name: userInfo?.name || '', email: userInfo?.email || '',
+        phone: userInfo?.phone || '', company: '', subject: '', message: ''
+      });
     } catch (error) {
       showNotification(error.response?.data?.message || 'Error sending message.', 'error');
     } finally {
@@ -48,225 +56,208 @@ const Contact = () => {
   };
 
   const info = [
-    { icon: '📧', title: 'Email', detail: 'codeorbit.internship@gmail.com' },
-    { icon: '📞', title: 'Phone', detail: '+91 7666394641' },
-    { icon: '📍', title: 'Address', detail: 'Whitehouse Vadgaon Bk Pune 41' },
-    { icon: '🕒', title: 'Hours', detail: 'Mon - Fri: 9AM - 6PM' }
+    { icon: <EmailOutlinedIcon sx={{ fontSize: 22, color: '#2563eb' }} />, title: 'Email', detail: 'codeorbit.internship@gmail.com' },
+    { icon: <PhoneOutlinedIcon sx={{ fontSize: 22, color: '#2563eb' }} />, title: 'Phone', detail: '+91 7666394641' },
+    { icon: <LocationOnOutlinedIcon sx={{ fontSize: 22, color: '#2563eb' }} />, title: 'Address', detail: 'Whitehouse Vadgaon Bk, Pune 41' },
+    { icon: <AccessTimeOutlinedIcon sx={{ fontSize: 22, color: '#2563eb' }} />, title: 'Hours', detail: 'Mon – Fri: 9AM – 6PM' },
   ];
 
   return (
-    <Box sx={{ bgcolor: 'background.default' }}>
-      {/* Hero Section */}
-      <Box
-        sx={{
-          background: 'linear-gradient(135deg, #0f0f0f 0%, #1f1f1f 50%, #000000 100%)',
-          color: 'white',
-          py: { xs: 12, md: 16 },
-          display: 'flex',
-          alignItems: 'center'
-        }}
-      >
-        <Container maxWidth="lg">
+    <Box sx={{ bgcolor: '#ffffff', fontFamily: '"DM Sans", sans-serif' }}>
+
+      {/* ── Hero ── */}
+      <Box sx={{
+        bgcolor: '#f7f7f5',
+        pt: { xs: 14, md: 22 },
+        pb: { xs: 10, md: 16 },
+        position: 'relative',
+        overflow: 'hidden',
+        borderBottom: '1px solid #e8e8e4',
+      }}>
+        {/* dot grid */}
+        <Box sx={{
+          position: 'absolute', inset: 0,
+          backgroundImage: 'radial-gradient(#d1d5db 1px, transparent 1px)',
+          backgroundSize: '28px 28px', opacity: 0.55, pointerEvents: 'none',
+        }} />
+        {/* blue blob */}
+        <Box sx={{
+          position: 'absolute', top: '10%', right: '-5%',
+          width: 480, height: 480, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
+
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+          {/* eyebrow */}
           <Box sx={{
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
+            display: 'inline-flex', alignItems: 'center', gap: 1,
+            bgcolor: '#eff6ff', border: '1px solid #bfdbfe',
+            borderRadius: '100px', px: 2, py: 0.5, mb: 4,
           }}>
-            <Typography
-              variant="h1"
-              component="h1"
-              gutterBottom
-              sx={{
-                fontSize: { xs: '2.5rem', md: '4rem' },
-                mb: 2,
-                textAlign: 'center'
-              }}
-            >
-              Get in Touch
-            </Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 400,
-                fontSize: { xs: '1.1rem', md: '1.5rem' },
-                maxWidth: 800,
-                mx: 'auto',
-                lineHeight: 1.6,
-                color: 'rgba(255, 255, 255, 0.8)',
-                textAlign: 'center'
-              }}
-            >
-              Have a project in mind or questions about our services? We're here to help.
+            <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: '#2563eb' }} />
+            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#2563eb', letterSpacing: 0.5 }}>
+              Let's Talk
             </Typography>
           </Box>
+
+          <Typography variant="h1" sx={{
+            fontSize: { xs: '2.75rem', sm: '4rem', md: '5.5rem' },
+            fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.0,
+            color: '#0a0a0a', mb: 4,
+          }}>
+            Get in
+            <Box component="span" sx={{ color: '#2563eb' }}> Touch</Box>
+          </Typography>
+
+          <Typography sx={{
+            color: '#3f3f3f', fontWeight: 400,
+            fontSize: { xs: '1.1rem', md: '1.3rem' },
+            lineHeight: 1.7, maxWidth: 520,
+          }}>
+            Have a project in mind or questions about our services? We're here to help.
+          </Typography>
         </Container>
       </Box>
 
       <Container maxWidth="lg" sx={{ py: { xs: 10, md: 16 } }}>
-        <Grid container spacing={6}>
-          {/* Contact Information */}
-          <Grid size={{ xs: 12, lg: 5 }}>
-            <Box sx={{ mb: 6 }}>
-              <Typography variant="h2" gutterBottom sx={{ fontWeight: 700 }}>
+        <Grid container spacing={5} alignItems="flex-start">
+
+          {/* ── Contact Info ── */}
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Box sx={{ mb: 5 }}>
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+                Contact Details
+              </Typography>
+              <Typography variant="h3" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '1.75rem', md: '2.25rem' }, mb: 2 }}>
                 Contact Information
               </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', fontSize: '1.1rem' }}>
-                Reach out to us through any of the following channels. Our team is ready to assist you.
+              <Typography sx={{ color: '#737373', fontSize: '0.95rem', lineHeight: 1.75 }}>
+                Reach out through any channel. Our team is ready to assist you.
               </Typography>
             </Box>
 
-            <Grid container spacing={3}>
+            <Stack spacing={2}>
               {info.map((item, idx) => (
-                <Grid size={{ xs: 12, sm: 6, lg: 12 }} key={idx} sx={{ display: 'flex' }}>
-                  <Paper 
-                    sx={{ 
-                      p: 3,
-                      width: '100%',
-                      height: '100%',
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        borderColor: 'primary.main',
-                        bgcolor: 'rgba(37, 99, 235, 0.02)'
-                      }
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-                      <Avatar 
-                        sx={{ 
-                          bgcolor: 'rgba(37, 99, 235, 0.1)',
-                          width: 54,
-                          height: 54,
-                          fontSize: '1.5rem'
-                        }}
-                      >
-                        {item.icon}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>
-                          {item.title}
-                        </Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
-                          {item.detail}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Paper>
-                </Grid>
+                <Box
+                  key={idx}
+                  sx={{
+                    p: 3,
+                    border: '1.5px solid #e8e8e4',
+                    borderRadius: '14px',
+                    bgcolor: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2.5,
+                    transition: 'all 0.2s',
+                    '&:hover': { borderColor: '#2563eb', boxShadow: '0 0 0 4px rgba(37,99,235,0.06)' },
+                  }}
+                >
+                  <Box sx={{
+                    width: 44, height: 44, borderRadius: '10px',
+                    bgcolor: '#eff6ff', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    {item.icon}
+                  </Box>
+                  <Box>
+                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: 1.5, mb: 0.25 }}>
+                      {item.title}
+                    </Typography>
+                    <Typography sx={{ fontWeight: 600, color: '#0a0a0a', fontSize: '0.9rem' }}>
+                      {item.detail}
+                    </Typography>
+                  </Box>
+                </Box>
               ))}
-            </Grid>
+            </Stack>
           </Grid>
 
-          {/* Contact Form */}
-          <Grid size={{ xs: 12, lg: 7 }}>
-            <Paper 
-              elevation={0}
-              sx={{ 
-                p: { xs: 4, md: 6 },
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 4,
-                bgcolor: 'background.paper'
-              }}
-            >
-              <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, mb: 4 }}>
-                Send a Message
-              </Typography>
-
-              <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {loading && <LoadingSpinner />}
-
-                <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      fullWidth
-                      label="Name *"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      variant="outlined"
-                    />
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      fullWidth
-                      label="Email *"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      variant="outlined"
-                    />
-                  </Grid>
-                </Grid>
-
-                <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      fullWidth
-                      label="Phone"
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      fullWidth
-                      label="Company"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-                </Grid>
-
-                <TextField
-                  fullWidth
-                  label="Subject *"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  variant="outlined"
-                />
-
-                <TextField
-                  fullWidth
-                  label="Message *"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  multiline
-                  rows={6}
-                  variant="outlined"
-                />
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  sx={{ mt: 2 }}
-                >
-                  Send Message
-                </Button>
+          {/* ── Contact Form ── */}
+          <Grid size={{ xs: 12, lg: 8 }}>
+            <Box sx={{
+              p: { xs: 4, md: 6 },
+              border: '1.5px solid #e8e8e4',
+              borderRadius: '20px',
+              bgcolor: '#fff',
+            }}>
+              <Box sx={{ mb: 5 }}>
+                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+                  Message Us
+                </Typography>
+                <Typography variant="h3" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '1.75rem', md: '2.25rem' } }}>
+                  Send a Message
+                </Typography>
               </Box>
-            </Paper>
+
+              {loading && <LoadingSpinner />}
+
+              <Box component="form" onSubmit={handleSubmit}>
+                <Stack spacing={3}>
+                  <Grid container spacing={3}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField fullWidth label="Full Name *" name="name"
+                        value={formData.name} onChange={handleChange} required sx={inputSx} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField fullWidth label="Email Address *" name="email"
+                        type="email" value={formData.email} onChange={handleChange} required sx={inputSx} />
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={3}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField fullWidth label="Phone" name="phone"
+                        type="tel" value={formData.phone} onChange={handleChange} sx={inputSx} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField fullWidth label="Company" name="company"
+                        value={formData.company} onChange={handleChange} sx={inputSx} />
+                    </Grid>
+                  </Grid>
+
+                  <TextField fullWidth label="Subject *" name="subject"
+                    value={formData.subject} onChange={handleChange} required sx={inputSx} />
+
+                  <TextField fullWidth label="Message *" name="message"
+                    value={formData.message} onChange={handleChange}
+                    required multiline rows={6} sx={inputSx} />
+
+                  <Box>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      size="large"
+                      endIcon={<ArrowForwardIcon />}
+                      sx={{
+                        bgcolor: '#0a0a0a', color: '#fff',
+                        px: 4, py: 1.6,
+                        fontSize: '0.95rem', fontWeight: 600,
+                        borderRadius: '10px', boxShadow: 'none',
+                        '&:hover': { bgcolor: '#1f1f1f', boxShadow: 'none' },
+                      }}
+                    >
+                      Send Message
+                    </Button>
+                  </Box>
+                </Stack>
+              </Box>
+            </Box>
           </Grid>
         </Grid>
       </Container>
     </Box>
   );
+};
+
+const inputSx = {
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '10px',
+    '& fieldset': { borderColor: '#e8e8e4', borderWidth: '1.5px' },
+    '&:hover fieldset': { borderColor: '#0a0a0a' },
+    '&.Mui-focused fieldset': { borderColor: '#2563eb' },
+  },
+  '& .MuiInputLabel-root.Mui-focused': { color: '#2563eb' },
 };
 
 export default Contact;
