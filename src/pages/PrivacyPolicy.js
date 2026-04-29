@@ -1,56 +1,182 @@
 import React from 'react';
-import { Box, Container, Typography, Paper, Divider } from '@mui/material';
+import { Box, Container, Typography, Stack } from '@mui/material';
+
+const sections = [
+  {
+    num: '01',
+    title: 'Introduction',
+    body: 'Welcome to CodeOrbit. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights.',
+  },
+  {
+    num: '02',
+    title: 'Data We Collect',
+    body: 'We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:',
+    bullets: [
+      { bold: 'Identity Data', rest: ' — first name, last name, username or similar identifier.' },
+      { bold: 'Contact Data', rest: ' — email address and telephone numbers.' },
+      { bold: 'Educational Data', rest: ' — college name, degree, and graduation year for internship applications.' },
+      { bold: 'Technical Data', rest: ' — IP address, login data, browser type and version.' },
+    ],
+  },
+  {
+    num: '03',
+    title: 'How We Use Your Data',
+    body: 'We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:',
+    bullets: [
+      { rest: 'To process your internship application.' },
+      { rest: 'To issue certificates and offer letters.' },
+      { rest: 'To manage our relationship with you.' },
+      { rest: 'To improve our website, products/services, marketing, customer relationships and experiences.' },
+    ],
+  },
+  {
+    num: '04',
+    title: 'Data Security',
+    body: 'We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed.',
+  },
+  {
+    num: '05',
+    title: 'Contact Us',
+    body: 'If you have any questions about this privacy policy or our privacy practices, please contact us at:',
+    contact: 'privacy@codeorbit.ai',
+  },
+];
 
 const PrivacyPolicy = () => {
   return (
-    <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', py: { xs: 6, md: 10 } }}>
-      <Container maxWidth="md">
-        <Paper sx={{ p: { xs: 4, md: 6 }, borderRadius: 4 }}>
-          <Typography variant="h3" fontWeight={800} gutterBottom>Privacy Policy</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>Last Updated: February 2, 2026</Typography>
-          
-          <Divider sx={{ mb: 4 }} />
+    <Box sx={{ bgcolor: '#ffffff', minHeight: '100vh', fontFamily: '"DM Sans", sans-serif' }}>
 
-          <Typography variant="h6" fontWeight={700} gutterBottom>1. Introduction</Typography>
-          <Typography variant="body1" paragraph>
-            Welcome to CodeOrbit. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights.
+      {/* Hero */}
+      <Box sx={{
+        bgcolor: '#f7f7f5',
+        pt: { xs: 14, md: 20 },
+        pb: { xs: 8, md: 12 },
+        position: 'relative',
+        overflow: 'hidden',
+        borderBottom: '1px solid #e8e8e4',
+      }}>
+        <Box sx={{
+          position: 'absolute', inset: 0,
+          backgroundImage: 'radial-gradient(#d1d5db 1px, transparent 1px)',
+          backgroundSize: '28px 28px', opacity: 0.55, pointerEvents: 'none',
+        }} />
+        <Box sx={{
+          position: 'absolute', top: '10%', right: '-5%',
+          width: 420, height: 420, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(37,99,235,0.09) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
+
+        <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
+          <Box sx={{
+            display: 'inline-flex', alignItems: 'center', gap: 1,
+            bgcolor: '#eff6ff', border: '1px solid #bfdbfe',
+            borderRadius: '100px', px: 2, py: 0.5, mb: 4,
+          }}>
+            <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: '#2563eb' }} />
+            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#2563eb', letterSpacing: 0.5 }}>
+              Legal
+            </Typography>
+          </Box>
+
+          <Typography variant="h1" sx={{
+            fontSize: { xs: '2.75rem', sm: '3.75rem', md: '5rem' },
+            fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.0,
+            color: '#0a0a0a', mb: 3,
+          }}>
+            Privacy{' '}
+            <Box component="span" sx={{ color: '#2563eb' }}>Policy</Box>
           </Typography>
 
-          <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mt: 4 }}>2. Data We Collect</Typography>
-          <Typography variant="body1" paragraph>
-            We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:
+          <Typography sx={{ color: '#a3a3a3', fontSize: '0.875rem', fontWeight: 500 }}>
+            Last Updated: February 2, 2026
           </Typography>
-          <ul>
-            <li><Typography variant="body1"><strong>Identity Data:</strong> includes first name, last name, username or similar identifier.</Typography></li>
-            <li><Typography variant="body1"><strong>Contact Data:</strong> includes email address and telephone numbers.</Typography></li>
-            <li><Typography variant="body1"><strong>Educational Data:</strong> includes college name, degree, and graduation year for internship applications.</Typography></li>
-            <li><Typography variant="body1"><strong>Technical Data:</strong> includes internet protocol (IP) address, your login data, browser type and version.</Typography></li>
-          </ul>
+        </Container>
+      </Box>
 
-          <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mt: 4 }}>3. How We Use Your Data</Typography>
-          <Typography variant="body1" paragraph>
-            We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:
-          </Typography>
-          <ul>
-            <li><Typography variant="body1">To process your internship application.</Typography></li>
-            <li><Typography variant="body1">To issue certificates and offer letters.</Typography></li>
-            <li><Typography variant="body1">To manage our relationship with you.</Typography></li>
-            <li><Typography variant="body1">To improve our website, products/services, marketing, customer relationships and experiences.</Typography></li>
-          </ul>
+      {/* Content */}
+      <Container maxWidth="md" sx={{ py: { xs: 8, md: 12 } }}>
+        <Stack spacing={0}>
+          {sections.map((section, idx) => (
+            <Box key={idx} sx={{
+              py: { xs: 5, md: 6 },
+              borderBottom: idx < sections.length - 1 ? '1px solid #e8e8e4' : 'none',
+              display: 'flex',
+              gap: { xs: 3, md: 5 },
+              alignItems: 'flex-start',
+            }}>
+              <Typography sx={{
+                fontSize: '0.72rem', fontWeight: 800, color: '#d4d4d0',
+                letterSpacing: '0.05em', flexShrink: 0, mt: '5px',
+                minWidth: 28,
+              }}>
+                {section.num}
+              </Typography>
 
-          <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mt: 4 }}>4. Data Security</Typography>
-          <Typography variant="body1" paragraph>
-            We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed.
-          </Typography>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{
+                  fontWeight: 800, fontSize: { xs: '1.05rem', md: '1.2rem' },
+                  color: '#0a0a0a', letterSpacing: '-0.03em', mb: 2,
+                }}>
+                  {section.title}
+                </Typography>
 
-          <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mt: 4 }}>5. Contact Us</Typography>
-          <Typography variant="body1" paragraph>
-            If you have any questions about this privacy policy or our privacy practices, please contact us at:
-          </Typography>
-          <Typography variant="body1" fontWeight={600}>
-            Email: privacy@codeorbit.ai
-          </Typography>
-        </Paper>
+                <Typography sx={{
+                  color: '#3f3f3f', fontSize: '0.95rem',
+                  lineHeight: 1.85, textAlign: 'justify',
+                  mb: section.bullets || section.contact ? 3 : 0,
+                }}>
+                  {section.body}
+                </Typography>
+
+                {section.bullets && (
+                  <Stack spacing={2}>
+                    {section.bullets.map((item, i) => (
+                      <Box key={i} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                        <Box sx={{
+                          width: 22, height: 22, borderRadius: '50%',
+                          bgcolor: '#eff6ff', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', flexShrink: 0, mt: '2px',
+                        }}>
+                          <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#2563eb' }} />
+                        </Box>
+                        <Typography sx={{
+                          color: '#3f3f3f', fontSize: '0.925rem',
+                          lineHeight: 1.8, textAlign: 'justify',
+                        }}>
+                          {item.bold && (
+                            <Box component="span" sx={{ fontWeight: 700, color: '#0a0a0a' }}>
+                              {item.bold}
+                            </Box>
+                          )}
+                          {item.rest}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+
+                {section.contact && (
+                  <Box sx={{
+                    display: 'inline-flex', alignItems: 'center', gap: 1.5,
+                    px: 2.5, py: 1.25,
+                    border: '1.5px solid #bfdbfe',
+                    borderRadius: '10px',
+                    bgcolor: '#eff6ff',
+                  }}>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#737373' }}>
+                      Email
+                    </Typography>
+                    <Box sx={{ width: 1, height: 14, bgcolor: '#bfdbfe' }} />
+                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: '#2563eb' }}>
+                      {section.contact}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          ))}
+        </Stack>
       </Container>
     </Box>
   );

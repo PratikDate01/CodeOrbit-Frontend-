@@ -10,14 +10,11 @@ import API from '../api/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import { WorkOutline, AssignmentTurnedIn, EmojiEvents, CheckCircleOutline } from '@mui/icons-material';
 
 const Internships = () => {
   const { userInfo } = useAuth();
@@ -33,7 +30,7 @@ const Internships = () => {
     experience: '',
     preferredDomain: '',
     duration: 1,
-    amount: 999
+    amount: 999,
   });
 
   const [myApplications, setMyApplications] = useState([]);
@@ -57,8 +54,8 @@ const Internships = () => {
         'Online Tests & Evaluations',
         'Mini Project',
         'Internship Completion Certificate',
-        'Email / WhatsApp Support for queries'
-      ]
+        'Email / WhatsApp Support for queries',
+      ],
     },
     {
       months: 3,
@@ -76,8 +73,8 @@ const Internships = () => {
         'Major Project (Individual / Team)',
         'Internship Completion Certificate',
         'Letter of Recommendation (Performance-Based)',
-        'Resume Project Guidance'
-      ]
+        'Resume Project Guidance',
+      ],
     },
     {
       months: 6,
@@ -95,9 +92,9 @@ const Internships = () => {
         'Production-Level Project',
         'Internship Report & Documentation Support',
         'Letter of Recommendation (Performance-Based)',
-        'Placement Readiness Guidance'
-      ]
-    }
+        'Placement Readiness Guidance',
+      ],
+    },
   ];
 
   const handleChange = (e) => {
@@ -144,7 +141,7 @@ const Internships = () => {
         email: userInfo.email,
         phone: userInfo.phone || '',
         college: userInfo.education || '',
-        skills: userInfo.skills?.join(', ') || ''
+        skills: userInfo.skills?.join(', ') || '',
       }));
       fetchMyApplications();
     }
@@ -166,14 +163,14 @@ const Internships = () => {
         preferredDomain: formData.preferredDomain,
         duration: formData.duration,
         amount: formData.amount,
-        formData: { name, email, phone, college: formData.college, course, year, skills, experience: formData.experience }
+        formData: { name, email, phone, college: formData.college, course, year, skills, experience: formData.experience },
       }, { loaderMessage: 'Submitting your application...' });
 
       showNotification('Application Successful! Welcome to the program.', 'success');
       fetchMyApplications();
       setFormData(prev => ({
         ...prev, course: '', year: '', skills: '', experience: '',
-        preferredDomain: '', duration: 1, amount: 999
+        preferredDomain: '', duration: 1, amount: 999,
       }));
     } catch (error) {
       showNotification(error.response?.data?.message || 'Error processing application.', 'error');
@@ -184,24 +181,45 @@ const Internships = () => {
     { label: 'Register / Login', description: 'Mandatory to have an account to apply.' },
     { label: 'Application', description: 'Submit profile, domain, and duration.' },
     { label: 'Verification', description: 'Our team verifies credentials and profile.' },
-    { label: 'Onboarding', description: 'Welcome to the Orbit team!' }
+    { label: 'Onboarding', description: 'Welcome to the Orbit team!' },
   ];
 
   const benefits = [
-    { title: 'Real-world Projects', description: 'Work on actual industry-grade applications.', icon: <WorkOutlineIcon sx={{ fontSize: 22 }} /> },
-    { title: 'Mentorship', description: 'Learn directly from experienced developers.', icon: <CheckCircleOutlineIcon sx={{ fontSize: 22 }} /> },
-    { title: 'Certifications', description: 'Industry-recognized internship certificate.', icon: <AssignmentTurnedInIcon sx={{ fontSize: 22 }} /> },
-    { title: 'Career Guidance', description: 'Help with resumes and interview prep.', icon: <EmojiEventsIcon sx={{ fontSize: 22 }} /> }
+    { title: 'Real-world Projects', description: 'Work on actual industry-grade applications.', icon: <WorkOutline sx={{ fontSize: 20 }} /> },
+    { title: 'Mentorship', description: 'Learn directly from experienced developers.', icon: <CheckCircleOutline sx={{ fontSize: 20 }} /> },
+    { title: 'Certifications', description: 'Industry-recognized internship certificate.', icon: <AssignmentTurnedIn sx={{ fontSize: 20 }} /> },
+    { title: 'Career Guidance', description: 'Help with resumes and interview prep.', icon: <EmojiEvents sx={{ fontSize: 20 }} /> },
   ];
 
   const faqs = [
     { q: 'Is there any fee for the internship?', a: 'Selection for our programs is free. A nominal Program Contribution Fee is charged for some tracks to cover training resources, certification infrastructure, and administrative costs. See our Fee Transparency section for details.' },
     { q: 'How long does the verification take?', a: 'Our team typically reviews applications within 3-5 business days.' },
     { q: 'Are the certificates verifiable?', a: 'Yes, every certificate comes with a unique Verification ID and QR code that can be verified on our public portal.' },
-    { q: 'Can I apply for multiple domains?', a: 'We recommend focusing on one domain at a time to ensure the best learning experience.' }
+    { q: 'Can I apply for multiple domains?', a: 'We recommend focusing on one domain at a time to ensure the best learning experience.' },
   ];
 
   const selectedPlan = durationPlans.find(p => p.months === formData.duration);
+
+  // Status pill helper
+  const StatusPill = ({ status }) => {
+    const map = {
+      Selected:  { bg: '#dcfce7', color: '#15803d' },
+      Rejected:  { bg: '#fee2e2', color: '#b91c1c' },
+      New:       { bg: '#eff6ff', color: '#2563eb' },
+    };
+    const style = map[status] || { bg: '#fef9c3', color: '#a16207' };
+    return (
+      <Box sx={{
+        display: 'inline-flex', alignItems: 'center',
+        px: 1.5, py: 0.4, borderRadius: '100px',
+        bgcolor: style.bg, color: style.color,
+        fontSize: '0.75rem', fontWeight: 700,
+        fontFamily: '"DM Sans", sans-serif',
+      }}>
+        {status}
+      </Box>
+    );
+  };
 
   return (
     <Box sx={{ bgcolor: '#ffffff', fontFamily: '"DM Sans", sans-serif' }}>
@@ -215,13 +233,11 @@ const Internships = () => {
         overflow: 'hidden',
         borderBottom: '1px solid #e8e8e4',
       }}>
-        {/* dot grid */}
         <Box sx={{
           position: 'absolute', inset: 0,
           backgroundImage: 'radial-gradient(#d1d5db 1px, transparent 1px)',
           backgroundSize: '28px 28px', opacity: 0.55, pointerEvents: 'none',
         }} />
-        {/* blue blob */}
         <Box sx={{
           position: 'absolute', top: '10%', right: '-5%',
           width: 480, height: 480, borderRadius: '50%',
@@ -230,14 +246,13 @@ const Internships = () => {
         }} />
 
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-          {/* eyebrow */}
           <Box sx={{
             display: 'inline-flex', alignItems: 'center', gap: 1,
             bgcolor: '#eff6ff', border: '1px solid #bfdbfe',
             borderRadius: '100px', px: 2, py: 0.5, mb: 4,
           }}>
             <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: '#2563eb' }} />
-            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#2563eb', letterSpacing: 0.5 }}>
+            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#2563eb', letterSpacing: 0.5, fontFamily: '"DM Sans", sans-serif' }}>
               MSME & AICTE Recognized
             </Typography>
           </Box>
@@ -245,7 +260,7 @@ const Internships = () => {
           <Typography variant="h1" sx={{
             fontSize: { xs: '2.75rem', sm: '4rem', md: '5.5rem' },
             fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.0,
-            color: '#0a0a0a', mb: 4,
+            color: '#0a0a0a', mb: 4, fontFamily: '"DM Sans", sans-serif',
           }}>
             Internship
             <Box component="span" sx={{ color: '#2563eb' }}> Programs</Box>
@@ -256,6 +271,7 @@ const Internships = () => {
               color: '#3f3f3f', fontWeight: 400,
               fontSize: { xs: '1.1rem', md: '1.3rem' },
               lineHeight: 1.7, maxWidth: 520, flex: 1,
+              fontFamily: '"DM Sans", sans-serif',
             }}>
               Launch your technology career with hands-on training, real-world projects, and expert industry mentorship.
             </Typography>
@@ -268,7 +284,8 @@ const Internships = () => {
                 sx={{
                   bgcolor: '#0a0a0a', color: '#fff', px: 3.5, py: 1.6,
                   fontSize: '0.95rem', fontWeight: 600, borderRadius: '10px',
-                  letterSpacing: 0.2, boxShadow: 'none',
+                  letterSpacing: 0.2, boxShadow: 'none', fontFamily: '"DM Sans", sans-serif',
+                  textTransform: 'none',
                   '&:hover': { bgcolor: '#1f1f1f', boxShadow: 'none' },
                 }}
               >
@@ -282,7 +299,7 @@ const Internships = () => {
                   borderColor: '#d4d4d0', borderWidth: '1.5px',
                   color: '#3f3f3f', px: 3.5, py: 1.6,
                   fontSize: '0.95rem', fontWeight: 600, borderRadius: '10px',
-                  boxShadow: 'none',
+                  boxShadow: 'none', textTransform: 'none', fontFamily: '"DM Sans", sans-serif',
                   '&:hover': { borderColor: '#0a0a0a', bgcolor: 'transparent', boxShadow: 'none' },
                 }}
               >
@@ -299,16 +316,20 @@ const Internships = () => {
         {userInfo && (
           <Box sx={{ mb: { xs: 12, md: 16 } }}>
             <Box sx={{ mb: 6 }}>
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
                 Your Journey
               </Typography>
-              <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' } }}>
+              <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' }, fontFamily: '"DM Sans", sans-serif' }}>
                 Track Applications
               </Typography>
             </Box>
 
             {fetchingApps ? (
-              <LinearProgress sx={{ borderRadius: 2, bgcolor: '#eff6ff', '& .MuiLinearProgress-bar': { bgcolor: '#2563eb' } }} />
+              <LinearProgress sx={{
+                borderRadius: '100px', height: 6,
+                bgcolor: '#eff6ff',
+                '& .MuiLinearProgress-bar': { bgcolor: '#2563eb' },
+              }} />
             ) : myApplications.length > 0 ? (
               <Box sx={{ border: '1.5px solid #e8e8e4', borderRadius: '16px', overflow: 'hidden' }}>
                 <TableContainer>
@@ -316,27 +337,31 @@ const Internships = () => {
                     <TableHead>
                       <TableRow sx={{ bgcolor: '#f7f7f5' }}>
                         {['Domain', 'Duration', 'Applied Date', 'Status'].map(h => (
-                          <TableCell key={h} sx={{ fontWeight: 700, color: '#0a0a0a', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: 1, borderBottom: '1.5px solid #e8e8e4' }}>{h}</TableCell>
+                          <TableCell key={h} sx={{
+                            fontWeight: 700, color: '#0a0a0a',
+                            fontSize: '0.75rem', textTransform: 'uppercase',
+                            letterSpacing: '0.08em', borderBottom: '1.5px solid #e8e8e4',
+                            fontFamily: '"DM Sans", sans-serif',
+                          }}>
+                            {h}
+                          </TableCell>
                         ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {myApplications.map((app) => (
                         <TableRow key={app._id} sx={{ '&:hover': { bgcolor: '#f7f7f5' }, '&:last-child td': { border: 0 } }}>
-                          <TableCell sx={{ color: '#0a0a0a', fontWeight: 500, borderColor: '#e8e8e4' }}>{app.preferredDomain}</TableCell>
-                          <TableCell sx={{ color: '#737373', borderColor: '#e8e8e4' }}>{app.duration} Months</TableCell>
-                          <TableCell sx={{ color: '#737373', borderColor: '#e8e8e4' }}>{new Date(app.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell sx={{ color: '#0a0a0a', fontWeight: 600, borderColor: '#e8e8e4', fontFamily: '"DM Sans", sans-serif', fontSize: '0.9rem' }}>
+                            {app.preferredDomain}
+                          </TableCell>
+                          <TableCell sx={{ color: '#737373', borderColor: '#e8e8e4', fontFamily: '"DM Sans", sans-serif', fontSize: '0.875rem' }}>
+                            {app.duration} Months
+                          </TableCell>
+                          <TableCell sx={{ color: '#737373', borderColor: '#e8e8e4', fontFamily: '"DM Sans", sans-serif', fontSize: '0.875rem' }}>
+                            {new Date(app.createdAt).toLocaleDateString()}
+                          </TableCell>
                           <TableCell sx={{ borderColor: '#e8e8e4' }}>
-                            <Box sx={{
-                              display: 'inline-flex', alignItems: 'center', px: 1.5, py: 0.4,
-                              borderRadius: '100px', fontSize: '0.75rem', fontWeight: 700,
-                              ...(app.status === 'Selected' && { bgcolor: '#dcfce7', color: '#15803d' }),
-                              ...(app.status === 'Rejected' && { bgcolor: '#fee2e2', color: '#b91c1c' }),
-                              ...(app.status === 'New' && { bgcolor: '#eff6ff', color: '#2563eb' }),
-                              ...(!['Selected','Rejected','New'].includes(app.status) && { bgcolor: '#fef9c3', color: '#a16207' }),
-                            }}>
-                              {app.status}
-                            </Box>
+                            <StatusPill status={app.status} />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -346,7 +371,7 @@ const Internships = () => {
               </Box>
             ) : (
               <Box sx={{ p: 4, border: '1.5px solid #e8e8e4', borderRadius: '16px', bgcolor: '#f7f7f5' }}>
-                <Typography sx={{ color: '#737373', fontSize: '0.95rem' }}>
+                <Typography sx={{ color: '#737373', fontSize: '0.95rem', fontFamily: '"DM Sans", sans-serif' }}>
                   You haven't applied for any internships yet. Check out our programs below!
                 </Typography>
               </Box>
@@ -358,14 +383,14 @@ const Internships = () => {
         <Box sx={{ mb: { xs: 12, md: 20 } }}>
           <Box sx={{ mb: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 3 }}>
             <Box>
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
                 Why Us
               </Typography>
-              <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' } }}>
+              <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' }, fontFamily: '"DM Sans", sans-serif' }}>
                 Why Intern With Us?
               </Typography>
             </Box>
-            <Typography sx={{ color: '#737373', fontSize: '1rem', maxWidth: 380, lineHeight: 1.7 }}>
+            <Typography sx={{ color: '#737373', fontSize: '1rem', maxWidth: 380, lineHeight: 1.7, fontFamily: '"DM Sans", sans-serif' }}>
               We bridge the gap between academic learning and industry requirements.
             </Typography>
           </Box>
@@ -392,10 +417,10 @@ const Internships = () => {
                   }}>
                     {benefit.icon}
                   </Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: index === 1 ? '#fff' : '#0a0a0a', mb: 1, letterSpacing: '-0.02em' }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: index === 1 ? '#fff' : '#0a0a0a', mb: 1, letterSpacing: '-0.02em', fontFamily: '"DM Sans", sans-serif' }}>
                     {benefit.title}
                   </Typography>
-                  <Typography sx={{ color: index === 1 ? 'rgba(255,255,255,0.55)' : '#737373', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                  <Typography sx={{ color: index === 1 ? 'rgba(255,255,255,0.55)' : '#737373', fontSize: '0.9rem', lineHeight: 1.7, fontFamily: '"DM Sans", sans-serif' }}>
                     {benefit.description}
                   </Typography>
                 </Box>
@@ -407,10 +432,10 @@ const Internships = () => {
         {/* ── Featured Programs ── */}
         <Box id="programs-section" sx={{ mb: { xs: 12, md: 20 } }}>
           <Box sx={{ mb: 8 }}>
-            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
               Explore
             </Typography>
-            <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' } }}>
+            <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' }, fontFamily: '"DM Sans", sans-serif' }}>
               Featured Programs
             </Typography>
           </Box>
@@ -439,15 +464,17 @@ const Internships = () => {
                         sx={{ width: '100%', height: 148, objectFit: 'cover' }} />
                     )}
                     <Box sx={{ p: 3.5, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                      <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: '#0a0a0a', mb: 1, letterSpacing: '-0.02em' }}>
+                      <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: '#0a0a0a', mb: 1, letterSpacing: '-0.02em', fontFamily: '"DM Sans", sans-serif' }}>
                         {program.title}
                       </Typography>
-                      <Typography sx={{ color: '#737373', fontSize: '0.875rem', lineHeight: 1.7, mb: 3, flexGrow: 1 }}>
+                      <Typography sx={{ color: '#737373', fontSize: '0.875rem', lineHeight: 1.7, mb: 3, flexGrow: 1, fontFamily: '"DM Sans", sans-serif' }}>
                         {program.description?.substring(0, 100)}...
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, color: '#737373' }}>
                         <AccessTimeIcon sx={{ fontSize: 15 }} />
-                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 500 }}>{program.duration || program.durationInfo || '8 Weeks'}</Typography>
+                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 500, fontFamily: '"DM Sans", sans-serif' }}>
+                          {program.duration || program.durationInfo || '8 Weeks'}
+                        </Typography>
                       </Box>
                       <Button
                         onClick={() => {
@@ -457,7 +484,8 @@ const Internships = () => {
                         endIcon={<ArrowForwardIcon sx={{ fontSize: '0.9rem !important' }} />}
                         sx={{
                           alignSelf: 'flex-start', color: '#2563eb', fontWeight: 600,
-                          fontSize: '0.875rem', p: 0, minWidth: 0,
+                          fontSize: '0.875rem', p: 0, minWidth: 0, textTransform: 'none',
+                          fontFamily: '"DM Sans", sans-serif',
                           '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
                         }}
                       >
@@ -470,7 +498,7 @@ const Internships = () => {
             </Grid>
           ) : (
             <Box sx={{ p: 4, border: '1.5px solid #e8e8e4', borderRadius: '16px', bgcolor: '#f7f7f5' }}>
-              <Typography sx={{ color: '#737373' }}>New programs are launching soon. Stay tuned!</Typography>
+              <Typography sx={{ color: '#737373', fontFamily: '"DM Sans", sans-serif' }}>New programs are launching soon. Stay tuned!</Typography>
             </Box>
           )}
         </Box>
@@ -486,7 +514,6 @@ const Internships = () => {
           position: 'relative',
           overflow: 'hidden',
         }}>
-          {/* dot grid */}
           <Box sx={{
             position: 'absolute', inset: 0,
             backgroundImage: 'radial-gradient(#d1d5db 1px, transparent 1px)',
@@ -494,10 +521,10 @@ const Internships = () => {
           }} />
           <Box sx={{ position: 'relative', zIndex: 1 }}>
             <Box sx={{ mb: 8 }}>
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
                 How It Works
               </Typography>
-              <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' } }}>
+              <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' }, fontFamily: '"DM Sans", sans-serif' }}>
                 Selection Process
               </Typography>
             </Box>
@@ -517,12 +544,14 @@ const Internships = () => {
                       bgcolor: '#eff6ff', display: 'flex', alignItems: 'center',
                       justifyContent: 'center', mb: 3,
                     }}>
-                      <Typography sx={{ fontSize: '0.9rem', fontWeight: 800, color: '#2563eb' }}>{index + 1}</Typography>
+                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 800, color: '#2563eb', fontFamily: '"DM Sans", sans-serif' }}>
+                        {index + 1}
+                      </Typography>
                     </Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: '#0a0a0a', mb: 1, letterSpacing: '-0.02em' }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: '#0a0a0a', mb: 1, letterSpacing: '-0.02em', fontFamily: '"DM Sans", sans-serif' }}>
                       {step.label}
                     </Typography>
-                    <Typography sx={{ color: '#737373', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                    <Typography sx={{ color: '#737373', fontSize: '0.9rem', lineHeight: 1.7, fontFamily: '"DM Sans", sans-serif' }}>
                       {step.description}
                     </Typography>
                   </Box>
@@ -544,13 +573,13 @@ const Internships = () => {
           }}
         >
           <Box sx={{ mb: 8 }}>
-            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
               Get Started
             </Typography>
-            <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' }, mb: 1.5 }}>
+            <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' }, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
               Apply Now
             </Typography>
-            <Typography sx={{ color: '#737373', fontSize: '1rem', lineHeight: 1.7 }}>
+            <Typography sx={{ color: '#737373', fontSize: '1rem', lineHeight: 1.7, fontFamily: '"DM Sans", sans-serif' }}>
               Ready to start your journey? Fill out the application below.
             </Typography>
           </Box>
@@ -560,7 +589,7 @@ const Internships = () => {
 
               {/* Personal Info */}
               <Grid size={12}>
-                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 3 }}>
+                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 3, fontFamily: '"DM Sans", sans-serif' }}>
                   1 — Personal Information
                 </Typography>
                 <Grid container spacing={3}>
@@ -583,7 +612,7 @@ const Internships = () => {
 
               {/* Academic & Interest */}
               <Grid size={12}>
-                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 3, mt: 2 }}>
+                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 3, mt: 2, fontFamily: '"DM Sans", sans-serif' }}>
                   2 — Academic & Interest Details
                 </Typography>
                 <Grid container spacing={3}>
@@ -601,7 +630,7 @@ const Internships = () => {
                       helperText="Select a plan to see its benefits"
                       sx={inputSx}>
                       {durationPlans.map(p => (
-                        <MenuItem key={p.months} value={p.months}>
+                        <MenuItem key={p.months} value={p.months} sx={{ fontFamily: '"DM Sans", sans-serif' }}>
                           {p.months} Month{p.months > 1 ? 's' : ''} — ₹{p.price}
                         </MenuItem>
                       ))}
@@ -617,7 +646,7 @@ const Internships = () => {
                         borderRadius: '16px',
                         bgcolor: '#f7f7f5',
                       }}>
-                        <Typography sx={{ fontWeight: 800, fontSize: '1.1rem', color: '#0a0a0a', letterSpacing: '-0.03em', mb: 3 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: '1.05rem', color: '#0a0a0a', letterSpacing: '-0.03em', mb: 3, fontFamily: '"DM Sans", sans-serif' }}>
                           {selectedPlan.label}
                         </Typography>
                         <Grid container spacing={4}>
@@ -629,17 +658,17 @@ const Internships = () => {
                               { label: 'Outcome', value: selectedPlan.outcome },
                             ].map(item => (
                               <Box key={item.label} sx={{ mb: 2.5 }}>
-                                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 1, mb: 0.5 }}>
+                                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 0.5, fontFamily: '"DM Sans", sans-serif' }}>
                                   {item.label}
                                 </Typography>
-                                <Typography sx={{ color: '#3f3f3f', fontSize: '0.9rem', lineHeight: 1.65 }}>
+                                <Typography sx={{ color: '#3f3f3f', fontSize: '0.9rem', lineHeight: 1.65, fontFamily: '"DM Sans", sans-serif' }}>
                                   {item.value}
                                 </Typography>
                               </Box>
                             ))}
                           </Grid>
                           <Grid size={{ xs: 12, md: 6 }}>
-                            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 1, mb: 2 }}>
+                            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2, fontFamily: '"DM Sans", sans-serif' }}>
                               Facilities Provided
                             </Typography>
                             <Stack spacing={1.5}>
@@ -648,7 +677,7 @@ const Internships = () => {
                                   <Box sx={{ width: 22, height: 22, borderRadius: '50%', bgcolor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     <CheckCircleIcon sx={{ fontSize: 14, color: '#2563eb' }} />
                                   </Box>
-                                  <Typography sx={{ fontSize: '0.875rem', color: '#3f3f3f' }}>{f}</Typography>
+                                  <Typography sx={{ fontSize: '0.875rem', color: '#3f3f3f', fontFamily: '"DM Sans", sans-serif' }}>{f}</Typography>
                                 </Box>
                               ))}
                             </Stack>
@@ -694,6 +723,7 @@ const Internships = () => {
                     px: 5, py: 1.6,
                     fontSize: '0.95rem', fontWeight: 600,
                     borderRadius: '10px', boxShadow: 'none',
+                    textTransform: 'none', fontFamily: '"DM Sans", sans-serif',
                     '&:hover': { bgcolor: '#1f1f1f', boxShadow: 'none' },
                   }}
                 >
@@ -714,17 +744,17 @@ const Internships = () => {
         }}>
           <Grid container spacing={4} alignItems="center">
             <Grid size={{ xs: 12, md: 8 }}>
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
                 Full Transparency
               </Typography>
-              <Typography variant="h3" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '1.75rem', md: '2.25rem' }, mb: 2 }}>
+              <Typography variant="h3" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '1.75rem', md: '2.25rem' }, mb: 2, fontFamily: '"DM Sans", sans-serif' }}>
                 Fee Transparency
               </Typography>
-              <Typography sx={{ color: '#3f3f3f', fontSize: '1rem', lineHeight: 1.75, mb: 1.5 }}>
+              <Typography sx={{ color: '#3f3f3f', fontSize: '1rem', lineHeight: 1.75, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
                 We believe in complete honesty. Selection for all CodeOrbit internships is{' '}
-                <Box component="span" sx={{ fontWeight: 700, color: '#0a0a0a' }}>100% Free</Box>.
+                <Box component="span" sx={{ fontWeight: 800, color: '#0a0a0a' }}>100% Free</Box>.
               </Typography>
-              <Typography sx={{ color: '#737373', fontSize: '0.95rem', lineHeight: 1.75 }}>
+              <Typography sx={{ color: '#737373', fontSize: '0.95rem', lineHeight: 1.75, fontFamily: '"DM Sans", sans-serif' }}>
                 The Program Contribution Fee (starting at ₹999) is only charged after selection to cover the costs of training resources, cloud infrastructure, verifiable certification, and lifetime credential maintenance.
               </Typography>
             </Grid>
@@ -740,6 +770,7 @@ const Internships = () => {
                   px: 4, py: 1.6,
                   fontWeight: 600, fontSize: '0.95rem',
                   borderRadius: '10px', boxShadow: 'none',
+                  textTransform: 'none', fontFamily: '"DM Sans", sans-serif',
                   '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 8px 30px rgba(37,99,235,0.35)' },
                   transition: 'all 0.2s',
                 }}
@@ -753,10 +784,10 @@ const Internships = () => {
         {/* ── FAQ ── */}
         <Box sx={{ mb: { xs: 10, md: 12 } }}>
           <Box sx={{ mb: 6 }}>
-            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5 }}>
+            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: 2, mb: 1.5, fontFamily: '"DM Sans", sans-serif' }}>
               Got Questions?
             </Typography>
-            <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' } }}>
+            <Typography variant="h2" sx={{ fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '2.75rem' }, fontFamily: '"DM Sans", sans-serif' }}>
               Frequently Asked Questions
             </Typography>
           </Box>
@@ -778,12 +809,12 @@ const Internships = () => {
                   expandIcon={<ExpandMoreIcon sx={{ color: '#2563eb' }} />}
                   sx={{ px: 3, py: 0.5 }}
                 >
-                  <Typography sx={{ fontWeight: 700, color: '#0a0a0a', fontSize: '0.95rem' }}>
+                  <Typography sx={{ fontWeight: 700, color: '#0a0a0a', fontSize: '0.95rem', fontFamily: '"DM Sans", sans-serif' }}>
                     {faq.q}
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ px: 3, pt: 0, pb: 3 }}>
-                  <Typography sx={{ color: '#737373', fontSize: '0.9rem', lineHeight: 1.75 }}>
+                  <Typography sx={{ color: '#737373', fontSize: '0.9rem', lineHeight: 1.75, fontFamily: '"DM Sans", sans-serif' }}>
                     {faq.a}
                   </Typography>
                 </AccordionDetails>
@@ -816,12 +847,14 @@ const Internships = () => {
             <Typography variant="h2" gutterBottom sx={{
               color: '#ffffff', fontWeight: 800,
               letterSpacing: '-0.04em', fontSize: { xs: '2rem', md: '3rem' },
+              fontFamily: '"DM Sans", sans-serif',
             }}>
               Ready to Launch<br />Your Career?
             </Typography>
             <Typography sx={{
               mb: 6, color: 'rgba(255,255,255,0.5)',
               fontSize: '1.1rem', maxWidth: 520, mx: 'auto', lineHeight: 1.7,
+              fontFamily: '"DM Sans", sans-serif',
             }}>
               Join hundreds of students who have already kick-started their technology careers with CodeOrbit.
             </Typography>
@@ -833,7 +866,7 @@ const Internships = () => {
                 sx={{
                   bgcolor: '#2563eb', color: '#fff', px: 5, py: 1.6,
                   fontWeight: 600, fontSize: '0.95rem', borderRadius: '10px',
-                  boxShadow: 'none',
+                  boxShadow: 'none', textTransform: 'none', fontFamily: '"DM Sans", sans-serif',
                   '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 8px 30px rgba(37,99,235,0.45)' },
                   transition: 'all 0.2s',
                 }}
@@ -847,6 +880,7 @@ const Internships = () => {
                   borderColor: 'rgba(255,255,255,0.18)', borderWidth: '1.5px',
                   color: 'rgba(255,255,255,0.75)', px: 5, py: 1.6,
                   fontWeight: 600, fontSize: '0.95rem', borderRadius: '10px',
+                  textTransform: 'none', fontFamily: '"DM Sans", sans-serif',
                   '&:hover': { borderColor: 'rgba(255,255,255,0.5)', bgcolor: 'rgba(255,255,255,0.05)' },
                 }}
               >
@@ -861,15 +895,18 @@ const Internships = () => {
   );
 };
 
-// Shared TextField styling to match the page theme
+// ── Shared TextField styling ──────────────────────────────────────────────────
 const inputSx = {
   '& .MuiOutlinedInput-root': {
     borderRadius: '10px',
+    fontFamily: '"DM Sans", sans-serif',
     '& fieldset': { borderColor: '#e8e8e4', borderWidth: '1.5px' },
     '&:hover fieldset': { borderColor: '#0a0a0a' },
     '&.Mui-focused fieldset': { borderColor: '#2563eb' },
   },
+  '& .MuiInputLabel-root': { fontFamily: '"DM Sans", sans-serif' },
   '& .MuiInputLabel-root.Mui-focused': { color: '#2563eb' },
+  '& .MuiFormHelperText-root': { fontFamily: '"DM Sans", sans-serif' },
 };
 
 export default Internships;
