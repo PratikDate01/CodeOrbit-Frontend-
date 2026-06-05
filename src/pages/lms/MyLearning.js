@@ -99,12 +99,16 @@ const MyLearning = () => {
       justifyContent: 'center', alignItems: 'center',
       minHeight: '80vh', bgcolor: '#f7f7f5', px: 3, gap: 3,
     }}>
-      <Box sx={{
-        p: { xs: 4, md: 6 }, borderRadius: '20px', textAlign: 'center',
-        maxWidth: 400, bgcolor: '#fff',
-        border: '1.5px solid #fecaca',
-        bgcolor: '#fff9f9',
-      }}>
+      <Box
+  sx={{
+    p: { xs: 4, md: 6 },
+    borderRadius: '20px',
+    textAlign: 'center',
+    maxWidth: 400,
+    border: '1.5px solid #fecaca',
+    bgcolor: '#fff9f9',
+  }}
+>
         <Box sx={{
           width: 56, height: 56, borderRadius: '14px',
           bgcolor: '#fee2e2', display: 'flex', alignItems: 'center',
