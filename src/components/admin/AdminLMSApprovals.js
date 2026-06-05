@@ -58,9 +58,9 @@ const AdminLMSApprovals = () => {
   };
 
   const filteredApprovals = approvals.filter(item => 
-    item.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.activity.title.toLowerCase().includes(searchTerm.toLowerCase())
+    item.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.activity?.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return (
@@ -121,11 +121,11 @@ const AdminLMSApprovals = () => {
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs shrink-0">
-                          {item.user.name.charAt(0)}
+                          {item.user?.name?.charAt(0) || 'U'}
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900 leading-none mb-1">{item.user.name}</p>
-                          <p className="text-[10px] font-medium text-gray-400">{item.user.email}</p>
+                          <p className="font-bold text-gray-900 leading-none mb-1">{item.user?.name || 'Unknown User'}</p>
+                          <p className="text-[10px] font-medium text-gray-400">{item.user?.email || 'No Email'}</p>
                         </div>
                       </div>
                     </td>
@@ -179,7 +179,7 @@ const AdminLMSApprovals = () => {
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">Submitted By</p>
-                  <p className="font-bold text-blue-900">{reviewDialog.item?.user.name} ({reviewDialog.item?.user.email})</p>
+                  <p className="font-bold text-blue-900">{reviewDialog.item?.user?.name || 'Unknown User'} ({reviewDialog.item?.user?.email || 'No Email'})</p>
                 </div>
               </div>
 

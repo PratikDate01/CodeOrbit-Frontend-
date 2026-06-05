@@ -176,10 +176,10 @@ const AdminUsers = () => {
                           fontSize: '0.9rem',
                           fontWeight: 700
                         }}>
-                          {user.name.charAt(0)}
+                          {user.name?.charAt(0) || 'U'}
                         </Avatar>
                         <Box>
-                          <Typography variant="body2" fontWeight={700}>{user.name}</Typography>
+                          <Typography variant="body2" fontWeight={700}>{user.name || 'Unknown User'}</Typography>
                           <Typography variant="caption" color="text.secondary">ID: {user._id.substring(0, 8)}...</Typography>
                         </Box>
                       </Box>

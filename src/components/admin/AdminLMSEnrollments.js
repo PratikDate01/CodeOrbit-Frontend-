@@ -91,12 +91,12 @@ const AdminLMSEnrollments = () => {
                       <User size={16} color="#0066FF" />
                     </Box>
                     <Box>
-                      <Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.85rem' }}>{enrollment.user.name}</Typography>
-                      <Typography variant="caption" color="text.secondary">{enrollment.user.email}</Typography>
+                      <Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.85rem' }}>{enrollment.user?.name || 'Unknown User'}</Typography>
+                      <Typography variant="caption" color="text.secondary">{enrollment.user?.email || 'No Email'}</Typography>
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell sx={{ py: 1, fontSize: '0.85rem' }}>{enrollment.program.title}</TableCell>
+                <TableCell sx={{ py: 1, fontSize: '0.85rem' }}>{enrollment.program?.title || 'Unknown Program'}</TableCell>
                 <TableCell sx={{ py: 1, minWidth: 140 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Box sx={{ flexGrow: 1 }}>

@@ -1,9 +1,53 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { PlayCircle, Award, Clock, ArrowLeft, BookOpen, ChevronRight, CheckCircle2, Layout, Star } from 'lucide-react';
+import {
+  PlayCircle, Award, Clock, ArrowLeft, BookOpen,
+  ChevronRight, CheckCircle2, Star, GraduationCap,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  Box, Container, Typography, Grid, Button, Stack, LinearProgress,
+} from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/api';
 
+// ── Stat card ─────────────────────────────────────────────────────────────────
+const StatCard = ({ icon: Icon, iconBg, iconColor, value, label }) => (
+  <Box sx={{
+    display: 'flex', alignItems: 'center', gap: 2,
+    p: 2.5,
+    bgcolor: '#fff',
+    border: '1.5px solid #e8e8e4',
+    borderRadius: '16px',
+    minWidth: 160,
+    transition: 'all 0.2s',
+    '&:hover': { borderColor: '#2563eb', boxShadow: '0 0 0 4px rgba(37,99,235,0.06)' },
+  }}>
+    <Box sx={{
+      width: 44, height: 44, borderRadius: '10px',
+      bgcolor: iconBg, display: 'flex', alignItems: 'center',
+      justifyContent: 'center', color: iconColor, flexShrink: 0,
+    }}>
+      <Icon size={20} />
+    </Box>
+    <Box>
+      <Typography sx={{
+        fontWeight: 900, fontSize: '1.4rem', color: '#0a0a0a',
+        fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.04em', lineHeight: 1,
+      }}>
+        {value}
+      </Typography>
+      <Typography sx={{
+        fontSize: '0.68rem', fontWeight: 700, color: '#a3a3a3',
+        fontFamily: '"DM Sans", sans-serif',
+        textTransform: 'uppercase', letterSpacing: '0.1em', mt: 0.5,
+      }}>
+        {label}
+      </Typography>
+    </Box>
+  </Box>
+);
+
+// ── Component ─────────────────────────────────────────────────────────────────
 const MyLearning = () => {
   const { userInfo } = useAuth();
   const [enrollments, setEnrollments] = useState([]);
@@ -16,216 +60,470 @@ const MyLearning = () => {
     try {
       const { data } = await API.get('/lms/my-enrollments');
       setEnrollments(data);
-    } catch (error) {
-      console.error('Error fetching enrollments:', error);
-      setError('Failed to load your courses. Please try again later.');
+    } catch (err) {
+      console.error('Error fetching enrollments:', err);
+      setError('Failed to load your courses. Please try again.');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchEnrollments();
-  }, [fetchEnrollments]);
+  useEffect(() => { fetchEnrollments(); }, [fetchEnrollments]);
 
+  // ── Loading ─────────────────────────────────────────────────────────────────
   if (loading) return (
-    <div className="flex flex-col justify-center items-center min-h-[60vh] bg-white">
-      <div className="relative">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 border-r-transparent border-b-transparent border-l-transparent"></div>
-        <div className="absolute inset-0 animate-pulse bg-blue-50 rounded-full -z-10 scale-150 opacity-50"></div>
-      </div>
-      <p className="text-gray-900 font-black mt-8 text-xl tracking-tight">Preparing your workspace...</p>
-      <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mt-2">Hang tight!</p>
-    </div>
+    <Box sx={{
+      display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', alignItems: 'center',
+      minHeight: '80vh', bgcolor: '#f7f7f5', gap: 2,
+    }}>
+      <Box sx={{
+        width: 38, height: 38, borderRadius: '50%',
+        border: '2.5px solid #e8e8e4', borderTopColor: '#2563eb',
+        animation: 'spin 0.75s linear infinite',
+        '@keyframes spin': { to: { transform: 'rotate(360deg)' } },
+      }} />
+      <Typography sx={{
+        color: '#a3a3a3', fontSize: '0.875rem', fontWeight: 500,
+        fontFamily: '"DM Sans", sans-serif',
+      }}>
+        Preparing your workspace…
+      </Typography>
+    </Box>
   );
 
+  // ── Error ───────────────────────────────────────────────────────────────────
   if (error) return (
-    <div className="flex flex-col justify-center items-center min-h-[60vh] px-4">
-      <div className="bg-red-50 text-red-600 p-6 rounded-[32px] mb-6 text-center max-w-sm border border-red-100">
-        <p className="font-bold text-lg mb-2">Oops!</p>
-        <p className="font-medium opacity-80">{error}</p>
-      </div>
-      <button 
+    <Box sx={{
+      display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', alignItems: 'center',
+      minHeight: '80vh', bgcolor: '#f7f7f5', px: 3, gap: 3,
+    }}>
+      <Box sx={{
+        p: { xs: 4, md: 6 }, borderRadius: '20px', textAlign: 'center',
+        maxWidth: 400, bgcolor: '#fff',
+        border: '1.5px solid #fecaca',
+        bgcolor: '#fff9f9',
+      }}>
+        <Box sx={{
+          width: 56, height: 56, borderRadius: '14px',
+          bgcolor: '#fee2e2', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', mx: 'auto', mb: 3, color: '#b91c1c',
+        }}>
+          <BookOpen size={26} />
+        </Box>
+        <Typography sx={{ fontWeight: 800, color: '#0a0a0a', mb: 1, fontFamily: '"DM Sans", sans-serif', fontSize: '1.1rem' }}>
+          Something went wrong
+        </Typography>
+        <Typography sx={{ color: '#737373', fontSize: '0.9rem', fontFamily: '"DM Sans", sans-serif', lineHeight: 1.65 }}>
+          {error}
+        </Typography>
+      </Box>
+      <Button
+        variant="contained"
         onClick={fetchEnrollments}
-        className="px-10 py-4 bg-gray-900 text-white rounded-2xl shadow-xl hover:bg-black transition-all font-black active:scale-95"
+        sx={{
+          bgcolor: '#0a0a0a', color: '#fff',
+          px: 4, py: 1.5, borderRadius: '10px',
+          fontWeight: 700, fontSize: '0.875rem',
+          textTransform: 'none', fontFamily: '"DM Sans", sans-serif',
+          boxShadow: 'none',
+          '&:hover': { bgcolor: '#1f1f1f', boxShadow: 'none' },
+        }}
       >
-        Retry Fetching
-      </button>
-    </div>
+        Retry
+      </Button>
+    </Box>
   );
 
+  // ── Page ────────────────────────────────────────────────────────────────────
   return (
-    <div className="bg-[#FAFBFF] min-h-screen py-12 pb-32">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-          <div className="flex items-start gap-6">
-            <Link 
-              to="/dashboard" 
-              className="p-4 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 transition-all shadow-sm group mt-1"
-            >
-              <ArrowLeft size={24} className="text-gray-900 group-hover:-translate-x-1 transition-transform" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-3 text-blue-600 mb-2">
-                <Layout size={20} />
-                <span className="text-sm font-black uppercase tracking-[0.2em]">Student Workspace</span>
-              </div>
-              <h1 className="text-5xl font-black text-gray-900 tracking-tight leading-none">My Learning</h1>
-              <p className="text-gray-400 mt-4 font-bold max-w-lg">
-                Your professional journey continues here. Track your progress, complete tasks, and earn your certification.
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex gap-4">
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
-                <Star size={24} fill="currentColor" />
-              </div>
-              <div>
-                <p className="text-2xl font-black text-gray-900 leading-none">{userInfo?.totalXP || 0}</p>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Total XP Earned</p>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                <BookOpen size={24} />
-              </div>
-              <div>
-                <p className="text-2xl font-black text-gray-900 leading-none">{enrollments.length}</p>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Active Programs</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <Box sx={{ bgcolor: '#f7f7f5', minHeight: '100vh', fontFamily: '"DM Sans", sans-serif' }}>
 
+      {/* ── Hero Strip ── */}
+      <Box sx={{
+        bgcolor: '#f7f7f5',
+        pt: { xs: 5, md: 8 },
+        pb: { xs: 5, md: 7 },
+        borderBottom: '1px solid #e8e8e4',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Dot grid */}
+        <Box sx={{
+          position: 'absolute', inset: 0,
+          backgroundImage: 'radial-gradient(#d1d5db 1px, transparent 1px)',
+          backgroundSize: '28px 28px', opacity: 0.45, pointerEvents: 'none',
+        }} />
+        {/* Blue blob */}
+        <Box sx={{
+          position: 'absolute', top: '-20%', right: '-4%',
+          width: 360, height: 360, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(37,99,235,0.09) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
+
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
+            justifyContent: 'space-between',
+            gap: 4,
+          }}>
+
+            {/* Left — title */}
+            <Box>
+              {/* Back link */}
+              <Button
+                component={Link}
+                to="/dashboard"
+                startIcon={<ArrowLeft size={15} />}
+                sx={{
+                  mb: 3, color: '#737373', fontWeight: 600, fontSize: '0.825rem',
+                  p: 0, minWidth: 0, textTransform: 'none',
+                  fontFamily: '"DM Sans", sans-serif',
+                  '&:hover': { bgcolor: 'transparent', color: '#0a0a0a' },
+                }}
+              >
+                Back to Dashboard
+              </Button>
+
+              {/* Eyebrow */}
+              <Box sx={{
+                display: 'inline-flex', alignItems: 'center', gap: 1,
+                bgcolor: '#eff6ff', border: '1px solid #bfdbfe',
+                borderRadius: '100px', px: 2, py: 0.4, mb: 2,
+              }}>
+                <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#2563eb' }} />
+                <Typography sx={{
+                  fontSize: '0.75rem', fontWeight: 600, color: '#2563eb',
+                  fontFamily: '"DM Sans", sans-serif', letterSpacing: 0.5,
+                }}>
+                  Student Workspace
+                </Typography>
+              </Box>
+
+              <Typography sx={{
+                fontWeight: 900, fontSize: { xs: '2rem', md: '3rem' },
+                letterSpacing: '-0.05em', color: '#0a0a0a', lineHeight: 1,
+                fontFamily: '"DM Sans", sans-serif',
+              }}>
+                My <Box component="span" sx={{ color: '#2563eb' }}>Learning</Box>
+              </Typography>
+              <Typography sx={{
+                mt: 1.5, color: '#737373', fontSize: '0.95rem', maxWidth: 480,
+                fontFamily: '"DM Sans", sans-serif', lineHeight: 1.7,
+              }}>
+                Track your progress, complete tasks, and earn your certification.
+              </Typography>
+            </Box>
+
+            {/* Right — stat cards */}
+            <Stack direction={{ xs: 'row', sm: 'row' }} spacing={2} flexWrap="wrap">
+              <StatCard
+                icon={Star}
+                iconBg="#fefce8"
+                iconColor="#ca8a04"
+                value={userInfo?.totalXP || 0}
+                label="Total XP Earned"
+              />
+              <StatCard
+                icon={GraduationCap}
+                iconBg="#eff6ff"
+                iconColor="#2563eb"
+                value={enrollments.length}
+                label="Active Programs"
+              />
+            </Stack>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* ── Content ── */}
+      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 8 } }}>
+
+        {/* ── Empty State ── */}
         {enrollments.length === 0 ? (
-          <div className="bg-white rounded-[48px] border border-gray-100 p-20 text-center shadow-xl shadow-blue-900/5">
-            <div className="bg-blue-50 w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-8 text-blue-600">
-              <BookOpen size={48} />
-            </div>
-            <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Nothing here yet</h2>
-            <p className="text-gray-400 mb-10 max-w-md mx-auto font-bold">
+          <Box sx={{
+            p: { xs: 8, md: 14 },
+            border: '1.5px solid #e8e8e4',
+            borderRadius: '24px',
+            textAlign: 'center',
+            bgcolor: '#fff',
+          }}>
+            <Box sx={{
+              width: 72, height: 72, borderRadius: '18px',
+              bgcolor: '#eff6ff', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', mx: 'auto', mb: 4, color: '#2563eb',
+            }}>
+              <BookOpen size={34} />
+            </Box>
+            <Typography sx={{
+              fontWeight: 900, fontSize: { xs: '1.5rem', md: '2rem' },
+              letterSpacing: '-0.04em', color: '#0a0a0a', mb: 1.5,
+              fontFamily: '"DM Sans", sans-serif',
+            }}>
+              Nothing here yet
+            </Typography>
+            <Typography sx={{
+              color: '#737373', fontSize: '0.95rem', lineHeight: 1.75,
+              maxWidth: 420, mx: 'auto', mb: 6,
+              fontFamily: '"DM Sans", sans-serif',
+            }}>
               Your learning journey begins once your internship is approved. Check your application status on the dashboard.
-            </p>
-            <Link 
-              to="/dashboard" 
-              className="inline-flex items-center px-10 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-2xl shadow-blue-200 active:scale-95"
+            </Typography>
+            <Button
+              component={Link}
+              to="/dashboard"
+              variant="contained"
+              sx={{
+                bgcolor: '#2563eb', color: '#fff',
+                px: 5, py: 1.6, fontWeight: 700, fontSize: '0.95rem',
+                borderRadius: '10px', boxShadow: 'none', textTransform: 'none',
+                fontFamily: '"DM Sans", sans-serif',
+                '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 8px 30px rgba(37,99,235,0.3)' },
+                transition: 'all 0.2s',
+              }}
             >
               Back to Dashboard
-            </Link>
-          </div>
+            </Button>
+          </Box>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {enrollments.map((enrollment) => (
-              <div 
-                key={enrollment._id} 
-                className="bg-white rounded-[40px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-500 group flex flex-col h-full relative"
-              >
-                {/* Status Badge */}
-                <div className="absolute top-6 right-6 z-10">
-                  {enrollment.status === 'Completed' ? (
-                    <span className="flex items-center gap-1.5 px-4 py-2 bg-green-500 text-white text-[10px] font-black rounded-full shadow-lg shadow-green-200">
-                      <CheckCircle2 size={12} /> COMPLETED
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-[10px] font-black rounded-full shadow-lg shadow-blue-200">
-                      <PlayCircle size={12} /> IN PROGRESS
-                    </span>
-                  )}
-                </div>
+          <Grid container spacing={3}>
+            {enrollments.map((enrollment) => {
+              const pct = enrollment.progress || 0;
+              const isComplete = enrollment.status === 'Completed';
 
-                {/* Hero Section */}
-                <div className="h-64 relative overflow-hidden">
-                  <img 
-                    src={enrollment.program.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop'} 
-                    alt={enrollment.program.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-6 left-8">
-                    <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest border border-blue-400 mb-2 inline-block">
-                      {enrollment.program.internshipDomain}
-                    </span>
-                    <h3 className="text-2xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
-                      {enrollment.program.title}
-                    </h3>
-                  </div>
-                </div>
+              return (
+                <Grid size={{ xs: 12, lg: 6 }} key={enrollment._id}>
+                  <Box sx={{
+                    bgcolor: '#fff',
+                    border: '1.5px solid #e8e8e4',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: '#2563eb',
+                      boxShadow: '0 0 0 4px rgba(37,99,235,0.06)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}>
 
-                {/* Info Section */}
-                <div className="p-8 flex flex-col flex-1">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Clock size={16} />
-                      <span className="text-xs font-bold uppercase tracking-widest">{enrollment.program.duration || '4 Weeks'}</span>
-                    </div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <BookOpen size={16} />
-                      <span className="text-xs font-bold uppercase tracking-widest">Self-Paced</span>
-                    </div>
-                  </div>
+                    {/* ── Thumbnail ── */}
+                    <Box sx={{ height: 200, position: 'relative', overflow: 'hidden' }}>
+                      <Box
+                        component="img"
+                        src={enrollment.program.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop'}
+                        alt={enrollment.program.title}
+                        sx={{
+                          width: '100%', height: '100%', objectFit: 'cover',
+                          transition: 'transform 0.5s ease',
+                          '&:hover': { transform: 'scale(1.04)' },
+                        }}
+                      />
+                      {/* Gradient overlay */}
+                      <Box sx={{
+                        position: 'absolute', inset: 0,
+                        background: 'linear-gradient(to top, rgba(10,10,10,0.72) 0%, transparent 55%)',
+                      }} />
 
-                  {/* Current Module Display */}
-                  {enrollment.currentModule && (
-                    <div className="bg-blue-50/50 rounded-2xl p-4 mb-6 border border-blue-50 group-hover:bg-blue-50 transition-colors">
-                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Current Module</p>
-                      <div className="flex items-center justify-between gap-4">
-                        <h4 className="font-bold text-gray-900 truncate">{enrollment.currentModule.title}</h4>
-                        <ChevronRight size={16} className="text-blue-600 shrink-0" />
-                      </div>
-                    </div>
-                  )}
+                      {/* Status pill — top right */}
+                      <Box sx={{
+                        position: 'absolute', top: 14, right: 14,
+                        display: 'inline-flex', alignItems: 'center', gap: 0.75,
+                        px: 1.75, py: 0.5, borderRadius: '100px',
+                        bgcolor: isComplete ? '#dcfce7' : '#eff6ff',
+                        border: '1px solid',
+                        borderColor: isComplete ? '#bbf7d0' : '#bfdbfe',
+                        fontSize: '0.7rem', fontWeight: 700,
+                        color: isComplete ? '#15803d' : '#2563eb',
+                        fontFamily: '"DM Sans", sans-serif',
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase',
+                      }}>
+                        {isComplete
+                          ? <><CheckCircle2 size={11} /> Completed</>
+                          : <><PlayCircle size={11} /> In Progress</>
+                        }
+                      </Box>
 
-                  {/* Progress Bar */}
-                  <div className="mt-auto pt-4 border-t border-gray-50">
-                    <div className="flex justify-between items-end mb-4">
-                      <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Completion</p>
-                        <p className="text-3xl font-black text-gray-900 leading-none">{enrollment.progress}%</p>
-                      </div>
-                      {enrollment.progress > 0 && (
-                        <p className="text-xs font-bold text-blue-600 mb-1">Keep it up!</p>
+                      {/* Domain + Title — bottom left */}
+                      <Box sx={{ position: 'absolute', bottom: 16, left: 18, right: 18 }}>
+                        <Box sx={{
+                          display: 'inline-flex', alignItems: 'center',
+                          px: 1.5, py: 0.35, borderRadius: '6px',
+                          bgcolor: '#2563eb', mb: 1,
+                        }}>
+                          <Typography sx={{
+                            fontSize: '0.65rem', fontWeight: 700, color: '#fff',
+                            fontFamily: '"DM Sans", sans-serif',
+                            textTransform: 'uppercase', letterSpacing: '0.1em',
+                          }}>
+                            {enrollment.program.internshipDomain}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontWeight: 800, fontSize: '1.1rem', color: '#fff',
+                          fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.02em',
+                          lineHeight: 1.25,
+                          textShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                        }}>
+                          {enrollment.program.title}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    {/* ── Body ── */}
+                    <Box sx={{ p: 3.5, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+
+                      {/* Meta row */}
+                      <Box sx={{ display: 'flex', gap: 2.5, mb: 3, flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                          <Box sx={{
+                            width: 20, height: 20, borderRadius: '50%',
+                            bgcolor: '#f7f7f5', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', border: '1px solid #e8e8e4',
+                          }}>
+                            <Clock size={11} color="#737373" />
+                          </Box>
+                          <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#737373', fontFamily: '"DM Sans", sans-serif' }}>
+                            {enrollment.program.duration || '4 Weeks'}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                          <Box sx={{
+                            width: 20, height: 20, borderRadius: '50%',
+                            bgcolor: '#f7f7f5', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', border: '1px solid #e8e8e4',
+                          }}>
+                            <BookOpen size={11} color="#737373" />
+                          </Box>
+                          <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#737373', fontFamily: '"DM Sans", sans-serif' }}>
+                            Self-Paced
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Current module */}
+                      {enrollment.currentModule && (
+                        <Box sx={{
+                          p: 2.5,
+                          bgcolor: '#eff6ff',
+                          border: '1px solid #bfdbfe',
+                          borderRadius: '12px',
+                          mb: 3,
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2,
+                        }}>
+                          <Box sx={{ overflow: 'hidden' }}>
+                            <Typography sx={{
+                              fontSize: '0.65rem', fontWeight: 700, color: '#2563eb',
+                              textTransform: 'uppercase', letterSpacing: '0.1em',
+                              fontFamily: '"DM Sans", sans-serif', mb: 0.25,
+                            }}>
+                              Current Module
+                            </Typography>
+                            <Typography sx={{
+                              fontWeight: 700, color: '#0a0a0a', fontSize: '0.875rem',
+                              fontFamily: '"DM Sans", sans-serif',
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                            }}>
+                              {enrollment.currentModule.title}
+                            </Typography>
+                          </Box>
+                          <ChevronRight size={16} color="#2563eb" style={{ flexShrink: 0 }} />
+                        </Box>
                       )}
-                    </div>
-                    <div className="w-full bg-gray-50 h-3 rounded-full overflow-hidden mb-10 border border-gray-100">
-                      <div 
-                        className="bg-blue-600 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                        style={{ width: `${enrollment.progress}%` }}
-                      ></div>
-                    </div>
 
-                    <div className="flex gap-4">
-                      <Link 
-                        to={`/learning/${enrollment.program._id}`}
-                        className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-5 bg-gray-900 text-white font-black rounded-[24px] hover:bg-black transition-all shadow-xl shadow-gray-200 group/btn active:scale-95"
-                      >
-                        <PlayCircle size={20} className="group-hover:scale-125 transition-transform" />
-                        <span>{enrollment.progress === 0 ? 'Start Program' : 'Continue Learning'}</span>
-                      </Link>
-                      
-                      {enrollment.isCertificateIssued && (
-                        <button className="w-16 h-16 bg-green-50 text-green-600 flex items-center justify-center rounded-[24px] hover:bg-green-100 transition-all border border-green-100 group shadow-lg shadow-green-900/5 active:scale-95">
-                          <Award size={28} className="group-hover:rotate-12 transition-transform" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                      {/* Progress */}
+                      <Box sx={{ mt: 'auto', pt: 3, borderTop: '1px solid #e8e8e4' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 1.5 }}>
+                          <Box>
+                            <Typography sx={{
+                              fontSize: '0.65rem', fontWeight: 700, color: '#a3a3a3',
+                              textTransform: 'uppercase', letterSpacing: '0.1em',
+                              fontFamily: '"DM Sans", sans-serif', mb: 0.25,
+                            }}>
+                              Completion
+                            </Typography>
+                            <Typography sx={{
+                              fontWeight: 900, fontSize: '1.75rem', color: '#0a0a0a',
+                              fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.04em', lineHeight: 1,
+                            }}>
+                              {pct}%
+                            </Typography>
+                          </Box>
+                          {pct > 0 && pct < 100 && (
+                            <Typography sx={{
+                              fontSize: '0.75rem', fontWeight: 700, color: '#2563eb',
+                              fontFamily: '"DM Sans", sans-serif',
+                            }}>
+                              Keep it up!
+                            </Typography>
+                          )}
+                        </Box>
+
+                        <LinearProgress
+                          variant="determinate"
+                          value={pct}
+                          sx={{
+                            height: 8, borderRadius: '100px',
+                            mb: 3.5,
+                            bgcolor: '#f7f7f5',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: '100px',
+                              bgcolor: isComplete ? '#16a34a' : '#2563eb',
+                            },
+                          }}
+                        />
+
+                        {/* Actions */}
+                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                          <Button
+                            component={Link}
+                            to={`/learning/${enrollment.program._id}`}
+                            variant="contained"
+                            startIcon={<PlayCircle size={17} />}
+                            sx={{
+                              flex: 1,
+                              bgcolor: '#0a0a0a', color: '#fff',
+                              py: 1.5, fontWeight: 700, fontSize: '0.875rem',
+                              borderRadius: '10px', boxShadow: 'none', textTransform: 'none',
+                              fontFamily: '"DM Sans", sans-serif',
+                              '&:hover': { bgcolor: '#1f1f1f', boxShadow: 'none' },
+                            }}
+                          >
+                            {pct === 0 ? 'Start Program' : 'Continue Learning'}
+                          </Button>
+
+                          {enrollment.isCertificateIssued && (
+                            <Button
+                              variant="outlined"
+                              sx={{
+                                width: 50, minWidth: 50, p: 0,
+                                borderRadius: '10px',
+                                borderColor: '#bbf7d0', borderWidth: '1.5px',
+                                color: '#15803d', bgcolor: '#dcfce7',
+                                '&:hover': { bgcolor: '#bbf7d0', borderColor: '#86efac' },
+                              }}
+                            >
+                              <Award size={20} />
+                            </Button>
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Grid>
+              );
+            })}
+          </Grid>
         )}
-      </div>
-      
-      <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-      ` }} />
-    </div>
+      </Container>
+    </Box>
   );
 };
 

@@ -200,10 +200,10 @@ const AdminMessages = () => {
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.light', fontSize: '0.8rem' }}>
-                          {msg.name.charAt(0)}
+                          {msg.name?.charAt(0) || 'M'}
                         </Avatar>
                         <Box>
-                          <Typography variant="body2" fontWeight={700}>{msg.name}</Typography>
+                          <Typography variant="body2" fontWeight={700}>{msg.name || 'Anonymous'}</Typography>
                           <Typography variant="caption" color="text.secondary">{msg.email}</Typography>
                         </Box>
                       </Box>

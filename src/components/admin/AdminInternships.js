@@ -292,13 +292,13 @@ const AdminInternships = () => {
     const csvContent = [
       headers.join(','),
       ...filteredApps.map(app => [
-        app.name,
-        app.email,
-        app.phone,
-        app.college,
-        app.preferredDomain,
-        app.status,
-        new Date(app.createdAt).toLocaleDateString()
+        app.name || 'Unknown',
+        app.email || 'N/A',
+        app.phone || 'N/A',
+        app.college || 'N/A',
+        app.preferredDomain || 'N/A',
+        app.status || 'N/A',
+        app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A'
       ].join(','))
     ].join('\n');
 
@@ -419,7 +419,7 @@ const AdminInternships = () => {
                         <User size={20} color="#64748b" />
                         <Box>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body2" fontWeight={700}>{app.name}</Typography>
+                            <Typography variant="body2" fontWeight={700}>{app.name || 'Unknown Applicant'}</Typography>
                             {app.progress?.isEligibleForCertificate && (
                               <Tooltip title="Eligible for Certificate">
                                 <Award size={14} color="#8b5cf6" />

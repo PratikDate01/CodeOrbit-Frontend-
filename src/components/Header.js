@@ -103,52 +103,141 @@ const Header = () => {
               <MenuIcon />
             </IconButton>
             <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              PaperProps={{
-                sx: {
-                  mt: 1,
-                  minWidth: 200,
-                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                  borderRadius: 2
-                }
-              }}
-            >
-              {navItems.map((item) => (
-                <MenuItem
-                  key={item.path}
-                  component={Link}
-                  to={item.path}
-                  onClick={handleClose}
-                  selected={location.pathname === item.path}
-                  sx={{
-                    py: 1.5,
-                    px: 2.5,
-                    fontWeight: location.pathname === item.path ? 600 : 500,
-                    '&.Mui-selected': {
-                      backgroundColor: 'primary.50',
-                      color: 'primary.main',
-                    },
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    {item.icon}
-                    {item.text}
-                  </Box>
-                </MenuItem>
-              ))}
-            </Menu>
+  id="menu-appbar"
+  anchorEl={anchorEl}
+  anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'right',
+  }}
+  keepMounted
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  open={Boolean(anchorEl)}
+  onClose={handleClose}
+  PaperProps={{
+    sx: {
+      mt: 1,
+      minWidth: 240,
+      borderRadius: 3,
+      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+    }
+  }}
+>
+  {/* Navigation Items */}
+  {navItems.map((item) => (
+    <MenuItem
+      key={item.path}
+      component={Link}
+      to={item.path}
+      onClick={handleClose}
+      selected={location.pathname === item.path}
+      sx={{
+        py: 1.5,
+        px: 2.5,
+        fontWeight: location.pathname === item.path ? 600 : 500,
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        {item.icon}
+        {item.text}
+      </Box>
+    </MenuItem>
+  ))}
+
+  {/* Divider */}
+  <Box
+    sx={{
+      height: 1,
+      bgcolor: 'divider',
+      mx: 2,
+      my: 1,
+    }}
+  />
+
+  {/* User Logged In */}
+  {userInfo ? (
+    <>
+      <Box sx={{ px: 2.5, py: 1 }}>
+        <Typography variant="subtitle2" fontWeight={700}>
+          {userInfo.name}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {userInfo.email}
+        </Typography>
+      </Box>
+
+      <MenuItem
+        component={Link}
+        to="/dashboard"
+        onClick={handleClose}
+      >
+        <LayoutDashboard
+          size={18}
+          style={{ marginRight: 12 }}
+        />
+        Dashboard
+      </MenuItem>
+
+      <MenuItem
+        component={Link}
+        to="/profile"
+        onClick={handleClose}
+      >
+        <User
+          size={18}
+          style={{ marginRight: 12 }}
+        />
+        Profile
+      </MenuItem>
+
+      {userInfo.role === 'admin' && (
+        <MenuItem
+          component={Link}
+          to="/admin"
+          onClick={handleClose}
+        >
+          <Settings
+            size={18}
+            style={{ marginRight: 12 }}
+          />
+          Admin Panel
+        </MenuItem>
+      )}
+
+      <MenuItem
+        onClick={handleLogout}
+        sx={{ color: 'error.main' }}
+      >
+        <LogOut
+          size={18}
+          style={{ marginRight: 12 }}
+        />
+        Logout
+      </MenuItem>
+    </>
+  ) : (
+    <>
+      <Box sx={{ p: 2 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          component={Link}
+          to="/login"
+          onClick={handleClose}
+          sx={{
+            py: 1.2,
+            borderRadius: 2,
+            fontWeight: 600,
+          }}
+        >
+          Login
+        </Button>
+      </Box>
+    </>
+  )}
+</Menu>
           </>
         ) : (
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
