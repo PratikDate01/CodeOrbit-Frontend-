@@ -295,6 +295,7 @@ const AdminLMSPrograms = () => {
                   <option value="Graphic Design">Graphic Design</option>
                   <option value="Social Media Marketing">Social Media Marketing</option>
                   <option value="Cyber Security">Cyber Security</option>
+                  <option value="Data Analytics">Data Analytics</option>
                 </select>
               </div>
 
