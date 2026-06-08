@@ -14,11 +14,12 @@ import API from '../../api/api';
 const StatCard = ({ icon: Icon, iconBg, iconColor, value, label }) => (
   <Box sx={{
     display: 'flex', alignItems: 'center', gap: 2,
-    p: 2.5,
+    p: { xs: 2, sm: 2.5 },
     bgcolor: '#fff',
     border: '1.5px solid #e8e8e4',
     borderRadius: '16px',
-    minWidth: 160,
+    flex: { xs: '1 1 100%', sm: '1 1 auto' },
+    minWidth: { xs: '100%', sm: 160 },
     transition: 'all 0.2s',
     '&:hover': { borderColor: '#2563eb', boxShadow: '0 0 0 4px rgba(37,99,235,0.06)' },
   }}>
@@ -31,7 +32,8 @@ const StatCard = ({ icon: Icon, iconBg, iconColor, value, label }) => (
     </Box>
     <Box>
       <Typography sx={{
-        fontWeight: 900, fontSize: '1.4rem', color: '#0a0a0a',
+        fontWeight: 900, fontSize: { xs: '1.25rem', sm: '1.4rem' },
+        color: '#0a0a0a',
         fontFamily: '"DM Sans", sans-serif', letterSpacing: '-0.04em', lineHeight: 1,
       }}>
         {value}
@@ -209,8 +211,8 @@ const MyLearning = () => {
               </Box>
 
               <Typography sx={{
-                fontWeight: 900, fontSize: { xs: '2rem', md: '3rem' },
-                letterSpacing: '-0.05em', color: '#0a0a0a', lineHeight: 1,
+                fontWeight: 900, fontSize: { xs: '2.25rem', sm: '2.75rem', md: '3rem' },
+                letterSpacing: '-0.05em', color: '#0a0a0a', lineHeight: 1.1,
                 fontFamily: '"DM Sans", sans-serif',
               }}>
                 My <Box component="span" sx={{ color: '#2563eb' }}>Learning</Box>
@@ -224,7 +226,12 @@ const MyLearning = () => {
             </Box>
 
             {/* Right — stat cards */}
-            <Stack direction={{ xs: 'row', sm: 'row' }} spacing={2} flexWrap="wrap">
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={2}
+              flexWrap="wrap"
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
               <StatCard
                 icon={Star}
                 iconBg="#fefce8"
@@ -300,7 +307,7 @@ const MyLearning = () => {
               const isComplete = enrollment.status === 'Completed';
 
               return (
-                <Grid size={{ xs: 12, lg: 6 }} key={enrollment._id}>
+                <Grid size={{ xs: 12, md: 6, lg: 6 }} key={enrollment._id}>
                   <Box sx={{
                     bgcolor: '#fff',
                     border: '1.5px solid #e8e8e4',
@@ -382,7 +389,7 @@ const MyLearning = () => {
                     </Box>
 
                     {/* ── Body ── */}
-                    <Box sx={{ p: 3.5, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                    <Box sx={{ p: { xs: 2.5, sm: 3.5 }, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
 
                       {/* Meta row */}
                       <Box sx={{ display: 'flex', gap: 2.5, mb: 3, flexWrap: 'wrap' }}>
@@ -415,7 +422,7 @@ const MyLearning = () => {
                       {/* Current module */}
                       {enrollment.currentModule && (
                         <Box sx={{
-                          p: 2.5,
+                          p: { xs: 2, sm: 2.5 },
                           bgcolor: '#eff6ff',
                           border: '1px solid #bfdbfe',
                           borderRadius: '12px',
@@ -485,7 +492,7 @@ const MyLearning = () => {
                         />
 
                         {/* Actions */}
-                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                        <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 } }}>
                           <Button
                             component={Link}
                             to={`/learning/${enrollment.program._id}`}
@@ -494,7 +501,10 @@ const MyLearning = () => {
                             sx={{
                               flex: 1,
                               bgcolor: '#0a0a0a', color: '#fff',
-                              py: 1.5, fontWeight: 700, fontSize: '0.875rem',
+                              py: { xs: 1.25, sm: 1.5 },
+                              px: { xs: 1.5, sm: 2.5 },
+                              fontWeight: 700,
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' },
                               borderRadius: '10px', boxShadow: 'none', textTransform: 'none',
                               fontFamily: '"DM Sans", sans-serif',
                               '&:hover': { bgcolor: '#1f1f1f', boxShadow: 'none' },
@@ -507,7 +517,9 @@ const MyLearning = () => {
                             <Button
                               variant="outlined"
                               sx={{
-                                width: 50, minWidth: 50, p: 0,
+                                width: { xs: 44, sm: 50 },
+                                minWidth: { xs: 44, sm: 50 },
+                                p: 0,
                                 borderRadius: '10px',
                                 borderColor: '#bbf7d0', borderWidth: '1.5px',
                                 color: '#15803d', bgcolor: '#dcfce7',

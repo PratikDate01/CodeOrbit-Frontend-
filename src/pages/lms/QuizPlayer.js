@@ -45,7 +45,7 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
           bgcolor: '#ffffff',
           border: '1px solid #e8e8e4',
           borderRadius: '16px',
-          p: { xs: 4, md: 6 },
+          p: { xs: 3, sm: 4, md: 6 },
           textAlign: 'center',
         }}>
           {/* Icon */}
@@ -64,7 +64,7 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
           </Box>
 
           <Typography sx={{
-            fontWeight: 900, fontSize: '1.5rem', letterSpacing: '-0.04em',
+            fontWeight: 900, fontSize: { xs: '1.35rem', sm: '1.5rem' }, letterSpacing: '-0.04em',
             color: '#0a0a0a', fontFamily: '"DM Sans", sans-serif', mb: 0.75,
           }}>
             {isPassed ? 'Quiz Passed!' : 'Quiz Failed'}
@@ -84,21 +84,23 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
           {score !== undefined && (
             <Box sx={{
               display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
-              px: 5, py: 3,
+              px: { xs: 3, sm: 5 }, py: { xs: 2, sm: 3 },
               bgcolor: isPassed ? '#f0fdf4' : '#fef2f2',
               border: `1px solid ${isPassed ? '#bbf7d0' : '#fecaca'}`,
               borderRadius: '14px',
               mb: 4,
+              width: { xs: '100%', sm: 'auto' },
+              boxSizing: 'border-box',
             }}>
               <Typography sx={{
                 fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.1em',
-                textTransform: 'uppercase', color: isPassed ? '#86efac' : '#fca5a5',
+                textTransform: 'uppercase', color: isPassed ? '#16a34a' : '#dc2626',
                 fontFamily: '"DM Sans", sans-serif', mb: 0.5,
               }}>
                 Your Score
               </Typography>
               <Typography sx={{
-                fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.05em', lineHeight: 1,
+                fontWeight: 900, fontSize: { xs: '2rem', sm: '2.5rem' }, letterSpacing: '-0.05em', lineHeight: 1,
                 color: isPassed ? '#16a34a' : '#dc2626',
                 fontFamily: '"DM Sans", sans-serif',
               }}>
@@ -133,7 +135,7 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
     <Box sx={{ fontFamily: '"DM Sans", sans-serif' }}>
 
       {/* Header */}
-      <Box sx={{ mb: 5 }}>
+      <Box sx={{ mb: { xs: 3.5, md: 5 } }}>
         <Box sx={{
           display: 'inline-flex', alignItems: 'center', gap: 1,
           bgcolor: '#eff6ff', border: '1px solid #bfdbfe',
@@ -146,9 +148,9 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
         </Box>
 
         <Typography sx={{
-          fontWeight: 900, fontSize: { xs: '1.5rem', md: '1.9rem' },
+          fontWeight: 900, fontSize: { xs: '1.35rem', sm: '1.6rem', md: '1.9rem' },
           letterSpacing: '-0.04em', color: '#0a0a0a',
-          fontFamily: '"DM Sans", sans-serif', lineHeight: 1.1, mb: 1,
+          fontFamily: '"DM Sans", sans-serif', lineHeight: 1.15, mb: 1,
         }}>
           {activity.title}
         </Typography>
@@ -189,7 +191,7 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
             bgcolor: '#ffffff',
             border: `1px solid ${answers[qIdx] !== undefined ? '#bfdbfe' : '#e8e8e4'}`,
             borderRadius: '16px',
-            p: { xs: 3, md: 3.5 },
+            p: { xs: 2.25, sm: 3, md: 3.5 },
             transition: 'border-color 0.2s',
           }}>
             {/* Question */}
@@ -226,7 +228,7 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
                     onClick={() => handleOptionChange(qIdx, oIdx)}
                     sx={{
                       display: 'flex', alignItems: 'center', gap: 2,
-                      p: 1.75, borderRadius: '10px', cursor: 'pointer',
+                      p: { xs: 1.5, sm: 1.75 }, borderRadius: '10px', cursor: 'pointer',
                       border: `1.5px solid ${isSelected ? '#2563eb' : '#e8e8e4'}`,
                       bgcolor: isSelected ? '#eff6ff' : '#fafaf9',
                       transition: 'all 0.15s ease',
@@ -269,7 +271,7 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
       {/* Unanswered warning */}
       {!allAnswered && Object.keys(answers).length > 0 && (
         <Box sx={{
-          mt: 3, px: 2.5, py: 1.5,
+          mt: 3, px: { xs: 2, sm: 2.5 }, py: { xs: 1.25, sm: 1.5 },
           bgcolor: '#fffbeb', border: '1px solid #fde68a',
           borderRadius: '10px', display: 'flex', alignItems: 'center', gap: 1.5,
         }}>
@@ -287,7 +289,7 @@ const QuizPlayer = ({ activity, onComplete, existingProgress }) => {
           disabled={!allAnswered || submitting}
           onClick={handleSubmit}
           sx={{
-            px: 6, py: 1.6, borderRadius: '10px',
+            px: { xs: 4, sm: 6 }, py: { xs: 1.25, sm: 1.6 }, borderRadius: '10px',
             textTransform: 'none', fontWeight: 700,
             fontSize: '0.95rem', fontFamily: '"DM Sans", sans-serif',
             bgcolor: '#2563eb', boxShadow: 'none',

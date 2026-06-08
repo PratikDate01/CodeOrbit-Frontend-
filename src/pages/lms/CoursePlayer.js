@@ -309,6 +309,12 @@ const CoursePlayer = () => {
   const [expandedModules, setExpandedModules] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  }, []);
+
   const fetchCourseContent = useCallback(async (courseId) => {
     try {
       const { data: contentData } = await API.get(`/lms/courses/${courseId}/content`);
@@ -471,17 +477,17 @@ const CoursePlayer = () => {
   return (
     <div className="flex h-screen bg-white overflow-hidden text-gray-900 font-sans">
       {/* Sidebar Mobile Overlay */}
-      {!sidebarOpen && (
+      {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-30 md:hidden"
-          onClick={() => setSidebarOpen(true)}
+          onClick={() => setSidebarOpen(false)}
         ></div>
       )}
 
       {/* Sidebar Navigation */}
       <aside className={`
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        fixed md:relative z-40 w-[340px] h-full bg-white border-r border-gray-100 transition-transform duration-500 ease-in-out flex flex-col shadow-2xl md:shadow-none
+        fixed md:relative z-40 w-[280px] sm:w-[340px] h-full bg-white border-r border-gray-100 transition-transform duration-500 ease-in-out flex flex-col shadow-2xl md:shadow-none
       `}>
         {/* Sidebar Header */}
         <div className="p-8 border-b border-gray-100 bg-white">
@@ -618,7 +624,7 @@ const CoursePlayer = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative overflow-hidden bg-[#FAFBFF]">
         {/* Top Navigation / Mobile Toggle */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0">
+        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-8 shrink-0">
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-500"
@@ -626,7 +632,7 @@ const CoursePlayer = () => {
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {activeActivity && currentProgress?.status !== 'Completed' && (
               <button 
                 onClick={markAsComplete}
@@ -636,27 +642,27 @@ const CoursePlayer = () => {
                 <span>Mark as Complete</span>
               </button>
             )}
-            <div className="w-px h-6 bg-gray-200 mx-2"></div>
+            <div className="hidden sm:block w-px h-6 bg-gray-200 mx-2"></div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Lesson {currentIndex + 1} of {flatActivities.length}</span>
+              <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest">Lesson {currentIndex + 1} of {flatActivities.length}</span>
             </div>
           </div>
         </header>
 
         {/* Content Viewport */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-12">
           <div className="max-w-4xl mx-auto">
             {activeActivity ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="mb-10">
-                  <div className="flex items-center gap-3 text-blue-600 mb-3">
+                <div className="mb-6 sm:mb-10">
+                  <div className="flex items-center gap-2 sm:gap-3 text-blue-600 mb-3">
                     <span className="px-3 py-1 bg-blue-50 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
                       {activeActivity.type}
                     </span>
                     <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
-                    <span className="text-sm font-bold text-gray-400">Section {expandedModules[activeActivity.lesson] ? "Active" : "Module"}</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-400">Section {expandedModules[activeActivity.lesson] ? "Active" : "Module"}</span>
                   </div>
-                  <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-tight">
+                  <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-gray-900 tracking-tight leading-tight">
                     {activeActivity.title}
                   </h1>
                 </div>
@@ -664,7 +670,7 @@ const CoursePlayer = () => {
                 {/* Content Renderers */}
                 <div className="space-y-12">
                   {activeActivity.type === 'Video' && (
-                    <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-blue-900/10 border-8 border-white bg-black aspect-video relative group">
+                    <div className="rounded-2xl sm:rounded-[40px] overflow-hidden shadow-2xl shadow-blue-900/10 border-4 sm:border-8 border-white bg-black aspect-video relative group">
                       <VideoPlayer 
                         url={activeActivity.content} 
                         onProgress={(prog) => {
@@ -677,7 +683,7 @@ const CoursePlayer = () => {
                   )}
 
                   {activeActivity.type === 'PDF' && (
-                    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden h-[800px] flex flex-col">
+                    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden h-[500px] sm:h-[800px] flex flex-col">
                       <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                         <span className="text-xs font-bold text-gray-500">Resource Viewer</span>
                         <a 
@@ -698,8 +704,8 @@ const CoursePlayer = () => {
                   )}
 
                   {activeActivity.type === 'Text' && (
-                    <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-10 md:p-16">
-                      <div className="prose prose-blue max-w-none prose-h2:font-black prose-p:text-gray-600 prose-p:text-lg prose-p:leading-relaxed">
+                    <div className="bg-white rounded-3xl sm:rounded-[40px] border border-gray-100 shadow-sm p-5 sm:p-10 md:p-16">
+                      <div className="prose prose-blue max-w-none prose-h2:font-black prose-p:text-gray-600 prose-p:text-base sm:prose-p:text-lg prose-p:leading-relaxed">
                         <div dangerouslySetInnerHTML={{ __html: activeActivity.content }} />
                       </div>
                     </div>
@@ -722,19 +728,19 @@ const CoursePlayer = () => {
                   )}
                   
                   {activeActivity.type === 'ExternalLink' && (
-                    <div className="bg-white rounded-3xl border border-gray-200 p-12 text-center shadow-sm">
-                      <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                        <ExternalLink size={40} />
+                    <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-12 text-center shadow-sm">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <ExternalLink size={30} />
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">External Resource</h3>
-                      <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 tracking-tight">External Resource</h3>
+                      <p className="text-sm sm:text-base text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
                         This lesson contains an external resource that will help you dive deeper into the topic.
                       </p>
                       <a 
                         href={activeActivity.content} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="inline-flex items-center gap-2 px-10 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-100"
+                        className="inline-flex items-center gap-2 px-8 py-3.5 sm:px-10 sm:py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 text-sm sm:text-base"
                       >
                         Visit Link <ExternalLink size={18} />
                       </a>
@@ -746,25 +752,25 @@ const CoursePlayer = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6">
-                  <PlayCircle size={48} />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6">
+                  <PlayCircle size={40} />
                 </div>
-                <h2 className="text-3xl font-black text-gray-900 mb-2">Ready to start?</h2>
-                <p className="text-gray-500 max-w-md">Select a lesson from the sidebar to begin your learning journey.</p>
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">Ready to start?</h2>
+                <p className="text-sm sm:text-base text-gray-500 max-w-md">Select a lesson from the sidebar to begin your learning journey.</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Bottom Navigation Bar */}
-        <footer className="h-24 bg-white border-t border-gray-100 flex items-center justify-between px-8 shrink-0 z-20">
+        <footer className="h-20 sm:h-24 bg-white border-t border-gray-100 flex items-center justify-between px-4 sm:px-8 shrink-0 z-20">
           <button 
             onClick={handlePrev}
             disabled={currentIndex <= 0}
-            className="flex items-center gap-3 px-6 py-4 rounded-2xl font-bold text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+            className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-30 disabled:hover:bg-transparent text-xs sm:text-sm md:text-base"
           >
-            <ChevronLeft size={24} />
-            <span className="hidden sm:inline">Previous Lesson</span>
+            <ChevronLeft size={20} className="sm:w-6 sm:h-6" />
+            <span>Prev</span>
           </button>
 
           <div className="hidden lg:flex flex-col items-center">
@@ -777,10 +783,10 @@ const CoursePlayer = () => {
           <button 
             onClick={handleNext}
             disabled={currentIndex >= flatActivities.length - 1 || (currentIndex < flatActivities.length - 1 && flatActivities[currentIndex + 1].isLocked)}
-            className="flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-30 active:scale-95 shadow-xl shadow-gray-200"
+            className="flex items-center gap-2 sm:gap-3 px-3 sm:px-8 py-3 sm:py-4 bg-gray-900 text-white rounded-xl sm:rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-30 active:scale-95 shadow-xl shadow-gray-200 text-xs sm:text-sm md:text-base"
           >
-            <span className="hidden sm:inline">Next Lesson</span>
-            <ChevronRight size={24} />
+            <span>Next</span>
+            <ChevronRight size={20} className="sm:w-6 sm:h-6" />
           </button>
         </footer>
       </main>
