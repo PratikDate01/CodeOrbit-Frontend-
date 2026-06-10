@@ -48,7 +48,7 @@ const UserNotifications = ({ notifications, onClearAll }) => {
 
   return (
     <Box>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <IconButton 
             component={Link} 
@@ -58,10 +58,10 @@ const UserNotifications = ({ notifications, onClearAll }) => {
             <ArrowLeft size={20} />
           </IconButton>
           <Box>
-            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.5px', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
               Notifications
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
               Stay updated with your application status and news.
             </Typography>
           </Box>
@@ -72,7 +72,7 @@ const UserNotifications = ({ notifications, onClearAll }) => {
             color="error" 
             startIcon={<Trash2 size={18} />}
             onClick={onClearAll}
-            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600, width: { xs: '100%', sm: 'auto' } }}
           >
             Clear All
           </Button>
@@ -86,7 +86,7 @@ const UserNotifications = ({ notifications, onClearAll }) => {
               <React.Fragment key={noti._id}>
                 <ListItem 
                   sx={{ 
-                    p: 3, 
+                    p: { xs: 2, sm: 3 }, 
                     bgcolor: noti.isRead ? 'transparent' : 'rgba(37, 99, 235, 0.02)',
                     '&:hover': { bgcolor: 'rgba(0,0,0,0.01)' }
                   }}
@@ -94,16 +94,17 @@ const UserNotifications = ({ notifications, onClearAll }) => {
                   <Avatar sx={{ 
                     bgcolor: getBgColor(noti.type), 
                     color: getColor(noti.type), 
-                    mr: 3,
-                    width: 48,
-                    height: 48
+                    mr: { xs: 2, sm: 3 },
+                    width: { xs: 40, sm: 48 },
+                    height: { xs: 40, sm: 48 },
+                    flexShrink: 0
                   }}>
                     {getIcon(noti.type)}
                   </Avatar>
                   <ListItemText 
                     primary={
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                        <Typography variant="subtitle1" fontWeight={700}>{noti.title}</Typography>
+                      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 0.5, sm: 2 }, mb: 0.5 }}>
+                        <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>{noti.title}</Typography>
                         <Typography variant="caption" color="text.secondary">
                           {new Date(noti.createdAt).toLocaleDateString()} at {new Date(noti.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </Typography>

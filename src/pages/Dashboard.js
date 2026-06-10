@@ -61,7 +61,7 @@ const NAV_ITEMS = [
 ];
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-const Sidebar = ({ userInfo, onLogout }) => {
+const Sidebar = ({ userInfo, onLogout, onItemClick }) => {
   const location = useLocation();
 
   return (
@@ -112,6 +112,7 @@ const Sidebar = ({ userInfo, onLogout }) => {
               <ListItemButton
                 component={Link}
                 to={path}
+                onClick={onItemClick}
                 sx={{
                   borderRadius: '10px',
                   py: 1.1,
@@ -312,7 +313,7 @@ const Dashboard = () => {
     );
   }
 
-  const sidebarContent = <Sidebar userInfo={userInfo} onLogout={handleLogout} />;
+  const sidebarContent = <Sidebar userInfo={userInfo} onLogout={handleLogout} onItemClick={() => setMobileOpen(false)} />;
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
@@ -350,7 +351,7 @@ const Dashboard = () => {
             zIndex: 1100,
           }}
         >
-          <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2.5, md: 4 }, minHeight: '64px !important' }}>
+          <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 4 }, minHeight: '64px !important' }}>
 
             {/* Left: hamburger + page title */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -467,7 +468,7 @@ const Dashboard = () => {
         </AppBar>
 
         {/* Page content */}
-        <Box sx={{ flexGrow: 1, p: { xs: 2.5, md: 4 } }}>
+        <Box sx={{ flexGrow: 1, p: { xs: 2, sm: 3, md: 4 } }}>
           <Routes>
             <Route index element={
               <UserOverview

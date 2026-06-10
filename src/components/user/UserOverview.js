@@ -180,47 +180,109 @@ const UserOverview = ({ applications, notifications, userInfo, onPaymentClick, g
             </Box>
             
             {applications.length > 0 ? (
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 700, py: 2 }}>Domain</TableCell>
-                      <TableCell sx={{ fontWeight: 700, py: 2 }}>Status</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, py: 2 }}>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {applications.slice(0, 5).map((app) => (
-                      <TableRow key={app._id} hover>
-                        <TableCell sx={{ py: 2 }}>
-                          <Typography variant="body2" fontWeight={700}>{app.preferredDomain}</Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {new Date(app.createdAt).toLocaleDateString()}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>{getStatusChip(app.status)}</TableCell>
-                        <TableCell align="right" sx={{ py: 2 }}>
-                          {app.status === 'Selected' && app.paymentStatus === 'Pending' ? (
-                            <Button 
-                              variant="contained" 
-                              size="small" 
-                              color="warning"
-                              onClick={() => onPaymentClick(app)}
-                              sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, px: 2 }}
-                            >
-                              Pay Now
-                            </Button>
-                          ) : (
-                            <IconButton size="small" component={Link} to="/dashboard/applications">
-                              <ChevronRight size={18} />
-                            </IconButton>
-                          )}
-                        </TableCell>
-                      </TableRow>
+              <>
+                {/* Desktop view */}
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700, py: 2 }}>Domain</TableCell>
+                          <TableCell sx={{ fontWeight: 700, py: 2 }}>Status</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700, py: 2 }}>Action</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {applications.slice(0, 5).map((app) => (
+                          <TableRow key={app._id} hover>
+                            <TableCell sx={{ py: 2 }}>
+                              <Typography variant="body2" fontWeight={700}>{app.preferredDomain}</Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {new Date(app.createdAt).toLocaleDateString()}
+                              </Typography>
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>{getStatusChip(app.status)}</TableCell>
+                            <TableCell align="right" sx={{ py: 2 }}>
+                              {app.status === 'Selected' && app.paymentStatus === 'Pending' ? (
+                                <Button 
+                                  variant="contained" 
+                                  size="small" 
+                                  color="warning"
+                                  onClick={() => onPaymentClick(app)}
+                                  sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, px: 2 }}
+                                >
+                                  Pay Now
+                                </Button>
+                              ) : (
+                                <IconButton size="small" component={Link} to="/dashboard/applications">
+                                  <ChevronRight size={18} />
+                                </IconButton>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+
+                {/* Mobile view */}
+                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                  <List disablePadding>
+                    {applications.slice(0, 5).map((app, idx) => (
+                      <React.Fragment key={app._id}>
+                        <ListItem 
+                          sx={{ 
+                            px: 0, 
+                            py: 1.5, 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'stretch',
+                            gap: 1.5
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                              <Typography variant="body2" fontWeight={700}>{app.preferredDomain}</Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {new Date(app.createdAt).toLocaleDateString()}
+                              </Typography>
+                            </Box>
+                            {getStatusChip(app.status)}
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            {app.status === 'Selected' && app.paymentStatus === 'Pending' ? (
+                              <Button 
+                                variant="contained" 
+                                size="small" 
+                                color="warning"
+                                onClick={() => onPaymentClick(app)}
+                                fullWidth
+                                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, py: 0.8 }}
+                              >
+                                Pay Now
+                              </Button>
+                            ) : (
+                              <Button
+                                component={Link}
+                                to="/dashboard/applications"
+                                variant="outlined"
+                                size="small"
+                                endIcon={<ChevronRight size={14} />}
+                                fullWidth
+                                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700 }}
+                              >
+                                View Details
+                              </Button>
+                            )}
+                          </Box>
+                        </ListItem>
+                        {idx < applications.slice(0, 5).length - 1 && <Divider />}
+                      </React.Fragment>
                     ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                  </List>
+                </Box>
+              </>
             ) : (
               <Box sx={{ textAlign: 'center', py: 8, bgcolor: 'rgba(15, 15, 15, 0.02)', borderRadius: 4 }}>
                 <Box sx={{ mb: 2, opacity: 0.2 }}>

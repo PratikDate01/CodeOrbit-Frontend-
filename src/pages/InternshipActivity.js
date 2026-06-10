@@ -165,12 +165,12 @@ const InternshipActivity = () => {
 
   return (
     <Box sx={{ bgcolor: '#f7f7f5', minHeight: '100vh', fontFamily: '"DM Sans", sans-serif' }}>
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 6 }, px: { xs: 2, sm: 3, md: 4 } }}>
 
         {/* ── Breadcrumbs ── */}
         <Breadcrumbs
           separator={<ChevronRight size={13} color="#a3a3a3" />}
-          sx={{ mb: 4 }}
+          sx={{ mb: { xs: 2.5, md: 4 } }}
         >
           <MuiLink
             component="button"
@@ -191,14 +191,14 @@ const InternshipActivity = () => {
 
         {/* ── Page Header ── */}
         <Box sx={{
-          mb: 5,
+          mb: { xs: 3.5, md: 5 },
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           alignItems: { xs: 'flex-start', md: 'center' },
           justifyContent: 'space-between',
           gap: 3,
         }}>
-          <Box>
+          <Box sx={{ width: '100%' }}>
             <Box sx={{
               display: 'inline-flex', alignItems: 'center', gap: 1,
               bgcolor: '#eff6ff', border: '1px solid #bfdbfe',
@@ -229,6 +229,7 @@ const InternshipActivity = () => {
               fontFamily: '"DM Sans", sans-serif',
               borderColor: '#e8e8e4', borderWidth: '1.5px', color: '#3f3f3f',
               px: 2.5, py: 1.1, fontSize: '0.875rem',
+              width: { xs: '100%', sm: 'auto' },
               '&:hover': { borderColor: '#0a0a0a', bgcolor: 'transparent', boxShadow: 'none' },
             }}
           >
@@ -238,8 +239,8 @@ const InternshipActivity = () => {
 
         {/* ── Progress Card ── */}
         <Box sx={{
-          p: { xs: 4, md: 5 },
-          mb: 5,
+          p: { xs: 2.5, sm: 4, md: 5 },
+          mb: { xs: 3.5, md: 5 },
           bgcolor: '#fff',
           border: '1.5px solid #e8e8e4',
           borderRadius: '20px',
@@ -363,7 +364,7 @@ const InternshipActivity = () => {
                     bgcolor: '#fff',
                     border: '1.5px solid #e8e8e4',
                     borderRadius: '16px',
-                    p: { xs: 3, md: 4 },
+                    p: { xs: 2.5, sm: 3, md: 4 },
                     transition: 'all 0.2s',
                     '&:hover': {
                       borderColor: '#2563eb',
@@ -590,12 +591,14 @@ const InternshipActivity = () => {
         </DialogContent>
 
         <Box sx={{ px: 3.5, pb: 3.5 }}>
-          <Box sx={{ display: 'flex', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 1.5 }}>
             <Button
               onClick={() => setSubmitDialogOpen(false)}
               disabled={submitting}
               sx={{
-                flex: 1, borderRadius: '10px', fontWeight: 700, py: 1.4,
+                flex: { xs: 'none', sm: 1 },
+                width: { xs: '100%', sm: 'auto' },
+                borderRadius: '10px', fontWeight: 700, py: 1.4,
                 textTransform: 'none', fontFamily: '"DM Sans", sans-serif',
                 fontSize: '0.875rem',
                 borderColor: '#e8e8e4', borderWidth: '1.5px', color: '#3f3f3f',
@@ -610,7 +613,9 @@ const InternshipActivity = () => {
               onClick={handleSubmitTask}
               disabled={submitting}
               sx={{
-                flex: 2, py: 1.4, borderRadius: '10px',
+                flex: { xs: 'none', sm: 2 },
+                width: { xs: '100%', sm: 'auto' },
+                py: 1.4, borderRadius: '10px',
                 textTransform: 'none', fontSize: '0.925rem',
                 fontWeight: 700, fontFamily: '"DM Sans", sans-serif',
                 bgcolor: '#2563eb', boxShadow: 'none',
