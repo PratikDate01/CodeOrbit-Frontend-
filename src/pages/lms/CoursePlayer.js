@@ -246,13 +246,13 @@ const TaskSubmission = ({ activity, onSubmit, previousResult }) => {
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-10">
+    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 sm:p-10">
       <div className="flex items-center gap-3 text-blue-600 mb-4">
         <ClipboardList size={24} />
         <span className="text-sm font-bold uppercase tracking-widest">Task Submission</span>
       </div>
       
-      <h4 className="text-3xl font-black text-gray-900 mb-4">Submit Your Work</h4>
+      <h4 className="text-2xl sm:text-3xl font-black text-gray-900 mb-4">Submit Your Work</h4>
       <p className="text-gray-500 font-medium mb-8 leading-relaxed">
         {task?.description || activity.description || "Complete the required task for this lesson and submit the results below. You can provide a link (GitHub, Drive) or a text description of your work."}
       </p>
@@ -272,7 +272,7 @@ const TaskSubmission = ({ activity, onSubmit, previousResult }) => {
       
       <div className="relative group mb-8">
         <textarea 
-          className="w-full bg-white border-2 border-gray-100 rounded-3xl p-6 text-gray-700 focus:border-blue-600 transition-all outline-none min-h-[200px] font-medium leading-relaxed"
+          className="w-full bg-white border-2 border-gray-100 rounded-3xl p-6 text-gray-700 focus:border-blue-600 transition-all outline-none min-h-[180px] font-medium leading-relaxed"
           placeholder={task?.type === 'Link' ? "Paste your link here (e.g. https://github.com/yourproject)" : "Explain your solution or provide a link..."}
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -283,9 +283,9 @@ const TaskSubmission = ({ activity, onSubmit, previousResult }) => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100">
-          <Info size={18} />
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100 w-full sm:w-auto">
+          <Info size={18} className="shrink-0" />
           <span className="text-xs font-bold">Requires mentor approval to unlock next content.</span>
         </div>
         <button 
@@ -315,7 +315,7 @@ const CoursePlayer = () => {
     }
   }, []);
 
-  const fetchCourseContent = useCallback(async (courseId) => {
+  const fetchCourseContent = useCallback(async (courseId, currentActiveActivity = null) => {
     try {
       const { data: contentData } = await API.get(`/lms/courses/${courseId}/content`);
       setData(prev => ({
@@ -324,29 +324,33 @@ const CoursePlayer = () => {
       }));
       
       // Auto-select first activity if none active
-      if (contentData.activities.length > 0 && !activeActivity) {
-        // Try to find first incomplete activity
+      if (contentData.activities.length > 0 && !currentActiveActivity) {
         const firstIncomplete = contentData.activities.find(a => {
           const p = contentData.progress.find(pr => pr.activity === a._id);
           return p?.status !== 'Completed';
         });
-        setActiveActivity(firstIncomplete || contentData.activities[0]);
-      }
-      
-      // Expand modules that contain the active activity
-      if (activeActivity) {
-        const lesson = contentData.lessons.find(l => l._id === activeActivity.lesson);
+        const selected = firstIncomplete || contentData.activities[0];
+        setActiveActivity(selected);
+
+        // Expand the module containing the selected activity
+        const lesson = contentData.lessons.find(l => l._id === selected.lesson);
         if (lesson) {
           setExpandedModules(prev => ({ ...prev, [lesson.module]: true }));
         }
       } else if (contentData.modules.length > 0) {
-        setExpandedModules({ [contentData.modules[0]._id]: true });
+        setExpandedModules(prev => {
+          if (Object.keys(prev).length === 0) {
+            return { [contentData.modules[0]._id]: true };
+          }
+          return prev;
+        });
       }
 
+      return contentData;
     } catch (error) {
       console.error('Error fetching course content:', error);
     }
-  }, [activeActivity]);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -412,45 +416,65 @@ const CoursePlayer = () => {
     }
   };
 
-  const handleUpdateProgress = async (activityId, payload) => {
+  // FIX: Refresh progress data AND immediately unlock next activities in local state
+  const refreshProgressData = useCallback(async () => {
+    if (data.courses.length > 0) {
+      try {
+        const { data: contentData } = await API.get(`/lms/courses/${data.courses[0]._id}/content`);
+        // Update progress and activities (which contain isLocked flags) immediately
+        setData(prev => ({
+          ...prev,
+          progress: contentData.progress,
+          activities: contentData.activities,
+          program: contentData.program ?? prev.program
+        }));
+        return contentData;
+      } catch (error) {
+        console.error('Error refreshing progress:', error);
+      }
+    }
+  }, [data.courses]);
+
+  const handleUpdateProgress = useCallback(async (activityId, payload) => {
     try {
       await API.post(`/lms/activities/${activityId}/progress`, payload);
-      // Refresh progress data
-      if (data.courses.length > 0) {
-        const { data: contentData } = await API.get(`/lms/courses/${data.courses[0]._id}/content`);
-        setData(prev => ({ ...prev, progress: contentData.progress }));
-      }
+      // FIX: Immediately refresh all data including isLocked states
+      await refreshProgressData();
       return true;
     } catch (error) {
       console.error('Error updating progress:', error);
       return false;
     }
-  };
+  }, [refreshProgressData]);
 
-  const handleQuizSubmit = async (answers) => {
+  const handleQuizSubmit = useCallback(async (answers) => {
     try {
       const { data: result } = await API.post(`/lms/activities/${activeActivity._id}/submit-quiz`, { answers });
-      // Refresh progress data
-      if (data.courses.length > 0) {
-        const { data: contentData } = await API.get(`/lms/courses/${data.courses[0]._id}/content`);
-        setData(prev => ({ ...prev, progress: contentData.progress }));
-      }
+      // FIX: Immediately refresh all data including isLocked states
+      await refreshProgressData();
       return result;
     } catch (error) {
       console.error('Error submitting quiz:', error);
       return false;
     }
-  };
+  }, [activeActivity, refreshProgressData]);
 
+  // FIX: currentProgress now reads from latest data.progress on every render
   const currentProgress = useMemo(() => {
     if (!activeActivity) return null;
     return data.progress.find(p => p.activity === activeActivity._id);
   }, [activeActivity, data.progress]);
 
-  const markAsComplete = async () => {
+  const markAsComplete = useCallback(async () => {
     if (!activeActivity) return;
     await handleUpdateProgress(activeActivity._id, { status: 'Completed' });
-  };
+  }, [activeActivity, handleUpdateProgress]);
+
+  // FIX: Compute isNextLocked from latest data.activities so no refresh needed
+  const isNextLocked = useMemo(() => {
+    if (currentIndex < 0 || currentIndex >= flatActivities.length - 1) return true;
+    return flatActivities[currentIndex + 1]?.isLocked ?? false;
+  }, [currentIndex, flatActivities]);
 
   if (loading) return (
     <div className="flex h-screen bg-white">
@@ -486,16 +510,26 @@ const CoursePlayer = () => {
 
       {/* Sidebar Navigation */}
       <aside className={`
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        fixed md:relative z-40 w-[280px] sm:w-[340px] h-full bg-white border-r border-gray-100 transition-transform duration-500 ease-in-out flex flex-col shadow-2xl md:shadow-none
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} 
+        fixed md:relative z-40 w-[280px] sm:w-[320px] md:w-[300px] lg:w-[340px] h-full bg-white border-r border-gray-100 transition-transform duration-500 ease-in-out flex flex-col shadow-2xl md:shadow-none
+        ${!sidebarOpen ? 'md:hidden' : ''}
       `}>
         {/* Sidebar Header */}
-        <div className="p-8 border-b border-gray-100 bg-white">
-          <Link to="/my-learning" className="inline-flex items-center gap-2 text-gray-400 hover:text-blue-600 transition-all mb-6 group font-bold">
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] uppercase tracking-[0.2em]">Exit Course</span>
-          </Link>
-          <h2 className="text-2xl font-black leading-tight mb-4 tracking-tight">{data.program?.title}</h2>
+        <div className="p-5 sm:p-8 border-b border-gray-100 bg-white">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <Link to="/my-learning" className="inline-flex items-center gap-2 text-gray-400 hover:text-blue-600 transition-all group font-bold">
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="text-[10px] uppercase tracking-[0.2em]">Exit Course</span>
+            </Link>
+            {/* FIX: Close button always visible on mobile inside sidebar */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <h2 className="text-lg sm:text-2xl font-black leading-tight mb-4 tracking-tight">{data.program?.title}</h2>
           
           <div className="space-y-2">
             <div className="flex justify-between items-end">
@@ -512,23 +546,23 @@ const CoursePlayer = () => {
         </div>
 
         {/* Journey Tree (Weeks -> Lessons -> Activities) */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 space-y-4">
           {data.modules.map((module, mIdx) => (
             <div key={module._id} className="rounded-3xl border border-transparent transition-all">
               <button 
                 onClick={() => toggleModule(module._id)}
-                className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${expandedModules[module._id] ? 'bg-blue-50/50' : 'hover:bg-gray-50'}`}
+                className={`w-full flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all ${expandedModules[module._id] ? 'bg-blue-50/50' : 'hover:bg-gray-50'}`}
               >
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-sm ${expandedModules[module._id] ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-gray-100 text-gray-500'}`}>
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl font-black text-sm shrink-0 ${expandedModules[module._id] ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-gray-100 text-gray-500'}`}>
                     {mIdx + 1}
                   </div>
                   <div className="text-left">
                     <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Week {mIdx + 1}</p>
-                    <h3 className={`font-bold text-sm leading-tight ${expandedModules[module._id] ? 'text-blue-900' : 'text-gray-700'}`}>{module.title}</h3>
+                    <h3 className={`font-bold text-xs sm:text-sm leading-tight ${expandedModules[module._id] ? 'text-blue-900' : 'text-gray-700'}`}>{module.title}</h3>
                   </div>
                 </div>
-                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${expandedModules[module._id] ? 'rotate-180 text-blue-600' : ''}`} />
+                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 shrink-0 ${expandedModules[module._id] ? 'rotate-180 text-blue-600' : ''}`} />
               </button>
 
               {expandedModules[module._id] && (
@@ -572,11 +606,11 @@ const CoursePlayer = () => {
                                     getActivityIcon(activity.type, prog)
                                   )}
                                 </div>
-                                <span className={`text-sm font-semibold truncate ${isActive ? 'text-blue-600' : isLocked ? 'text-gray-300' : 'text-gray-600'}`}>
+                                <span className={`text-xs sm:text-sm font-semibold truncate ${isActive ? 'text-blue-600' : isLocked ? 'text-gray-300' : 'text-gray-600'}`}>
                                   {activity.title}
                                 </span>
                                 
-                                <div className="ml-auto flex items-center gap-2">
+                                <div className="ml-auto flex items-center gap-2 shrink-0">
                                   {isLocked ? (
                                     <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">Locked</span>
                                   ) : (
@@ -608,10 +642,10 @@ const CoursePlayer = () => {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-6 bg-gray-50/50">
-          <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-              <Award size={20} />
+        <div className="p-4 sm:p-6 bg-gray-50/50">
+          <div className="flex items-center gap-3 p-3 sm:p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+              <Award size={18} />
             </div>
             <div>
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Certified Program</p>
@@ -622,45 +656,57 @@ const CoursePlayer = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative overflow-hidden bg-[#FAFBFF]">
+      <main className="flex-1 flex flex-col relative overflow-hidden bg-[#FAFBFF] min-w-0">
         {/* Top Navigation / Mobile Toggle */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header className="h-16 sm:h-20 bg-white border-b border-gray-100 flex items-center justify-between px-3 sm:px-8 shrink-0 gap-2">
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-500"
+            className="p-2 sm:p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-500 shrink-0"
           >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            {/* FIX: Mark as Complete button now visible on ALL screen sizes */}
             {activeActivity && currentProgress?.status !== 'Completed' && (
               <button 
                 onClick={markAsComplete}
-                className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-green-50 text-green-700 font-bold rounded-xl border border-green-100 hover:bg-green-100 transition-all"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-green-50 text-green-700 font-bold rounded-xl border border-green-100 hover:bg-green-100 transition-all text-xs sm:text-sm whitespace-nowrap"
               >
-                <CheckCircle2 size={18} />
-                <span>Mark as Complete</span>
+                <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px] shrink-0" />
+                <span className="hidden xs:inline sm:inline">Mark Complete</span>
+                <span className="xs:hidden sm:hidden">Done</span>
               </button>
             )}
-            <div className="hidden sm:block w-px h-6 bg-gray-200 mx-2"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest">Lesson {currentIndex + 1} of {flatActivities.length}</span>
+            {activeActivity && currentProgress?.status === 'Completed' && (
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl border border-green-100 text-xs font-bold">
+                <CheckCircle2 size={14} />
+                <span className="hidden sm:inline">Completed</span>
+              </div>
+            )}
+            <div className="hidden sm:block w-px h-6 bg-gray-200 mx-2 shrink-0"></div>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                {currentIndex + 1} / {flatActivities.length}
+              </span>
             </div>
           </div>
         </header>
 
         {/* Content Viewport */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-12">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-6 md:p-12">
           <div className="max-w-4xl mx-auto">
             {activeActivity ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="mb-6 sm:mb-10">
-                  <div className="flex items-center gap-2 sm:gap-3 text-blue-600 mb-3">
+                <div className="mb-5 sm:mb-10">
+                  <div className="flex items-center gap-2 sm:gap-3 text-blue-600 mb-3 flex-wrap">
                     <span className="px-3 py-1 bg-blue-50 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
                       {activeActivity.type}
                     </span>
                     <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
-                    <span className="text-xs sm:text-sm font-bold text-gray-400">Section {expandedModules[activeActivity.lesson] ? "Active" : "Module"}</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-400">
+                      Lesson {currentIndex + 1} of {flatActivities.length}
+                    </span>
                   </div>
                   <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-gray-900 tracking-tight leading-tight">
                     {activeActivity.title}
@@ -683,8 +729,8 @@ const CoursePlayer = () => {
                   )}
 
                   {activeActivity.type === 'PDF' && (
-                    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden h-[500px] sm:h-[800px] flex flex-col">
-                      <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden h-[400px] sm:h-[600px] md:h-[800px] flex flex-col">
+                      <div className="p-3 sm:p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                         <span className="text-xs font-bold text-gray-500">Resource Viewer</span>
                         <a 
                           href={activeActivity.content} 
@@ -763,30 +809,31 @@ const CoursePlayer = () => {
         </div>
 
         {/* Bottom Navigation Bar */}
-        <footer className="h-20 sm:h-24 bg-white border-t border-gray-100 flex items-center justify-between px-4 sm:px-8 shrink-0 z-20">
+        <footer className="h-16 sm:h-20 md:h-24 bg-white border-t border-gray-100 flex items-center justify-between px-3 sm:px-8 shrink-0 z-20 gap-2">
           <button 
             onClick={handlePrev}
             disabled={currentIndex <= 0}
-            className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-30 disabled:hover:bg-transparent text-xs sm:text-sm md:text-base"
+            className="flex items-center gap-1.5 sm:gap-3 px-3 sm:px-6 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-30 disabled:hover:bg-transparent text-xs sm:text-sm md:text-base whitespace-nowrap"
           >
-            <ChevronLeft size={20} className="sm:w-6 sm:h-6" />
+            <ChevronLeft size={18} className="sm:w-6 sm:h-6 shrink-0" />
             <span>Prev</span>
           </button>
 
-          <div className="hidden lg:flex flex-col items-center">
+          <div className="hidden lg:flex flex-col items-center min-w-0 px-4">
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Up Next</p>
             <p className="text-sm font-bold text-gray-900 truncate max-w-[200px]">
-              {currentIndex < flatActivities.length - 1 ? flatActivities[currentIndex + 1].title : "End of Journey"}
+              {currentIndex < flatActivities.length - 1 ? flatActivities[currentIndex + 1]?.title : "End of Journey"}
             </p>
           </div>
 
+          {/* FIX: Next button uses live isNextLocked computed from latest data.activities */}
           <button 
             onClick={handleNext}
-            disabled={currentIndex >= flatActivities.length - 1 || (currentIndex < flatActivities.length - 1 && flatActivities[currentIndex + 1].isLocked)}
-            className="flex items-center gap-2 sm:gap-3 px-3 sm:px-8 py-3 sm:py-4 bg-gray-900 text-white rounded-xl sm:rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-30 active:scale-95 shadow-xl shadow-gray-200 text-xs sm:text-sm md:text-base"
+            disabled={currentIndex >= flatActivities.length - 1 || isNextLocked}
+            className="flex items-center gap-1.5 sm:gap-3 px-4 sm:px-8 py-2.5 sm:py-4 bg-gray-900 text-white rounded-xl sm:rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-30 active:scale-95 shadow-xl shadow-gray-200 text-xs sm:text-sm md:text-base whitespace-nowrap"
           >
             <span>Next</span>
-            <ChevronRight size={20} className="sm:w-6 sm:h-6" />
+            <ChevronRight size={18} className="sm:w-6 sm:h-6 shrink-0" />
           </button>
         </footer>
       </main>
