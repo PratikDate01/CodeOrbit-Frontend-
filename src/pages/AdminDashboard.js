@@ -16,6 +16,9 @@ import {
   InputBase,
   Badge,
   Tooltip,
+  useMediaQuery,
+  useTheme,
+  Divider,
 } from '@mui/material';
 import {
   LayoutDashboard,
@@ -31,6 +34,7 @@ import {
   ShieldAlert,
   GraduationCap,
   Activity,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AdminOverview from '../components/admin/AdminOverview';
@@ -56,7 +60,7 @@ const NAV_ITEMS = [
 ];
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
-const Sidebar = ({ userInfo, onLogout, location }) => (
+const Sidebar = ({ userInfo, onLogout, location, onNavClick }) => (
   <Box sx={{
     height: '100%',
     display: 'flex',
@@ -64,10 +68,12 @@ const Sidebar = ({ userInfo, onLogout, location }) => (
     bgcolor: '#0f1117',
     borderRight: '1px solid rgba(255,255,255,0.06)',
     fontFamily: '"DM Sans", sans-serif',
+    overflowY: 'auto',
+    overflowX: 'hidden',
   }}>
 
     {/* Logo */}
-    <Box sx={{ px: 3, pt: 3.5, pb: 3 }}>
+    <Box sx={{ px: 3, pt: 3.5, pb: 3, flexShrink: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <Box sx={{
           width: 34, height: 34,
@@ -75,8 +81,12 @@ const Sidebar = ({ userInfo, onLogout, location }) => (
           borderRadius: '9px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 0 0 4px rgba(37,99,235,0.15)',
+          flexShrink: 0,
         }}>
-          <Typography sx={{ color: '#fff', fontWeight: 900, fontSize: '1rem', letterSpacing: '-1px', fontFamily: '"DM Sans", sans-serif' }}>
+          <Typography sx={{
+            color: '#fff', fontWeight: 900, fontSize: '1rem',
+            letterSpacing: '-1px', fontFamily: '"DM Sans", sans-serif',
+          }}>
             C
           </Typography>
         </Box>
@@ -99,7 +109,7 @@ const Sidebar = ({ userInfo, onLogout, location }) => (
     </Box>
 
     {/* Section label */}
-    <Box sx={{ px: 2.5, mb: 1 }}>
+    <Box sx={{ px: 2.5, mb: 1, flexShrink: 0 }}>
       <Typography sx={{
         fontSize: '0.68rem', fontWeight: 700,
         color: 'rgba(255,255,255,0.25)',
@@ -110,7 +120,7 @@ const Sidebar = ({ userInfo, onLogout, location }) => (
     </Box>
 
     {/* Nav items */}
-    <List sx={{ px: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+    <List sx={{ px: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.5, pb: 2 }}>
       {NAV_ITEMS.map(({ text, icon: Icon, path }) => {
         const active = path === '/admin'
           ? location.pathname === '/admin'
@@ -121,6 +131,7 @@ const Sidebar = ({ userInfo, onLogout, location }) => (
             <ListItemButton
               component={Link}
               to={path}
+              onClick={onNavClick}   // FIX: close drawer on mobile tap
               sx={{
                 borderRadius: '10px',
                 py: 1.1, px: 1.5,
@@ -156,8 +167,11 @@ const Sidebar = ({ userInfo, onLogout, location }) => (
       })}
     </List>
 
+    {/* Divider */}
+    <Divider sx={{ borderColor: 'rgba(255,255,255,0.07)', mx: 2, flexShrink: 0 }} />
+
     {/* User card */}
-    <Box sx={{ p: 2.5 }}>
+    <Box sx={{ p: 2.5, flexShrink: 0 }}>
       {/* Admin badge */}
       <Box sx={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -229,11 +243,19 @@ const Sidebar = ({ userInfo, onLogout, location }) => (
 // ── Main Admin Dashboard ──────────────────────────────────────────────────────
 const AdminDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { userInfo, logout } = useAuth();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
 
   const handleLogout = () => { logout(); navigate('/login'); };
+
+  // FIX: close mobile drawer when a nav item is tapped
+  const handleNavClick = () => {
+    if (!isDesktop) setMobileOpen(false);
+  };
 
   const currentNav = NAV_ITEMS.find(n =>
     n.path === '/admin'
@@ -241,13 +263,29 @@ const AdminDashboard = () => {
       : location.pathname === n.path || location.pathname.startsWith(n.path + '/')
   );
 
-  const sidebarContent = <Sidebar userInfo={userInfo} onLogout={handleLogout} location={location} />;
+  const sidebarContent = (
+    <Sidebar
+      userInfo={userInfo}
+      onLogout={handleLogout}
+      location={location}
+      onNavClick={handleNavClick}
+    />
+  );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f7f7f5', fontFamily: '"DM Sans", sans-serif' }}>
+    <Box sx={{
+      display: 'flex',
+      minHeight: '100vh',
+      bgcolor: '#f7f7f5',
+      fontFamily: '"DM Sans", sans-serif',
+    }}>
 
       {/* ── Sidebar ── */}
-      <Box component="nav" sx={{ width: { lg: DRAWER_WIDTH }, flexShrink: { lg: 0 } }}>
+      <Box
+        component="nav"
+        sx={{ width: { lg: DRAWER_WIDTH }, flexShrink: { lg: 0 } }}
+      >
+        {/* Mobile drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -255,16 +293,43 @@ const AdminDashboard = () => {
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', lg: 'none' },
-            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none' },
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              border: 'none',
+              boxShadow: '4px 0 24px rgba(0,0,0,0.18)',
+            },
           }}
         >
+          {/* Close button at top of mobile drawer */}
+          <Box sx={{
+            position: 'absolute', top: 12, right: 12, zIndex: 10,
+            display: { xs: 'block', lg: 'none' },
+          }}>
+            <IconButton
+              onClick={() => setMobileOpen(false)}
+              size="small"
+              sx={{
+                color: 'rgba(255,255,255,0.4)',
+                '&:hover': { color: '#fff', bgcolor: 'rgba(255,255,255,0.1)' },
+              }}
+            >
+              <X size={18} />
+            </IconButton>
+          </Box>
           {sidebarContent}
         </Drawer>
+
+        {/* Desktop permanent drawer */}
         <Drawer
           variant="permanent"
           sx={{
             display: { xs: 'none', lg: 'block' },
-            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none' },
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              border: 'none',
+              position: 'fixed',
+              height: '100vh',
+            },
           }}
           open
         >
@@ -273,19 +338,23 @@ const AdminDashboard = () => {
       </Box>
 
       {/* ── Main Content ── */}
-      <Box component="main" sx={{
-        flexGrow: 1,
-        width: { lg: `calc(100% - ${DRAWER_WIDTH}px)` },
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: { xs: '100%', lg: `calc(100% - ${DRAWER_WIDTH}px)` },
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
 
         {/* ── Topbar ── */}
         <AppBar
           position="sticky"
           elevation={0}
           sx={{
-            bgcolor: 'rgba(247,247,245,0.85)',
+            bgcolor: 'rgba(247,247,245,0.92)',
             backdropFilter: 'blur(12px)',
             borderBottom: '1px solid #e8e8e4',
             zIndex: 1100,
@@ -293,40 +362,54 @@ const AdminDashboard = () => {
         >
           <Toolbar sx={{
             justifyContent: 'space-between',
-            px: { xs: 2.5, md: 4 },
-            minHeight: '64px !important',
+            px: { xs: 2, sm: 3, md: 4 },
+            minHeight: { xs: '56px !important', sm: '64px !important' },
+            gap: 1,
           }}>
 
-            {/* Left */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Left: hamburger + title */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, minWidth: 0 }}>
               <IconButton
                 onClick={() => setMobileOpen(true)}
-                sx={{ display: { lg: 'none' }, color: '#0a0a0a', p: 1 }}
+                sx={{
+                  display: { lg: 'none' },
+                  color: '#0a0a0a',
+                  p: { xs: 0.75, sm: 1 },
+                  flexShrink: 0,
+                }}
               >
                 <Menu size={20} />
               </IconButton>
 
-              <Box>
+              <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{
-                  fontWeight: 800, fontSize: '1.05rem',
-                  color: '#0a0a0a', letterSpacing: '-0.03em',
-                  fontFamily: '"DM Sans", sans-serif', lineHeight: 1,
+                  fontWeight: 800,
+                  fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                  color: '#0a0a0a',
+                  letterSpacing: '-0.03em',
+                  fontFamily: '"DM Sans", sans-serif',
+                  lineHeight: 1,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                 }}>
                   {currentNav?.text || 'Admin Dashboard'}
                 </Typography>
+                {/* Date hidden on very small screens to save space */}
                 <Typography sx={{
                   fontSize: '0.75rem', color: '#a3a3a3',
                   fontFamily: '"DM Sans", sans-serif', fontWeight: 500, mt: 0.25,
+                  display: { xs: 'none', sm: 'block' },
                 }}>
                   {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                 </Typography>
               </Box>
             </Box>
 
-            {/* Right */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            {/* Right: actions */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.5 }, flexShrink: 0 }}>
 
-              {/* Search */}
+              {/* Search — full width on md+, icon-only toggle on mobile */}
               <Box sx={{
                 display: { xs: 'none', md: 'flex' },
                 alignItems: 'center',
@@ -334,7 +417,7 @@ const AdminDashboard = () => {
                 border: '1px solid #e8e8e4',
                 px: 1.75, py: 0.75,
                 borderRadius: '10px',
-                width: 260,
+                width: { md: 200, lg: 260 },
                 gap: 1,
                 transition: 'all 0.2s',
                 '&:focus-within': {
@@ -354,13 +437,30 @@ const AdminDashboard = () => {
                 />
               </Box>
 
-              {/* Settings */}
+              {/* Mobile search icon toggle */}
+              <Tooltip title="Search">
+                <IconButton
+                  size="small"
+                  onClick={() => setSearchOpen(s => !s)}
+                  sx={{
+                    display: { xs: 'flex', md: 'none' },
+                    width: 34, height: 34,
+                    bgcolor: '#ffffff', border: '1px solid #e8e8e4',
+                    borderRadius: '10px', color: '#737373',
+                    '&:hover': { borderColor: '#2563eb', color: '#2563eb', bgcolor: '#eff6ff' },
+                  }}
+                >
+                  <Search size={16} />
+                </IconButton>
+              </Tooltip>
+
+              {/* Settings — visible sm+ */}
               <Tooltip title="Settings">
                 <IconButton
                   size="small"
                   sx={{
                     display: { xs: 'none', sm: 'flex' },
-                    width: 36, height: 36,
+                    width: 34, height: 34,
                     bgcolor: '#ffffff', border: '1px solid #e8e8e4',
                     borderRadius: '10px', color: '#737373',
                     '&:hover': { borderColor: '#2563eb', color: '#2563eb', bgcolor: '#eff6ff' },
@@ -370,12 +470,12 @@ const AdminDashboard = () => {
                 </IconButton>
               </Tooltip>
 
-              {/* Notifications */}
+              {/* Notifications — always visible */}
               <Tooltip title="Notifications">
                 <IconButton
                   size="small"
                   sx={{
-                    width: 36, height: 36,
+                    width: 34, height: 34,
                     bgcolor: '#ffffff', border: '1px solid #e8e8e4',
                     borderRadius: '10px', color: '#737373',
                     '&:hover': { borderColor: '#2563eb', color: '#2563eb', bgcolor: '#eff6ff' },
@@ -395,28 +495,39 @@ const AdminDashboard = () => {
                 </IconButton>
               </Tooltip>
 
-              {/* Divider */}
-              <Box sx={{ width: 1, height: 28, bgcolor: '#e8e8e4', mx: 0.5 }} />
-
-              {/* Admin avatar */}
+              {/* Divider — hidden on xs */}
               <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 1.25,
-                cursor: 'default', py: 0.5, px: 1,
+                display: { xs: 'none', sm: 'block' },
+                width: 1, height: 28, bgcolor: '#e8e8e4', mx: 0.25,
+              }} />
+
+              {/* Avatar — always visible; name only on md+ */}
+              <Box sx={{
+                display: 'flex', alignItems: 'center',
+                gap: { xs: 0, md: 1.25 },
+                cursor: 'default',
+                py: 0.5, px: { xs: 0, md: 1 },
                 borderRadius: '10px',
               }}>
-                <Box sx={{ textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
+                <Box sx={{
+                  textAlign: 'right',
+                  display: { xs: 'none', md: 'block' },
+                }}>
                   <Typography sx={{
                     fontWeight: 700, fontSize: '0.825rem', color: '#0a0a0a',
                     fontFamily: '"DM Sans", sans-serif', lineHeight: 1.2,
                   }}>
                     {userInfo?.name?.split(' ')[0] || 'Admin'}
                   </Typography>
-                  <Typography sx={{ fontSize: '0.7rem', color: '#2563eb', fontFamily: '"DM Sans", sans-serif', fontWeight: 600 }}>
+                  <Typography sx={{
+                    fontSize: '0.7rem', color: '#2563eb',
+                    fontFamily: '"DM Sans", sans-serif', fontWeight: 600,
+                  }}>
                     Administrator
                   </Typography>
                 </Box>
                 <Avatar sx={{
-                  width: 34, height: 34,
+                  width: { xs: 30, sm: 34 }, height: { xs: 30, sm: 34 },
                   bgcolor: '#2563eb',
                   fontSize: '0.825rem', fontWeight: 800,
                   fontFamily: '"DM Sans", sans-serif',
@@ -427,10 +538,59 @@ const AdminDashboard = () => {
               </Box>
             </Box>
           </Toolbar>
+
+          {/* Mobile expandable search bar */}
+          {searchOpen && (
+            <Box sx={{
+              display: { xs: 'flex', md: 'none' },
+              alignItems: 'center',
+              px: 2, pb: 1.5, gap: 1,
+              borderTop: '1px solid #e8e8e4',
+            }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                bgcolor: '#ffffff',
+                border: '1px solid #e8e8e4',
+                px: 1.75, py: 0.75,
+                borderRadius: '10px',
+                flex: 1,
+                gap: 1,
+                '&:focus-within': {
+                  borderColor: '#2563eb',
+                  boxShadow: '0 0 0 3px rgba(37,99,235,0.08)',
+                },
+              }}>
+                <Search size={15} color="#a3a3a3" />
+                <InputBase
+                  autoFocus
+                  placeholder="Search anything…"
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontFamily: '"DM Sans", sans-serif',
+                    flex: 1, color: '#0a0a0a',
+                    '& input::placeholder': { color: '#c0c0bc' },
+                  }}
+                />
+              </Box>
+              <IconButton
+                size="small"
+                onClick={() => setSearchOpen(false)}
+                sx={{ color: '#737373', p: 0.75 }}
+              >
+                <X size={18} />
+              </IconButton>
+            </Box>
+          )}
         </AppBar>
 
         {/* ── Page Content ── */}
-        <Box sx={{ flexGrow: 1, p: { xs: 2.5, md: 4 } }}>
+        <Box sx={{
+          flexGrow: 1,
+          p: { xs: 2, sm: 3, md: 4 },
+          minWidth: 0,
+          overflowX: 'hidden',
+        }}>
           <Routes>
             <Route index element={<AdminOverview />} />
             <Route path="lms/*" element={<AdminLMS />} />

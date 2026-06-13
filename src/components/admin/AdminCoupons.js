@@ -164,21 +164,28 @@ const AdminCoupons = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'flex-start', sm: 'center' }, 
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: 2,
+        mb: 4 
+      }}>
         <Box>
-          <Typography variant="h4" fontWeight={800} color="primary.main">
+          <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
             Coupon Management
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Create and manage promotional coupons for internships
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, width: { xs: '100%', sm: 'auto' }, flexWrap: 'wrap' }}>
           <Button 
             variant="outlined" 
             startIcon={<History size={18} />} 
             onClick={fetchUsageHistory}
-            sx={{ borderRadius: 2 }}
+            sx={{ borderRadius: 2, flexGrow: { xs: 1, sm: 0 } }}
           >
             Usage History
           </Button>
@@ -186,14 +193,14 @@ const AdminCoupons = () => {
             variant="contained" 
             startIcon={<Plus size={18} />} 
             onClick={() => handleOpenModal()}
-            sx={{ borderRadius: 2 }}
+            sx={{ borderRadius: 2, flexGrow: { xs: 1, sm: 0 } }}
           >
             Create Coupon
           </Button>
         </Box>
       </Box>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', maxWidth: '100%', overflowX: 'auto' }}>
         <Table>
           <TableHead sx={{ bgcolor: 'primary.main' }}>
             <TableRow>
@@ -268,7 +275,7 @@ const AdminCoupons = () => {
         <DialogTitle sx={{ fontWeight: 700 }}>{editMode ? 'Edit Coupon' : 'Create New Coupon'}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent dividers>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               <TextField
                 label="Coupon Code"
                 fullWidth
@@ -276,7 +283,7 @@ const AdminCoupons = () => {
                 value={formData.code}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                 placeholder="e.g. SUMMER50"
-                sx={{ gridColumn: 'span 2' }}
+                sx={{ gridColumn: { xs: 'span 1', sm: 'span 2' } }}
               />
               <FormControl fullWidth>
                 <InputLabel>Discount Type</InputLabel>
@@ -333,7 +340,7 @@ const AdminCoupons = () => {
                 </Select>
               </FormControl>
               
-              <FormControl fullWidth sx={{ gridColumn: 'span 2' }}>
+              <FormControl fullWidth sx={{ gridColumn: { xs: 'span 1', sm: 'span 2' } }}>
                 <InputLabel>Applicable Plans</InputLabel>
                 <Select
                   multiple
@@ -374,7 +381,7 @@ const AdminCoupons = () => {
           {loadingHistory ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>
           ) : (
-            <TableContainer>
+            <TableContainer sx={{ maxWidth: '100%', overflowX: 'auto' }}>
               <Table size="small">
                 <TableHead>
                   <TableRow>

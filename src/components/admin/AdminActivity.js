@@ -196,13 +196,21 @@ const AdminActivity = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" fontWeight={800}>Activity Management</Typography>
+      <Box sx={{ 
+        mb: 4, 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: 2
+      }}>
+        <Typography variant="h4" fontWeight={800} sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>Activity Management</Typography>
         {tabValue === 0 && (
           <Button 
             variant="contained" 
             startIcon={<PlusIcon size={18} />}
             onClick={() => handleOpenTaskDialog()}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             Create Task
           </Button>
@@ -214,6 +222,8 @@ const AdminActivity = () => {
           value={tabValue} 
           onChange={(e, v) => setTabValue(v)}
           sx={{ borderBottom: 1, borderColor: 'divider' }}
+          variant="scrollable"
+          scrollButtons="auto"
         >
           <Tab label="Internship Tasks" />
           <Tab label="Student Submissions" />
@@ -238,7 +248,7 @@ const AdminActivity = () => {
             </TextField>
           </Box>
 
-          <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 3, maxWidth: '100%', overflowX: 'auto' }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -292,7 +302,7 @@ const AdminActivity = () => {
         </Box>
       ) : (
         <Box>
-          <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 3, maxWidth: '100%', overflowX: 'auto' }}>
             <Table>
               <TableHead>
                 <TableRow>

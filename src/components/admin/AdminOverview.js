@@ -175,36 +175,49 @@ const AdminOverview = () => {
                       sx={{ 
                         px: 3, 
                         py: 2,
+                        display: 'flex',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-start', sm: 'center' },
+                        gap: 1.5,
                         '&:hover': { bgcolor: 'rgba(0,0,0,0.01)' }
                       }}
-                      secondaryAction={
-                        <Box sx={{ textAlign: 'right' }}>
-                          <Chip 
-                            label={app.status} 
-                            size="small" 
-                            sx={{ 
-                              bgcolor: `${getStatusColor(app.status)}15`, 
-                              color: getStatusColor(app.status),
-                              fontWeight: 700,
-                              fontSize: '0.7rem'
-                            }} 
-                          />
-                          <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: 'text.secondary' }}>
-                            {new Date(app.createdAt).toLocaleDateString()}
-                          </Typography>
-                        </Box>
-                      }
                     >
-                      <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: 'primary.light', fontWeight: 600 }}>
-                          {app.name.charAt(0)}
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText 
-                        primary={app.name} 
-                        secondary={app.preferredDomain}
-                        primaryTypographyProps={{ fontWeight: 600 }}
-                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+                        <ListItemAvatar sx={{ minWidth: 'auto' }}>
+                          <Avatar sx={{ bgcolor: 'primary.light', fontWeight: 600 }}>
+                            {app.name.charAt(0)}
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText 
+                          primary={app.name} 
+                          secondary={app.preferredDomain}
+                          primaryTypographyProps={{ fontWeight: 600 }}
+                          sx={{ m: 0 }}
+                        />
+                      </Box>
+                      <Box sx={{ 
+                        textAlign: { xs: 'left', sm: 'right' }, 
+                        ml: { xs: 6, sm: 'auto' },
+                        display: 'flex',
+                        flexDirection: { xs: 'row', sm: 'column' },
+                        alignItems: { xs: 'center', sm: 'flex-end' },
+                        gap: { xs: 1, sm: 0.5 },
+                        width: { xs: '100%', sm: 'auto' }
+                      }}>
+                        <Chip 
+                          label={app.status} 
+                          size="small" 
+                          sx={{ 
+                            bgcolor: `${getStatusColor(app.status)}15`, 
+                            color: getStatusColor(app.status),
+                            fontWeight: 700,
+                            fontSize: '0.7rem'
+                          }} 
+                        />
+                        <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                          {new Date(app.createdAt).toLocaleDateString()}
+                        </Typography>
+                      </Box>
                     </ListItem>
                     {index < stats.recentApplications.length - 1 && <Divider component="li" sx={{ mx: 3 }} />}
                   </React.Fragment>

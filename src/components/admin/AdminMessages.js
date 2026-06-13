@@ -117,7 +117,7 @@ const AdminMessages = () => {
   return (
     <Box>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-1px' }}>
+        <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-1px', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
           Contact Messages
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -126,7 +126,16 @@ const AdminMessages = () => {
       </Box>
 
       <Paper sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
-        <Box sx={{ p: 2.5, display: 'flex', gap: 2, alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider', flexWrap: 'wrap' }}>
+        <Box sx={{ 
+          p: 2.5, 
+          display: 'flex', 
+          gap: 2, 
+          alignItems: { xs: 'stretch', sm: 'center' }, 
+          flexDirection: { xs: 'column', sm: 'row' },
+          borderBottom: '1px solid', 
+          borderColor: 'divider', 
+          flexWrap: 'wrap' 
+        }}>
           <TextField
             placeholder="Search messages..."
             size="small"
@@ -172,7 +181,7 @@ const AdminMessages = () => {
           </Typography>
         </Box>
 
-        <TableContainer>
+        <TableContainer sx={{ maxWidth: '100%', overflowX: 'auto' }}>
           <Table>
             <TableHead sx={{ bgcolor: 'background.alt' }}>
               <TableRow>
@@ -282,14 +291,16 @@ const AdminMessages = () => {
       <Modal 
         open={open} 
         onClose={() => setOpen(false)}
-        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}
       >
         <Paper sx={{
           width: '100%',
           maxWidth: 600,
           borderRadius: 4,
           overflow: 'hidden',
-          outline: 'none'
+          outline: 'none',
+          maxHeight: '90vh',
+          overflowY: 'auto'
         }}>
           {selectedMessage && (
             <Box>
@@ -317,9 +328,15 @@ const AdminMessages = () => {
                 <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, color: 'text.primary' }}>
                   {selectedMessage.message}
                 </Typography>
-
-                <Box sx={{ mt: 5, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                  <Button variant="outlined" color="inherit" onClick={() => setOpen(false)} sx={{ borderRadius: 2 }}>
+                
+                <Box sx={{ 
+                  mt: 5, 
+                  display: 'flex', 
+                  justifyContent: 'flex-end', 
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 1, sm: 2 } 
+                }}>
+                  <Button variant="outlined" color="inherit" onClick={() => setOpen(false)} sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}>
                     Close
                   </Button>
                   {selectedMessage.status !== 'Resolved' && (
@@ -327,7 +344,7 @@ const AdminMessages = () => {
                       variant="contained" 
                       color="success"
                       onClick={() => handleUpdateStatus(selectedMessage._id, 'Resolved')}
-                      sx={{ borderRadius: 2 }}
+                      sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
                     >
                       Mark as Resolved
                     </Button>
@@ -337,7 +354,7 @@ const AdminMessages = () => {
                     component="a" 
                     href={`mailto:${selectedMessage.email}`}
                     startIcon={<Mail size={18} />}
-                    sx={{ borderRadius: 2 }}
+                    sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
                   >
                     Reply via Email
                   </Button>

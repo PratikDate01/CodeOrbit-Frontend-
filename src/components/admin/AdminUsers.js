@@ -86,7 +86,7 @@ const AdminUsers = () => {
   return (
     <Box>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-1px' }}>
+        <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-1px', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
           Registered Users
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -95,7 +95,16 @@ const AdminUsers = () => {
       </Box>
 
       <Paper sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
-        <Box sx={{ p: 2.5, display: 'flex', gap: 2, alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider', flexWrap: 'wrap' }}>
+        <Box sx={{ 
+          p: 2.5, 
+          display: 'flex', 
+          gap: 2, 
+          alignItems: { xs: 'stretch', sm: 'center' }, 
+          flexDirection: { xs: 'column', sm: 'row' },
+          borderBottom: '1px solid', 
+          borderColor: 'divider', 
+          flexWrap: 'wrap' 
+        }}>
           <TextField
             placeholder="Search users by name or email..."
             size="small"
@@ -142,7 +151,7 @@ const AdminUsers = () => {
           </Typography>
         </Box>
 
-        <TableContainer>
+        <TableContainer sx={{ maxWidth: '100%', overflowX: 'auto' }}>
           <Table>
             <TableHead sx={{ bgcolor: 'background.alt' }}>
               <TableRow>

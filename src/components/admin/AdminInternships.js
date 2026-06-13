@@ -312,21 +312,28 @@ const AdminInternships = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ 
+        mb: 4, 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: 2
+      }}>
         <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-1px' }}>
+          <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-1px', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
             Internship Applications
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Manage and review all incoming internship requests.
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, width: { xs: '100%', sm: 'auto' } }}>
           <Button 
             variant="outlined" 
             startIcon={<Download size={18} />} 
             onClick={exportCSV}
-            sx={{ borderRadius: 2 }}
+            sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
           >
             Export CSV
           </Button>
@@ -334,12 +341,21 @@ const AdminInternships = () => {
       </Box>
 
       <Paper sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
-        <Box sx={{ p: 2.5, display: 'flex', gap: 2, alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ 
+          p: 2.5, 
+          display: 'flex', 
+          gap: 2, 
+          alignItems: { xs: 'stretch', sm: 'center' }, 
+          flexDirection: { xs: 'column', sm: 'row' },
+          borderBottom: '1px solid', 
+          borderColor: 'divider',
+          flexWrap: 'wrap'
+        }}>
           <TextField
             placeholder="Search by name, email, or college..."
             size="small"
             sx={{ 
-              width: 350,
+              width: { xs: '100%', sm: 350 },
               '& .MuiOutlinedInput-root': {
                 bgcolor: 'background.alt',
                 '& fieldset': { borderColor: 'transparent' },
@@ -387,7 +403,7 @@ const AdminInternships = () => {
           </Typography>
         </Box>
 
-        <TableContainer>
+        <TableContainer sx={{ maxWidth: '100%', overflowX: 'auto' }}>
           <Table sx={{ minWidth: 800 }}>
             <TableHead sx={{ bgcolor: 'background.alt' }}>
               <TableRow>
