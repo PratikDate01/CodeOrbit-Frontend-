@@ -1,70 +1,263 @@
-# Getting Started with Create React App
+# 🚀 CodeOrbit Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive React-based frontend application for CodeOrbit - a comprehensive platform for code sharing, collaboration, and management.
 
-## Available Scripts
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Available Scripts](#available-scripts)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
+
+## ✨ Features
+
+- **Modern UI/UX** - Built with Material-UI for a polished and professional interface
+- **Responsive Design** - Fully responsive design that works seamlessly across all devices
+- **QR Code Scanner** - Integrated QR code scanning functionality
+- **Smooth Animations** - Framer Motion for fluid and engaging animations
+- **State Management** - Efficient state management with React hooks
+- **Routing** - Client-side routing with React Router v7
+- **HTTP Client** - Axios for reliable API communication
+- **Testing** - Comprehensive testing setup with React Testing Library
+- **Dark Mode Support** - Built-in theme customization capabilities
+- **Performance Optimized** - Web Vitals monitoring and optimization
+
+## 🛠️ Tech Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | ^19.2.3 | UI Framework |
+| React Router | ^7.12.0 | Client-side routing |
+| Material-UI | ^7.3.7 | Component library |
+| Emotion | ^11.14.0+ | CSS-in-JS styling |
+| Framer Motion | ^12.28.1 | Animation library |
+| Axios | ^1.13.2 | HTTP client |
+| Tailwind CSS | ^3.4.17 | Utility-first CSS |
+| html5-qrcode | ^2.3.8 | QR code scanning |
+| Lucide React | ^0.562.0 | Icon library |
+
+## 📦 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
+- **npm** (v6 or higher) or **yarn** (v1.22 or higher)
+- **Git** - [Download](https://git-scm.com/)
+
+## 🔧 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/PratikDate01/CodeOrbit-Frontend-.git
+   cd CodeOrbit-Frontend-
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Create environment configuration**
+   ```bash
+   # Create a .env file in the root directory
+   cp .env.example .env
+   ```
+
+4. **Configure environment variables**
+   ```env
+   REACT_APP_API_BASE_URL=http://localhost:5000/api
+   REACT_APP_API_TIMEOUT=30000
+   # Add other required environment variables
+   ```
+
+## 🚀 Getting Started
+
+### Development Mode
+
+Start the development server with hot-reload:
+
+```bash
+npm start
+```
+
+The application will open automatically in your browser at `http://localhost:3000`
+
+### Production Build
+
+Create an optimized production build:
+
+```bash
+npm run build
+```
+
+The build artifacts will be stored in the `build/` directory.
+
+### Running Tests
+
+Execute the test suite:
+
+```bash
+npm test
+```
+
+Run tests in watch mode for development:
+
+```bash
+npm test -- --watch
+```
+
+## 📁 Project Structure
+
+```
+CodeOrbit-Frontend-/
+├── public/                 # Static assets
+├── src/
+│   ├── components/        # Reusable React components
+│   ├── pages/            # Page components
+│   ├── hooks/            # Custom React hooks
+│   ├── context/          # Context API setup
+│   ├── services/         # API service calls
+│   ├── utils/            # Utility functions
+│   ├── styles/           # Global styles
+│   ├── App.jsx           # Main App component
+│   └── index.jsx         # Entry point
+├── .env.example          # Environment variables template
+├── package.json          # Dependencies and scripts
+├── tailwind.config.js    # Tailwind CSS configuration
+└── README.md            # This file
+```
+
+## 📜 Available Scripts
 
 In the project directory, you can run:
 
 ### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the app in development mode with hot-reload enabled.
 
 ### `npm run build`
+Builds the app for production with optimized bundle size.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `npm test`
+Launches the test runner in interactive watch mode.
 
 ### `npm run eject`
+**Note: this is a one-way operation. Once you eject, you can't go back!**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Exposes all configuration files and transitive dependencies for advanced customization.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## ⚙️ Configuration
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Environment Variables
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Create a `.env` file in the root directory:
 
-## Learn More
+```env
+# API Configuration
+REACT_APP_API_BASE_URL=http://localhost:5000/api
+REACT_APP_API_TIMEOUT=30000
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Feature Flags
+REACT_APP_ENABLE_QR_SCANNER=true
+REACT_APP_ENABLE_DARK_MODE=true
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Analytics (optional)
+REACT_APP_ANALYTICS_ID=your_analytics_id
+```
 
-### Code Splitting
+### Tailwind CSS
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Customize your theme in `tailwind.config.js`:
 
-### Analyzing the Bundle Size
+```javascript
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#your-color',
+      },
+    },
+  },
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Material-UI Theme
 
-### Making a Progressive Web App
+Customize Material-UI theme in your theme configuration file:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```javascript
+import { createTheme } from '@mui/material/styles';
 
-### Advanced Configuration
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+  },
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🤝 Contributing
 
-### Deployment
+We welcome contributions! Please follow these guidelines:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. **Fork the repository**
+   ```bash
+   git clone https://github.com/yourusername/CodeOrbit-Frontend-.git
+   ```
 
-### `npm run build` fails to minify
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+3. **Commit your changes**
+   ```bash
+   git commit -m 'Add some amazing feature'
+   ```
+
+4. **Push to the branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+
+5. **Open a Pull Request**
+
+### Code Style Guidelines
+
+- Use functional components with hooks
+- Follow ESLint configuration
+- Write meaningful commit messages
+- Add comments for complex logic
+- Test your changes before submitting PR
+
+## 📄 License
+
+This project is licensed under the ISC License - see the LICENSE file for details.
+
+## 🆘 Support
+
+- **Issues** - [GitHub Issues](https://github.com/PratikDate01/CodeOrbit-Frontend-/issues)
+- **Live Demo** - [CodeOrbit Frontend](https://code-orbit-frontend.vercel.app)
+- **Documentation** - Check the docs folder for detailed guides
+
+## 🔗 Related Projects
+
+- [CodeOrbit Backend](https://github.com/PratikDate01/CodeOrbit-Backend)
+
+## 📞 Contact
+
+For questions or suggestions, please reach out to:
+- **GitHub** - [@PratikDate01](https://github.com/PratikDate01)
+
+---
+
+Made with ❤️ by the CodeOrbit Team
