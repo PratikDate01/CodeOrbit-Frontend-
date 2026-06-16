@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from 'react';
+import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -7,7 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { LoaderProvider } from './context/LoaderContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
@@ -35,6 +36,8 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const InternshipActivity = lazy(() => import('./pages/InternshipActivity'));
 const MyLearning = lazy(() => import('./pages/lms/MyLearning'));
 const CoursePlayer = lazy(() => import('./pages/lms/CoursePlayer'));
+const Maintenance = lazy(() => import('./pages/Maintenance'));
+
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -260,6 +263,145 @@ const theme = createTheme({
   },
 });
 
+const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+function AppRoutes() {
+  const { userInfo } = useAuth();
+  const [isMaintenanceActive, setIsMaintenanceActive] = React.useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkMaintenance = async () => {
+      try {
+        const { data } = await axios.get(`${baseURL}/api/maintenance/status`);
+        if (data.maintenanceMode) {
+          // If user is Admin, bypass maintenance mode
+          if (userInfo && (userInfo.role === "admin" || userInfo.role === "superadmin" || userInfo.role === "super_admin")) {
+            setIsMaintenanceActive(false);
+            return;
+          }
+
+          // If user exists, check profile (to test if whitelisted)
+          if (userInfo) {
+            try {
+              await axios.get(`${baseURL}/api/auth/profile`, {
+                headers: { Authorization: `Bearer ${userInfo.token}` }
+              });
+              setIsMaintenanceActive(false);
+            } catch (err) {
+              if (err.response && err.response.status === 503) {
+                setIsMaintenanceActive(true);
+              } else {
+                setIsMaintenanceActive(false);
+              }
+            }
+          } else {
+            // Public user - block
+            setIsMaintenanceActive(true);
+          }
+        } else {
+          setIsMaintenanceActive(false);
+        }
+      } catch (err) {
+        console.error("Error checking maintenance status:", err);
+      } finally {
+        setCheckingMaintenance(false);
+      }
+    };
+
+    checkMaintenance();
+  }, [userInfo]);
+
+  const isLoginPage = window.location.pathname === "/login";
+
+  if (checkingMaintenance) {
+    return <PageLoader />;
+  }
+
+  if (isMaintenanceActive && !isLoginPage) {
+    return (
+      <Routes>
+        <Route path="*" element={<Maintenance />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/internships" element={<Internships />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify" element={<VerifySearch />} />
+            <Route path="/verify/:id" element={<VerifyDocument />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/refund" element={<RefundPolicy />} />
+            <Route path="/fee-structure" element={<FeeExplanation />} />
+            <Route path="/colleges" element={<Colleges />} />
+            <Route 
+              path="/dashboard/*" 
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/internship-activity/:internshipId" 
+              element={
+                <PrivateRoute>
+                  <InternshipActivity />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/my-learning" 
+              element={
+                <PrivateRoute>
+                  <MyLearning />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/learning/:enrollmentId" 
+              element={
+                <PrivateRoute>
+                  <CoursePlayer />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/admin/*" 
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              } 
+            />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+      <Footer />
+    </>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -269,81 +411,12 @@ function App() {
             <CssBaseline />
             <GlobalLoader />
             <Router>
-            <Header />
-            <ErrorBoundary>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/services" element={<Services />} />
-                  <Route path="/internships" element={<Internships />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/verify" element={<VerifySearch />} />
-                  <Route path="/verify/:id" element={<VerifyDocument />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/refund" element={<RefundPolicy />} />
-                  <Route path="/fee-structure" element={<FeeExplanation />} />
-                  <Route path="/colleges" element={<Colleges />} />
-                  <Route 
-                    path="/dashboard/*" 
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/internship-activity/:internshipId" 
-                    element={
-                      <PrivateRoute>
-                        <InternshipActivity />
-                      </PrivateRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/my-learning" 
-                    element={
-                      <PrivateRoute>
-                        <MyLearning />
-                      </PrivateRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/learning/:enrollmentId" 
-                    element={
-                      <PrivateRoute>
-                        <CoursePlayer />
-                      </PrivateRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/profile" 
-                    element={
-                      <PrivateRoute>
-                        <Profile />
-                      </PrivateRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/*" 
-                    element={
-                      <AdminRoute>
-                        <AdminDashboard />
-                      </AdminRoute>
-                    } 
-                  />
-                </Routes>
-              </Suspense>
-            </ErrorBoundary>
-            <Footer />
-          </Router>
-        </AuthProvider>
-      </LoaderProvider>
-    </NotificationProvider>
-  </ThemeProvider>
+              <AppRoutes />
+            </Router>
+          </AuthProvider>
+        </LoaderProvider>
+      </NotificationProvider>
+    </ThemeProvider>
   );
 }
 

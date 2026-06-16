@@ -50,6 +50,17 @@ const AdminSystemMonitor = () => {
   const [healing, setHealing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Maintenance state
+  const [maintenance, setMaintenance] = useState({
+    maintenanceMode: false,
+    allowedUsers: [],
+    enabledBy: null,
+    enabledAt: null,
+  });
+  const [loadingMaintenance, setLoadingMaintenance] = useState(true);
+  const [newUser, setNewUser] = useState('');
+  const [savingMaintenance, setSavingMaintenance] = useState(false);
+
   const fetchHealth = useCallback(async () => {
     setLoadingHealth(true);
     try {
@@ -89,11 +100,94 @@ const AdminSystemMonitor = () => {
     }
   }, [showNotification]);
 
+  const fetchMaintenance = useCallback(async () => {
+    setLoadingMaintenance(true);
+    try {
+      const { data } = await API.get('/admin/system/maintenance');
+      setMaintenance(data);
+    } catch (error) {
+      console.error('Error fetching maintenance settings:', error);
+      showNotification('Failed to load maintenance settings', 'error');
+    } finally {
+      setLoadingMaintenance(false);
+    }
+  }, [showNotification]);
+
   useEffect(() => {
     fetchHealth();
     fetchIntegrity();
     fetchLogs(1);
-  }, [fetchHealth, fetchIntegrity, fetchLogs]);
+    fetchMaintenance();
+  }, [fetchHealth, fetchIntegrity, fetchLogs, fetchMaintenance]);
+
+  const handleToggleMaintenance = async () => {
+    const nextMode = !maintenance.maintenanceMode;
+    const confirmMsg = nextMode 
+      ? "Are you sure you want to ENABLE Maintenance Mode? Public access will be blocked immediately."
+      : "Are you sure you want to DISABLE Maintenance Mode? The site will be public immediately.";
+      
+    if (window.confirm(confirmMsg)) {
+      setSavingMaintenance(true);
+      try {
+        const { data } = await API.put('/admin/system/maintenance', {
+          maintenanceMode: nextMode,
+        });
+        setMaintenance(data);
+        showNotification(
+          `Maintenance mode has been ${nextMode ? 'enabled' : 'disabled'} successfully.`, 
+          nextMode ? 'warning' : 'success'
+        );
+      } catch (error) {
+        showNotification('Failed to update maintenance mode', 'error');
+      } finally {
+        setSavingMaintenance(false);
+      }
+    }
+  };
+
+  const handleAddAllowedUser = async (e) => {
+    e.preventDefault();
+    if (!newUser.trim()) return;
+    
+    // Check if already in list
+    if (maintenance.allowedUsers.some(u => u.toLowerCase() === newUser.trim().toLowerCase())) {
+      showNotification('User is already whitelisted', 'warning');
+      return;
+    }
+
+    const updatedUsers = [...maintenance.allowedUsers, newUser.trim()];
+    
+    setSavingMaintenance(true);
+    try {
+      const { data } = await API.put('/admin/system/maintenance', {
+        allowedUsers: updatedUsers,
+      });
+      setMaintenance(data);
+      setNewUser('');
+      showNotification('User added to whitelist successfully.', 'success');
+    } catch (error) {
+      showNotification('Failed to add whitelisted user', 'error');
+    } finally {
+      setSavingMaintenance(false);
+    }
+  };
+
+  const handleRemoveAllowedUser = async (userToRemove) => {
+    const updatedUsers = maintenance.allowedUsers.filter(u => u !== userToRemove);
+    
+    setSavingMaintenance(true);
+    try {
+      const { data } = await API.put('/admin/system/maintenance', {
+        allowedUsers: updatedUsers,
+      });
+      setMaintenance(data);
+      showNotification('User removed from whitelist successfully.', 'success');
+    } catch (error) {
+      showNotification('Failed to remove whitelisted user', 'error');
+    } finally {
+      setSavingMaintenance(false);
+    }
+  };
 
   const handleHeal = async () => {
     if (window.confirm('Are you sure you want to trigger the automatic data integrity healing routine? This will resolve orphan user references and clean up broken progress logs.')) {
@@ -151,12 +245,136 @@ const AdminSystemMonitor = () => {
             fetchHealth();
             fetchIntegrity();
             fetchLogs(currentPage);
+            fetchMaintenance();
           }}
           sx={{ borderRadius: 2 }}
         >
           Refresh All
         </Button>
       </Box>
+
+      {/* Maintenance Mode Section */}
+      <Typography variant="h6" fontWeight={800} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <ShieldAlert size={20} color="#dc2626" /> System Maintenance Settings
+      </Typography>
+      <Paper sx={{ p: 3, borderRadius: 3, mb: 5, border: '1px solid', borderColor: maintenance.maintenanceMode ? 'error.light' : 'divider', bgcolor: maintenance.maintenanceMode ? 'rgba(239, 68, 68, 0.02)' : 'background.paper' }}>
+        {loadingMaintenance ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
+        ) : (
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Chip 
+                      label={maintenance.maintenanceMode ? "Active" : "Inactive"} 
+                      color={maintenance.maintenanceMode ? "error" : "default"}
+                      sx={{ fontWeight: 800, px: 1 }}
+                    />
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      {maintenance.maintenanceMode 
+                        ? `Enabled by ${maintenance.enabledBy?.name || 'Admin'} on ${new Date(maintenance.enabledAt).toLocaleString()}` 
+                        : "Website is accessible to all public visitors."}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+                    When Maintenance Mode is active, public pages, dashboards, LMS student areas, payment gateways, and client APIs will return a 503 error. Only administrators and whitelisted test users will have full access to the site.
+                  </Typography>
+                </Box>
+                <Box>
+                  <Button
+                    variant="contained"
+                    color={maintenance.maintenanceMode ? "success" : "error"}
+                    onClick={handleToggleMaintenance}
+                    disabled={savingMaintenance}
+                    startIcon={<Zap size={18} />}
+                    sx={{
+                      borderRadius: 2.5,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 700,
+                      boxShadow: maintenance.maintenanceMode ? '0 10px 15px -3px rgba(34, 197, 94, 0.3)' : '0 10px 15px -3px rgba(239, 68, 68, 0.3)',
+                      '&:hover': {
+                        bgcolor: maintenance.maintenanceMode ? 'success.dark' : 'error.dark',
+                      }
+                    }}
+                  >
+                    {savingMaintenance ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : maintenance.maintenanceMode ? (
+                      "Deactivate Maintenance Mode"
+                    ) : (
+                      "Activate Maintenance Mode"
+                    )}
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ borderLeft: { md: '1px solid' }, borderColor: 'divider', pl: { md: 4 } }}>
+                <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  Whitelisted Test Users
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                  Admins always retain access. Whitelist clients or testers using their Email or User ID.
+                </Typography>
+                
+                <Box component="form" onSubmit={handleAddAllowedUser} sx={{ display: 'flex', gap: 1, mb: 3 }}>
+                  <input
+                    type="text"
+                    placeholder="Enter email or User ID..."
+                    value={newUser}
+                    onChange={(e) => setNewUser(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.875rem',
+                      fontFamily: '"DM Sans", sans-serif',
+                      outline: 'none',
+                    }}
+                  />
+                  <Button
+                    type="submit"
+                    variant="outlined"
+                    disabled={savingMaintenance || !newUser.trim()}
+                    sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
+                  >
+                    Add
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {maintenance.allowedUsers.map((user) => (
+                    <Chip
+                      key={user}
+                      label={user}
+                      onDelete={() => handleRemoveAllowedUser(user)}
+                      disabled={savingMaintenance}
+                      sx={{
+                        borderRadius: '6px',
+                        fontWeight: 600,
+                        bgcolor: 'rgba(37, 99, 235, 0.08)',
+                        color: '#2563eb',
+                        '& .MuiChip-deleteIcon': {
+                          color: '#2563eb',
+                          '&:hover': { color: '#1d4ed8' }
+                        }
+                      }}
+                    />
+                  ))}
+                  {maintenance.allowedUsers.length === 0 && (
+                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                      No test users whitelisted. (Admins still retain access).
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        )}
+      </Paper>
 
       {/* Grid for System Health Cards */}
       <Typography variant="h6" fontWeight={800} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>

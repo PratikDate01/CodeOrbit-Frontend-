@@ -35,6 +35,15 @@ API.interceptors.response.use(
   async (error) => {
     handleRequestStop();
     const { config, response } = error;
+    
+    // Check if system is under maintenance
+    if (response && response.status === 503 && response.data && response.data.message === "System under maintenance") {
+      if (window.location.pathname !== "/" && window.location.pathname !== "/login") {
+        window.location.href = "/";
+      }
+      return Promise.reject(error);
+    }
+
     if (!config || !config.retry) config.retry = 0;
     
     // Retry up to 2 times for 5xx errors or network errors
