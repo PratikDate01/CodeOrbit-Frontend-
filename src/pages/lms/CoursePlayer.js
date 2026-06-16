@@ -302,7 +302,7 @@ const TaskSubmission = ({ activity, onSubmit, previousResult }) => {
 };
 
 const CoursePlayer = () => {
-  const { programId } = useParams();
+  const { enrollmentId } = useParams();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({ program: null, courses: [], modules: [], lessons: [], activities: [], progress: [] });
   const [activeActivity, setActiveActivity] = useState(null);
@@ -317,7 +317,7 @@ const CoursePlayer = () => {
 
   const fetchCourseContent = useCallback(async (courseId, currentActiveActivity = null) => {
     try {
-      const { data: contentData } = await API.get(`/lms/courses/${courseId}/content`);
+      const { data: contentData } = await API.get(`/lms/courses/${courseId}/content?enrollmentId=${enrollmentId}`);
       setData(prev => ({
         ...prev,
         ...contentData
@@ -350,12 +350,12 @@ const CoursePlayer = () => {
     } catch (error) {
       console.error('Error fetching course content:', error);
     }
-  }, []);
+  }, [enrollmentId]);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const { data: programData } = await API.get(`/lms/programs/${programId}`);
+      const { data: programData } = await API.get(`/lms/enrollments/${enrollmentId}`);
       
       setData(prev => ({
         ...prev,
@@ -371,7 +371,7 @@ const CoursePlayer = () => {
     } finally {
       setLoading(false);
     }
-  }, [programId, fetchCourseContent]);
+  }, [enrollmentId, fetchCourseContent]);
 
   useEffect(() => {
     fetchData();
@@ -420,7 +420,7 @@ const CoursePlayer = () => {
   const refreshProgressData = useCallback(async () => {
     if (data.courses.length > 0) {
       try {
-        const { data: contentData } = await API.get(`/lms/courses/${data.courses[0]._id}/content`);
+        const { data: contentData } = await API.get(`/lms/courses/${data.courses[0]._id}/content?enrollmentId=${enrollmentId}`);
         // Update progress and activities (which contain isLocked flags) immediately
         setData(prev => ({
           ...prev,
@@ -433,11 +433,11 @@ const CoursePlayer = () => {
         console.error('Error refreshing progress:', error);
       }
     }
-  }, [data.courses]);
+  }, [data.courses, enrollmentId]);
 
   const handleUpdateProgress = useCallback(async (activityId, payload) => {
     try {
-      await API.post(`/lms/activities/${activityId}/progress`, payload);
+      await API.post(`/lms/activities/${activityId}/progress`, { ...payload, enrollmentId });
       // FIX: Immediately refresh all data including isLocked states
       await refreshProgressData();
       return true;
@@ -445,11 +445,11 @@ const CoursePlayer = () => {
       console.error('Error updating progress:', error);
       return false;
     }
-  }, [refreshProgressData]);
+  }, [refreshProgressData, enrollmentId]);
 
   const handleQuizSubmit = useCallback(async (answers) => {
     try {
-      const { data: result } = await API.post(`/lms/activities/${activeActivity._id}/submit-quiz`, { answers });
+      const { data: result } = await API.post(`/lms/activities/${activeActivity._id}/submit-quiz`, { answers, enrollmentId });
       // FIX: Immediately refresh all data including isLocked states
       await refreshProgressData();
       return result;
@@ -457,7 +457,7 @@ const CoursePlayer = () => {
       console.error('Error submitting quiz:', error);
       return false;
     }
-  }, [activeActivity, refreshProgressData]);
+  }, [activeActivity, refreshProgressData, enrollmentId]);
 
   // FIX: currentProgress now reads from latest data.progress on every render
   const currentProgress = useMemo(() => {

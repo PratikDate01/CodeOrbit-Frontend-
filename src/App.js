@@ -312,7 +312,7 @@ function App() {
                     } 
                   />
                   <Route 
-                    path="/learning/:programId" 
+                    path="/learning/:enrollmentId" 
                     element={
                       <PrivateRoute>
                         <CoursePlayer />

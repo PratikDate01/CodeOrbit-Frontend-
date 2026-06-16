@@ -495,7 +495,7 @@ const MyLearning = () => {
                         <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 } }}>
                           <Button
                             component={Link}
-                            to={`/learning/${enrollment.program._id}`}
+                            to={`/learning/${enrollment._id}`}
                             variant="contained"
                             startIcon={<PlayCircle size={17} />}
                             sx={{
@@ -516,6 +516,10 @@ const MyLearning = () => {
                           {enrollment.isCertificateIssued && (
                             <Button
                               variant="outlined"
+                              component="a"
+                              href={enrollment.certificateUrl || '#'}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               sx={{
                                 width: { xs: 44, sm: 50 },
                                 minWidth: { xs: 44, sm: 50 },

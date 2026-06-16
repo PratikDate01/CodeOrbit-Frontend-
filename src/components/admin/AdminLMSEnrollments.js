@@ -69,6 +69,8 @@ const AdminLMSEnrollments = () => {
             <TableRow>
               <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Student</TableCell>
               <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Program</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Enrollment Date</TableCell>
+              <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Payment Status</TableCell>
               <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Progress</TableCell>
               <TableCell sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Status</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700, py: 1.5, fontSize: '0.8rem' }}>Certification</TableCell>
@@ -97,6 +99,18 @@ const AdminLMSEnrollments = () => {
                   </Box>
                 </TableCell>
                 <TableCell sx={{ py: 1, fontSize: '0.85rem' }}>{enrollment.program?.title || 'Unknown Program'}</TableCell>
+                <TableCell sx={{ py: 1, fontSize: '0.85rem' }}>
+                  {new Date(enrollment.enrolledAt || enrollment.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell sx={{ py: 1 }}>
+                  <Chip 
+                    label={enrollment.internshipApplication?.paymentStatus || 'N/A'} 
+                    size="small" 
+                    color={enrollment.internshipApplication?.paymentStatus === 'Verified' ? 'success' : 'warning'} 
+                    variant="outlined"
+                    sx={{ fontSize: '0.65rem', fontWeight: 700, height: 20, textTransform: 'uppercase' }} 
+                  />
+                </TableCell>
                 <TableCell sx={{ py: 1, minWidth: 140 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Box sx={{ flexGrow: 1 }}>
@@ -144,7 +158,7 @@ const AdminLMSEnrollments = () => {
             ))}
             {enrollments.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
                   <Typography color="text.secondary">No enrollments found.</Typography>
                 </TableCell>
               </TableRow>

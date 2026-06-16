@@ -45,6 +45,7 @@ import AdminCoupons from '../components/admin/AdminCoupons';
 import AdminActivity from '../components/admin/AdminActivity';
 import AdminAuditLogs from '../components/admin/AdminAuditLogs';
 import AdminLMS from '../components/admin/AdminLMS';
+import AdminSystemMonitor from '../components/admin/AdminSystemMonitor';
 
 const DRAWER_WIDTH = 260;
 
@@ -57,6 +58,7 @@ const NAV_ITEMS = [
   { text: 'Activity',       icon: Activity,        path: '/admin/activity' },
   { text: 'Audit Logs',     icon: ShieldAlert,     path: '/admin/audit-logs' },
   { text: 'Coupons',        icon: TicketPercent,   path: '/admin/coupons' },
+  { text: 'System Monitor', icon: Settings,        path: '/admin/system' },
 ];
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -600,6 +602,7 @@ const AdminDashboard = () => {
             <Route path="activity" element={<AdminActivity />} />
             <Route path="audit-logs" element={<AdminAuditLogs />} />
             <Route path="coupons" element={<AdminCoupons />} />
+            <Route path="system" element={<AdminSystemMonitor />} />
           </Routes>
         </Box>
       </Box>
