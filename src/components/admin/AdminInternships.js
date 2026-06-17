@@ -626,6 +626,7 @@ const AdminInternships = () => {
       <Dialog 
         open={openDocDialog} 
         onClose={() => setOpenDocDialog(false)}
+        closeAfterTransition={false}
         PaperProps={{ sx: { borderRadius: 3, width: '100%', maxWidth: 550 } }}
       >
         <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Manage Documents</DialogTitle>
@@ -838,6 +839,7 @@ const AdminInternships = () => {
       <Dialog 
         open={openDateDialog} 
         onClose={() => setOpenDateDialog(false)}
+        closeAfterTransition={false}
         PaperProps={{ sx: { borderRadius: 3, width: '100%', maxWidth: 450 } }}
       >
         <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Edit Internship Dates</DialogTitle>
@@ -894,6 +896,7 @@ const AdminInternships = () => {
       <Dialog 
         open={openPaymentDialog} 
         onClose={() => setOpenPaymentDialog(false)}
+        closeAfterTransition={false}
         PaperProps={{ sx: { borderRadius: 3, width: '100%', maxWidth: 500 } }}
       >
         <DialogTitle sx={{ fontWeight: 800, pt: 3 }}>Verify Payment</DialogTitle>

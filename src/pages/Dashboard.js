@@ -497,6 +497,7 @@ const Dashboard = () => {
       <Dialog
         open={paymentModalOpen}
         onClose={() => !processingPayment && setPaymentModalOpen(false)}
+        closeAfterTransition={false}
         maxWidth="xs" fullWidth
         PaperProps={{
           sx: {

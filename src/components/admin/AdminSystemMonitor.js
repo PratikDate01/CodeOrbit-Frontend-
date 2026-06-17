@@ -665,6 +665,7 @@ const AdminSystemMonitor = () => {
       <Dialog
         open={!!selectedLog}
         onClose={() => setSelectedLog(null)}
+        closeAfterTransition={false}
         maxWidth="md"
         fullWidth
         PaperProps={{ sx: { borderRadius: 3 } }}

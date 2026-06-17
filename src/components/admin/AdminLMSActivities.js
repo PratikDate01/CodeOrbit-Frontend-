@@ -316,6 +316,7 @@ const AdminLMSActivities = () => {
       <Dialog 
         open={open} 
         onClose={handleClose} 
+        closeAfterTransition={false}
         maxWidth={formData.type === 'Quiz' ? "md" : "sm"} 
         fullWidth
       >

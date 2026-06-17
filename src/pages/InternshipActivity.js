@@ -491,6 +491,7 @@ const InternshipActivity = () => {
       <Dialog
         open={submitDialogOpen}
         onClose={() => !submitting && setSubmitDialogOpen(false)}
+        closeAfterTransition={false}
         maxWidth="sm"
         fullWidth
         PaperProps={{
