@@ -267,41 +267,51 @@ const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function AppRoutes() {
   const { userInfo } = useAuth();
-  const [isMaintenanceActive, setIsMaintenanceActive] = React.useState(false);
-  const [checkingMaintenance, setCheckingMaintenance] = React.useState(true);
+  const [isMaintenanceActive, setIsMaintenanceActive] = React.useState(() => {
+    try {
+      const cached = localStorage.getItem('maintenanceMode');
+      return cached === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [checkingMaintenance, setCheckingMaintenance] = React.useState(false);
 
   React.useEffect(() => {
     const checkMaintenance = async () => {
       try {
         const { data } = await axios.get(`${baseURL}/api/maintenance/status`);
+        let active = false;
         if (data.maintenanceMode) {
           // If user is Admin, bypass maintenance mode
           if (userInfo && (userInfo.role === "admin" || userInfo.role === "superadmin" || userInfo.role === "super_admin")) {
-            setIsMaintenanceActive(false);
-            return;
-          }
-
-          // If user exists, check profile (to test if whitelisted)
-          if (userInfo) {
+            active = false;
+          } else if (userInfo) {
+            // If user exists, check profile (to test if whitelisted)
             try {
               await axios.get(`${baseURL}/api/auth/profile`, {
                 headers: { Authorization: `Bearer ${userInfo.token}` }
               });
-              setIsMaintenanceActive(false);
+              active = false;
             } catch (err) {
               if (err.response && err.response.status === 503) {
-                setIsMaintenanceActive(true);
+                active = true;
               } else {
-                setIsMaintenanceActive(false);
+                active = false;
               }
             }
           } else {
             // Public user - block
-            setIsMaintenanceActive(true);
+            active = true;
           }
         } else {
-          setIsMaintenanceActive(false);
+          active = false;
         }
+
+        setIsMaintenanceActive(active);
+        try {
+          localStorage.setItem('maintenanceMode', String(active));
+        } catch {}
       } catch (err) {
         console.error("Error checking maintenance status:", err);
       } finally {
